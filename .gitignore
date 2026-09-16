@@ -1,0 +1,19 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# Packaging
+*.egg-info/
+
+# Test cache
+.pytest_cache/
+
+# Virtual environments
+.venv/
+
+# OS artifacts
+Thumbs.db
+.DS_Store
+
+# Note: runs/, results/, and reports/ are intentionally tracked.
+# Committed run artifacts and reports are part of the reproducible demo.

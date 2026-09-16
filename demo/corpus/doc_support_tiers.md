@@ -1,0 +1,3 @@
+# Support Tiers
+
+Support options depend on the plan. Starter customers use the community forum, which is monitored by Northwind engineers but carries no response-time guarantee. Growth adds email support with a first response within 24 hours, available around the clock. Business includes priority support with a 4-hour response target during business hours, defined as 09:00 to 18:00 UTC from Monday to Friday, plus a named contact for escalations. Every plan can open tickets from the console, and each ticket automatically attaches the previous 24 hours of project logs to speed up diagnosis. Critical incidents on the Business plan are routed straight to the on-call engineer, and updates are posted to the ticket until the issue is resolved.

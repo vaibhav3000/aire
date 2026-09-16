@@ -1,0 +1,3 @@
+# Data Export
+
+You can export your data from Northwind Cloud at any time, and no plan restrictions apply. Open the console, go to Project Settings, then Export, and pick a format: JSON or CSV. Logs, metrics, and billing history are exported separately, and database dumps are produced with the standard pg_dump and mysqldump tools. Processing time is up to 48 hours, although most exports finish in under 30 minutes. When the archive is ready, a signed download link is sent by email and remains valid for 7 days. Archives larger than 50 GB are delivered to your object storage bucket instead. Exports never count against bandwidth quotas and never cause downtime.

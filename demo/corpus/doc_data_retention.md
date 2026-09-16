@@ -1,0 +1,3 @@
+# Data Retention
+
+Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed. Database point-in-time recovery is available for the entire 7-day backup window on every plan. When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule. Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible. Audit records required for compliance are kept for 12 months and cannot be deleted early. Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project.

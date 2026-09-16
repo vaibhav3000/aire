@@ -1,0 +1,16 @@
+{
+  "run_id": "run_4b4f7183",
+  "name": "v1_baseline",
+  "created_at": 1789573263.5693307,
+  "system_config": {
+    "top_k": 1,
+    "min_score": 0.05,
+    "style": "faithful",
+    "weighting": "overlap",
+    "allow_irrelevant": false
+  },
+  "dataset_path": "C:\\Users\\vaibhav mahore\\Downloads\\CV Update\\aire\\demo\\eval_set.jsonl",
+  "dataset_sha256": "3aeffeecdc1f79d4d68bb1db28a00ae453dabf310500d17a1c76184fd769ce89",
+  "n_cases": 26,
+  "schema_version": "1.0"
+}

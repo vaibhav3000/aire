@@ -1,0 +1,3 @@
+# Encryption
+
+All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. Traffic is protected in transit with TLS 1.3 on every public endpoint; TLS 1.2 remains supported only for legacy clients. Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time. Each project receives a unique data key, and the same policy covers block volumes, object storage, and database snapshots. Backups inherit encryption at rest, so snapshots stay protected for their full 7-day retention period. Encryption is always on, cannot be disabled, and requires no configuration from customers.

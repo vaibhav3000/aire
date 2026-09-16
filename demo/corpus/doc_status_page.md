@@ -1,0 +1,3 @@
+# Status Page
+
+The Northwind Cloud status page is published at status.northwind.cloud and shows real-time health for every region and for core services such as the API, console, and dashboard. Incidents use three severity levels: severity 1 marks a full outage, severity 2 marks degraded performance, and severity 3 marks a minor issue without customer impact. Every incident page carries a timeline of updates, and subscribers can receive notifications by email, SMS, or webhook; per-region RSS feeds are also available. Severity 1 notifications are sent within 5 minutes of detection, while severity 3 updates are posted hourly. Past incidents stay searchable for 90 days, and planned maintenance is listed at least 48 hours before it begins.

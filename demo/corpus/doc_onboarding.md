@@ -1,0 +1,3 @@
+# Account Onboarding
+
+Setting up Northwind Cloud takes about ten minutes. First, sign up with an email address and verify email by clicking the confirmation link; unverified accounts expire after 24 hours. Second, create project from the dashboard by choosing a name and a default region. Third, open the console and generate an API key under Settings and then Keys; the secret is displayed only once, so copy it into a secure store. Fourth, install the CLI and run northwind login to connect it to the new account. A sample application can then be deployed with northwind deploy, and the Starter allowance becomes available immediately after signup. Additional team members can be invited later from the Members page.

@@ -1,0 +1,3 @@
+# Regions
+
+Northwind Cloud operates three regions: us-east (Virginia), eu-west (Ireland), and ap-south (Mumbai). Every project is pinned to one region at creation time, and the region cannot be changed later; moving requires creating a new project and migrating your workloads. Data residency is enforced at the region level, so storage, databases, and logs never leave the selected region, and backups stay inside the same geographic area. Round-trip latency between regions is typically under 150 ms. Regional latency can be previewed from the dashboard before the first deployment, and the status page lists current capacity for each location. Pricing is identical across all three regions, and every region runs the same hardware generation.

@@ -1,0 +1,3 @@
+# Uptime SLA
+
+Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan. Uptime is measured across all regions and excludes scheduled maintenance announced at least 48 hours in advance. If measured uptime falls below the target, customers can claim a service credit on the next invoice. The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee. Claims must be filed within 30 days of the incident through the support portal. The SLA does not cover failures caused by customer application code, third-party providers, or accounts that are past due.

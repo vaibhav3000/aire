@@ -1,0 +1,107 @@
+{
+  "summary": {
+    "labels": {
+      "baseline": "baseline",
+      "candidate": "candidate"
+    },
+    "n_improved": 2,
+    "n_regressed": 0,
+    "n_neutral": 7,
+    "verdict": "no regressions detected"
+  },
+  "metrics": [
+    {
+      "metric": "abstention_correct",
+      "direction": "higher",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "citation_coverage",
+      "direction": "higher",
+      "baseline": 0.7273,
+      "candidate": 0.7273,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "cost_usd",
+      "direction": "lower",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "groundedness",
+      "direction": "higher",
+      "baseline": 0.5682,
+      "candidate": 0.5682,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "keyword_recall",
+      "direction": "higher",
+      "baseline": 0.5758,
+      "candidate": 0.5758,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "latency_ms",
+      "direction": "lower",
+      "baseline": 0.215,
+      "candidate": 0.2227,
+      "delta": 0.0077,
+      "rel_delta": 0.0358,
+      "threshold": 0.1,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "retrieval_mrr",
+      "direction": "higher",
+      "baseline": 0.7727,
+      "candidate": 0.8333,
+      "delta": 0.0606,
+      "rel_delta": 0.0784,
+      "threshold": 0.02,
+      "verdict": "improved"
+    },
+    {
+      "metric": "retrieval_recall",
+      "direction": "higher",
+      "baseline": 0.7273,
+      "candidate": 0.9091,
+      "delta": 0.1818,
+      "rel_delta": 0.25,
+      "threshold": 0.02,
+      "verdict": "improved"
+    },
+    {
+      "metric": "total_tokens",
+      "direction": "lower",
+      "baseline": 82.5385,
+      "candidate": 83.1154,
+      "delta": 0.5769,
+      "rel_delta": 0.007,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    }
+  ],
+  "failure_count_deltas": {
+    "retrieval_miss": -1
+  }
+}

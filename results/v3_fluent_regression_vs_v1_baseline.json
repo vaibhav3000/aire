@@ -1,0 +1,347 @@
+{
+  "summary": {
+    "labels": {
+      "baseline": "baseline",
+      "candidate": "candidate"
+    },
+    "n_improved": 3,
+    "n_regressed": 2,
+    "n_neutral": 4,
+    "verdict": "regressions detected"
+  },
+  "metrics": [
+    {
+      "metric": "abstention_correct",
+      "direction": "higher",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "citation_coverage",
+      "direction": "higher",
+      "baseline": 0.7273,
+      "candidate": 0.0,
+      "delta": -0.7273,
+      "rel_delta": -1.0,
+      "threshold": 0.02,
+      "verdict": "regressed",
+      "attribution": [
+        {
+          "case_id": "refunds_request_window",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "rate_limit_tiers",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "sla_standard_uptime",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "retention_log_days",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "encryption_at_rest",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "onboarding_api_key",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "status_severities",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "support_growth_email",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "compliance_soc2",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "rate_limit_429",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "sla_credit_formula",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "refunds_exclusions",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "retention_early_deletion",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "encryption_key_rotation",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "support_business_priority",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "multi_business_uptime_support",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "multi_export_retention",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        }
+      ]
+    },
+    {
+      "metric": "cost_usd",
+      "direction": "lower",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "groundedness",
+      "direction": "higher",
+      "baseline": 0.5682,
+      "candidate": 0.0,
+      "delta": -0.5682,
+      "rel_delta": -1.0,
+      "threshold": 0.02,
+      "verdict": "regressed",
+      "attribution": [
+        {
+          "case_id": "retention_log_days",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "compliance_soc2",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "status_notifications",
+          "baseline": 1.0,
+          "candidate": 0.0,
+          "delta": -1.0
+        },
+        {
+          "case_id": "refunds_request_window",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "rate_limit_tiers",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "sla_standard_uptime",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "encryption_at_rest",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "onboarding_api_key",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "plans_starter_price",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "status_severities",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "support_growth_email",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "export_processing_time",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "regions_available",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "rate_limit_429",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "sla_credit_formula",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "multi_business_uptime_support",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "multi_export_retention",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "refunds_exclusions",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "retention_early_deletion",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "encryption_key_rotation",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "plans_overage",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        },
+        {
+          "case_id": "support_business_priority",
+          "baseline": 0.5,
+          "candidate": 0.0,
+          "delta": -0.5
+        }
+      ]
+    },
+    {
+      "metric": "keyword_recall",
+      "direction": "higher",
+      "baseline": 0.5758,
+      "candidate": 0.5758,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "latency_ms",
+      "direction": "lower",
+      "baseline": 0.215,
+      "candidate": 0.2023,
+      "delta": -0.0127,
+      "rel_delta": -0.0591,
+      "threshold": 0.1,
+      "verdict": "neutral"
+    },
+    {
+      "metric": "retrieval_mrr",
+      "direction": "higher",
+      "baseline": 0.7727,
+      "candidate": 0.8485,
+      "delta": 0.0758,
+      "rel_delta": 0.0981,
+      "threshold": 0.02,
+      "verdict": "improved"
+    },
+    {
+      "metric": "retrieval_recall",
+      "direction": "higher",
+      "baseline": 0.7273,
+      "candidate": 0.9545,
+      "delta": 0.2272,
+      "rel_delta": 0.3124,
+      "threshold": 0.02,
+      "verdict": "improved"
+    },
+    {
+      "metric": "total_tokens",
+      "direction": "lower",
+      "baseline": 82.5385,
+      "candidate": 72.4615,
+      "delta": -10.077,
+      "rel_delta": -0.1221,
+      "threshold": 0.02,
+      "verdict": "improved"
+    }
+  ],
+  "failure_count_deltas": {
+    "incomplete_answer": -9,
+    "retrieval_miss": -1,
+    "ungrounded": 22
+  }
+}

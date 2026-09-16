@@ -1,0 +1,3 @@
+# Billing Plans
+
+Northwind Cloud sells three plans. Starter costs 19 USD per month and includes 100 GB of egress traffic, 10 GB of storage, and one team seat. Growth costs 79 USD per month with 1 TB of egress, 100 GB of storage, and three seats. Business costs 299 USD per month with 5 TB of egress, 1 TB of storage, and unlimited seats. All plans are billed monthly in advance and can be canceled at any time, which stops the next invoice. Overage is billed at 0.08 USD per additional GB of egress. Upgrades apply immediately from the billing console, while downgrades take effect at the start of the next billing cycle. Annual billing saves the equivalent of two months per year.

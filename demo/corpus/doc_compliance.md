@@ -1,0 +1,3 @@
+# Compliance
+
+Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center. The information security management system is ISO 27001 certified across all three regions. A GDPR data processing agreement (DPA) can be requested from the billing console or by writing to the legal team, and signed copies are returned within 3 business days. The subprocessor list is public, and customers receive 30 days notice before a new subprocessor is added. Independent penetration tests run twice per year, and executive summaries are shared on request. Customer data is never used for advertising or for training machine learning models.
