@@ -99,6 +99,45 @@ while citation coverage 0.7273 -> 0.6818, latency 0.3 ms -> 15.3 s and tokens
 measurement, and the report prices the whole trade-off rather than a single
 number.
 
+## Trace model and failure taxonomy
+
+Every invocation is one validated trace (answer, retrieved docs, spans, token
+usage, error); evaluation reads traces, never re-runs the system.
+
+```mermaid
+flowchart LR
+    T["Trace: run_id, case_id, system_config"] --> A["final_answer + citations"]
+    T --> R["retrieved_doc_ids"]
+    T --> S["spans: timed steps"]
+    T --> U["usage: tokens (source: heuristic or api)"]
+    T --> E["error (if invocation failed)"]
+```
+
+```mermaid
+flowchart TD
+    err{"trace.error?"} -->|"yes"| INV["invocation_error"]
+    err -->|"no"| abs{"expect_abstention?"}
+    abs -->|"answered"| MISS["missed_abstention"]
+    abs -->|"abstained"| OK["success"]
+    abs -->|"no"| ab{"abstained?"}
+    ab -->|"yes"| WRONG["wrong_abstention"]
+    ab -->|"no"| gr{"groundedness < 0.5?"}
+    gr -->|"yes"| UNG["ungrounded"]
+    gr -->|"no"| kr{"keyword_recall < 0.5?"}
+    kr -->|"yes"| INC["incomplete_answer"]
+    kr -->|"no"| ret{"retrieval_recall < 1.0?"}
+    ret -->|"yes"| RM["retrieval_miss"]
+    ret -->|"no"| GOOD["success"]
+    style INV fill:#f5d5d3
+    style MISS fill:#f5d5d3
+    style WRONG fill:#f5d5d3
+    style UNG fill:#f5d5d3
+    style INC fill:#f5d5d3
+    style RM fill:#f5d5d3
+    style OK fill:#d4f0d4
+    style GOOD fill:#d4f0d4
+```
+
 ## Installation
 
 Requires Python >= 3.10. AIRE has zero runtime dependencies; `pytest` is the only dev dependency.
