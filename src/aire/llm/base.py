@@ -24,6 +24,7 @@ class SUTResult:
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     # Optional per-step detail consumed by the runner for spans/usage:
     prompt_text: str = ""
+    usage: dict[str, Any] | None = None  # {"prompt_tokens","completion_tokens","token_source"}
     error: str | None = None
 
 

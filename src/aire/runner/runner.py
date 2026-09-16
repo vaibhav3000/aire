@@ -110,6 +110,12 @@ class ExperimentRunner:
                 trace.final_answer = result.answer
                 trace.retrieved_doc_ids = list(result.retrieved_doc_ids)
                 trace.tool_calls = list(result.tool_calls)
+                if result.error:
+                    # The system under test failed internally (e.g. provider
+                    # error); surface it as the trace error so the failure
+                    # taxonomy classifies it as invocation_error, not as an
+                    # empty answer.
+                    trace.error = result.error
                 trace.spans.append(
                     Span(
                         kind="generation",
@@ -119,19 +125,27 @@ class ExperimentRunner:
                         attributes={"attempt": attempt + 1},
                     )
                 )
-                prompt_tokens = (
-                    estimate_tokens(result.prompt_text)
-                    if self.config.heuristic_tokens
-                    else 0
-                )
-                completion_tokens = (
-                    estimate_tokens(result.answer or "") if self.config.heuristic_tokens else 0
-                )
-                trace.usage = Usage(
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    token_source="heuristic" if self.config.heuristic_tokens else "none",
-                )
+                if result.usage:
+                    # Real API usage reported by the system under test.
+                    trace.usage = Usage(
+                        prompt_tokens=int(result.usage.get("prompt_tokens", 0)),
+                        completion_tokens=int(result.usage.get("completion_tokens", 0)),
+                        token_source=result.usage.get("token_source", "api"),
+                    )
+                else:
+                    prompt_tokens = (
+                        estimate_tokens(result.prompt_text)
+                        if self.config.heuristic_tokens
+                        else 0
+                    )
+                    completion_tokens = (
+                        estimate_tokens(result.answer or "") if self.config.heuristic_tokens else 0
+                    )
+                    trace.usage = Usage(
+                        prompt_tokens=prompt_tokens,
+                        completion_tokens=completion_tokens,
+                        token_source="heuristic" if self.config.heuristic_tokens else "none",
+                    )
                 last_error = None
                 break
             except Exception as exc:  # noqa: BLE001 - recorded, retried, classified

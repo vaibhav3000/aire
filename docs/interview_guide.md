@@ -107,3 +107,32 @@ Implement `SystemUnderTest` (one method, `invoke(case_input, case_context) -> SU
 ### Q24. What are the current limitations you would state to a reviewer?
 
 From the README's limitations section, in descending order of importance: lexical groundedness is a citation-hygiene proxy that paraphrase can defeat, not entailment; the demo SUT is a deterministic stand-in, so committed latency and token figures characterize the harness, not an LLM; token counts are heuristic and labelled as such; abstention is a measured open gap requiring semantic matching; retrieval ground truth is hand-declared for a 12-document corpus and does not scale as-is; and the thread-based timeout bounds the runner's wait but cannot kill a hung call in Python. Each limitation is documented where the relevant code lives rather than in a disclaimer nobody reads.
+
+
+## Deterministic vs real-LLM mode
+
+**Why evaluate both a deterministic responder and a real LLM on the same suite?**
+The deterministic responder is a calibration harness: every number is
+reproducible, so evaluator bugs (like the citation-attachment bug found during
+development) show up as metric changes instead of being hidden inside LLM
+noise. The real-LLM run then shows what the evaluator says about a genuine
+model. The two are stored separately (`llm_eval_results.json` vs the
+deterministic run artifacts) and compared only through the regression engine,
+which labels every delta.
+
+**What did the real LLM change on this suite?**
+Measured (2026-09-16, gemini-2.5-flash): perfect abstention on all four
+unanswerable questions where both deterministic versions scored zero - a real
+capability gain the regression engine flags as improved. Groundedness of its
+cited answers was 1.0 under the same lexical judge. The costs were equally
+real: lower keyword recall than extractive quoting, seconds of latency per
+case, and hundreds of tokens per answer. The evaluator surfaces the
+trade-off instead of a one-number verdict.
+
+**What does the timeout incident demonstrate?**
+The first LLM sweep lost 14 of 26 cases to the runner's 30-second invocation
+watchdog (thinking models generate for 30-90s). The failure taxonomy classed
+them as `invocation_error` - correctly, since the SYSTEM under test failed to
+answer in time, whatever the cause. Raising the runner timeout and re-running
+is the operational lesson: reliability configuration is part of the system
+under test, and the evaluator made the failure visible instead of silent.

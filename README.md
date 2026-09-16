@@ -75,6 +75,30 @@ Regression verdicts:
 
 `abstention_correct` is 0.0 for both v1 and v2. The unanswerable questions in the eval set are never refused. The measured reason: top retrieval scores for unanswerable queries fall between 0.18 and 0.46, while the minimum top scores for answerable queries fall between 0.19 and 0.26. The two ranges overlap, so no calibrated `min_score` threshold can separate answerable from unanswerable inputs. Deciding answerability requires semantic matching, which a bag-of-words retriever cannot do. The evaluator earns its place here: the metric exposed a real capability gap rather than hiding it behind an average. See `docs/interview_guide.md`.
 
+## Real-LLM mode (recorded separately)
+
+`python scripts/run_llm_eval.py` re-runs the same 26-case suite with an
+`OpenAIChatResponder`: local IDF-weighted retrieval, real LLM generation
+(gemini-2.5-flash via an OpenAI-compatible endpoint, temperature 0, API key
+from the environment). The groundedness judge, failure taxonomy and regression
+engine apply unchanged to real LLM answers. Results are stored separately from
+the deterministic demo:
+
+- `results/llm_eval_results.json` - per-case results, aggregates, real API token counts
+- `results/llm_vs_deterministic.json` + `reports/llm_vs_deterministic_v2.html` - regression-engine comparison against deterministic v2
+
+Real-LLM mode is nondeterministic and slower; the deterministic demo remains
+the reproducible baseline. Measured run (2026-09-16, gemini-2.5-flash,
+committed in `results/llm_eval_results.json`): 17/26 cases clean, with the
+regression engine reporting vs deterministic v2 - abstention 0.0 -> 1.0
+(improved: the LLM abstains correctly on all four unanswerable cases where
+both deterministic versions answer), groundedness 0.5682 -> 1.0 (improved),
+while citation coverage 0.7273 -> 0.6818, latency 0.3 ms -> 15.3 s and tokens
+83 -> 605 per case regressed. Six cases failed on provider rate limits
+(recorded as invocation errors) - operational reliability is part of the
+measurement, and the report prices the whole trade-off rather than a single
+number.
+
 ## Installation
 
 Requires Python >= 3.10. AIRE has zero runtime dependencies; `pytest` is the only dev dependency.
