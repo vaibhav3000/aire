@@ -222,6 +222,12 @@ aire/
         trace_schema.md       trace JSON schema and run directory layout
 ```
 
+## Technical Report
+
+A concise IEEE-style technical paper documenting this system is available at
+[reports/AIRE_AI_Reliability_Evaluation_Engine.pdf](reports/AIRE_AI_Reliability_Evaluation_Engine.pdf),
+with LaTeX source and report figures under `reports/`.
+
 ## Limitations
 
 Stated plainly, because an evaluation tool that oversells itself is worthless:
