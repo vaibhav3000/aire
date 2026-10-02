@@ -1,8 +1,11 @@
 """Minimal OpenAI-compatible chat client for AIRE (stdlib only).
 
-Shared design with repo-engineer's llm_provider: one provider class for any
-OpenAI-style endpoint, API key read from the environment at call time and
-never persisted.
+Deliberately near-identical to repo-engineer's llm_provider: both projects stay
+zero-dependency standalone repos, so the small client is duplicated and kept in
+sync by hand rather than extracted into a shared package.
+
+Shared design: one provider class for any OpenAI-style endpoint, API key read
+from the environment at call time and never persisted.
 """
 
 from __future__ import annotations

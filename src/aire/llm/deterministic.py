@@ -17,6 +17,7 @@ groundedness judge should catch.
 
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -70,8 +71,6 @@ class KeywordRetriever:
             for keywords in self._doc_keywords.values():
                 for w in keywords:
                     df[w] = df.get(w, 0) + 1
-            import math
-
             self._idf = {w: math.log(n_docs / max(count, 1)) for w, count in df.items()}
         self._default_idf = math.log(n_docs + 1) if n_docs else 1.0
 

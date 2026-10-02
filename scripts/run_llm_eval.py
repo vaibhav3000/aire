@@ -80,7 +80,7 @@ def main() -> None:
             if manifest.get("name") == "v2_improved":
                 candidates.append((manifest.get("created_at", 0.0), d))
     if candidates:
-        det_run_dir = max(candidates)[1]  # the most recent v2 run by manifest time
+        det_run_dir = max(candidates, key=lambda item: item[0])[1]  # latest by manifest time
     elif (ROOT / "results" / "v2_improved" / "eval_results.json").exists():
         # runs/ is not tracked in git; the curated copy in results/ is the
         # canonical deterministic baseline when no local run directory exists.

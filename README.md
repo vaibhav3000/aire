@@ -171,7 +171,7 @@ Outputs:
 - `results/v2_improved_vs_v1_baseline.json` and `results/v3_fluent_regression_vs_v1_baseline.json`: regression reports
 - `reports/v2_improved_vs_v1_baseline.html` and `reports/v3_fluent_regression_vs_v1_baseline.html`: static dashboards (open in a browser)
 
-Run the test suite (24 tests):
+Run the test suite (27 tests):
 
 ```bash
 python -m pytest tests/ -q
@@ -215,7 +215,7 @@ aire/
         eval_set.jsonl        26 evaluation cases
         corpus/               12 Northwind Cloud documentation files
         validate_eval_set.py
-    tests/test_aire.py        24 tests
+    tests/test_aire.py        27 tests
     runs/                     stored run directories (gitignored; results/ holds the curated copies)
     results/                  committed JSON reports (tracked)
     reports/                  committed HTML reports (tracked)

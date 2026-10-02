@@ -2,6 +2,7 @@
 
 import json
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ from aire.evaluator import metrics as M  # noqa: E402
 from aire.evaluator import retrieval_metrics as R  # noqa: E402
 from aire.evaluator import tool_metrics as T  # noqa: E402
 from aire.evaluator.engine import EngineConfig, EvaluationEngine, classify_failure  # noqa: E402
+from aire.llm.base import SUTResult, SystemUnderTest  # noqa: E402
 from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever  # noqa: E402
 from aire.regression import RegressionThresholds, compare_runs  # noqa: E402
 from aire.runner.dataset import EvalCase, load_eval_dataset  # noqa: E402
@@ -322,3 +324,73 @@ def test_html_report_renders(tmp_path: Path) -> None:
     out2 = render_comparison_report(comparison, results, results, tmp_path / "cmp.html")
     text = out2.read_text(encoding="utf-8")
     assert "no regressions detected" in text
+
+
+# ---------------------------------------------------------------- runner resilience
+
+
+class _FlakySUT(SystemUnderTest):
+    """Fails the first N invocations, then answers."""
+
+    name = "flaky"
+    config = {"kind": "flaky"}
+
+    def __init__(self, fail_times: int) -> None:
+        self.fail_times = fail_times
+        self.calls = 0
+
+    def invoke(self, case_input: str, case_context=None) -> SUTResult:
+        self.calls += 1
+        if self.calls <= self.fail_times:
+            raise RuntimeError("transient failure")
+        return SUTResult(answer="I don't know.", prompt_text=case_input)
+
+
+def _one_case_ds(tmp_path: Path) -> Path:
+    ds = tmp_path / "ds.jsonl"
+    ds.write_text(json.dumps({"case_id": "c1", "input": "q", "must_cite": False}) + "\n")
+    return ds
+
+
+def test_runner_timeout_becomes_invocation_error(tmp_path):
+    class _SlowSUT(SystemUnderTest):
+        name = "slow"
+        config = {}
+
+        def invoke(self, case_input: str, case_context=None) -> SUTResult:
+            time.sleep(1.0)
+            return SUTResult(answer="late")
+
+    ds = _one_case_ds(tmp_path)
+    runner = ExperimentRunner(_SlowSUT(), RunnerConfig(timeout_s=0.2))
+    run_dir = runner.run(ds, runs_root=tmp_path, run_name="slow")
+    traces = load_run_traces(run_dir)
+    assert traces[0].error and "timeout" in traces[0].error.lower()
+    results = EvaluationEngine().evaluate_run(traces, load_eval_dataset(ds))
+    assert results["per_case"][0]["failure"] == "invocation_error"
+
+
+def test_runner_retry_then_success(tmp_path):
+    ds = _one_case_ds(tmp_path)
+    sut = _FlakySUT(fail_times=1)
+    runner = ExperimentRunner(
+        sut, RunnerConfig(timeout_s=5, max_retries=1, retry_backoff_s=0.01)
+    )
+    run_dir = runner.run(ds, runs_root=tmp_path, run_name="flaky")
+    traces = load_run_traces(run_dir)
+    assert traces[0].error is None and traces[0].final_answer == "I don't know."
+    assert traces[0].spans[0].attributes["attempt"] == 2
+    assert sut.calls == 2
+
+
+def test_runner_retries_exhausted(tmp_path):
+    ds = _one_case_ds(tmp_path)
+    sut = _FlakySUT(fail_times=99)
+    runner = ExperimentRunner(
+        sut, RunnerConfig(timeout_s=5, max_retries=1, retry_backoff_s=0.01)
+    )
+    run_dir = runner.run(ds, runs_root=tmp_path, run_name="flaky")
+    traces = load_run_traces(run_dir)
+    assert traces[0].error and "transient failure" in traces[0].error
+    results = EvaluationEngine().evaluate_run(traces, load_eval_dataset(ds))
+    assert results["per_case"][0]["failure"] == "invocation_error"
