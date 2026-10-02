@@ -15,6 +15,13 @@ from ..llm.deterministic import content_keywords
 _CITATION_RE = re.compile(r"\[doc:([\w.\-]+)\]")
 _SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 
+# The single source of truth for what counts as an abstention. Deliberately a
+# fixed phrase set, not configurable: the demo SUT emits exactly one of these,
+# and the real-LLM system prompt (openai_compat.py) mandates the same sentence.
+# A third-party SUT that abstains with different wording is NOT detected —
+# see tests/test_aire.py::test_third_party_abstention_phrasing_is_not_detected.
+ABSTENTION_PHRASES = frozenset({"i don't know", "i do not know", "i don't know."})
+
 
 def normalize(text: str) -> str:
     """Lowercase and collapse whitespace for robust text comparison."""
@@ -44,10 +51,14 @@ def keyword_recall(answer: str | None, expected_keywords: list[str]) -> float:
 
 
 def abstained(answer: str | None) -> bool:
-    """True when the answer is the configured abstention phrase or empty."""
+    """True when the answer is a configured abstention phrase or empty.
+
+    Coupling note: recognition is exact-phrase against ABSTENTION_PHRASES.
+    Other refusal wordings are treated as answers.
+    """
     if not answer:
         return True
-    return normalize(answer) in {"i don't know", "i do not know", "i don't know."}
+    return normalize(answer) in ABSTENTION_PHRASES
 
 
 def citation_ids(answer: str | None) -> list[str]:
@@ -63,22 +74,6 @@ def citation_coverage(answer: str | None, supporting_doc_ids: list[str]) -> floa
         return 1.0
     cited = set(citation_ids(answer))
     return sum(1 for d in supporting_doc_ids if d in cited) / len(supporting_doc_ids)
-
-
-def json_validity(answer: str | None) -> float | None:
-    """1.0/0.0 if the answer is expected to be JSON; None when not applicable.
-
-    Applicability is decided by the engine (case expectations), not here.
-    """
-    if answer is None or not answer.strip():
-        return 0.0
-    import json
-
-    try:
-        json.loads(answer)
-        return 1.0
-    except json.JSONDecodeError:
-        return 0.0
 
 
 def groundedness(answer: str | None, corpus: dict[str, str]) -> float | None:

@@ -69,8 +69,10 @@ def main() -> None:
     versions = {
         "v1_baseline": ExtractiveRAG("v1_baseline", corpus, top_k=1, min_score=0.05),
         "v2_improved": ExtractiveRAG("v2_improved", corpus, top_k=3, min_score=0.05, weighting="idf"),
+        # Same retrieval as v2 (idf); the only change is the fluent style, so the
+        # regression the evaluator catches is attributable to the style change.
         "v3_fluent_regression": ExtractiveRAG(
-            "v3_fluent_regression", corpus, top_k=3, min_score=0.05, style="fluent"
+            "v3_fluent_regression", corpus, top_k=3, min_score=0.05, weighting="idf", style="fluent"
         ),
     }
 

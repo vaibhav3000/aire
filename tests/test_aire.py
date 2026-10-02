@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from aire.evaluator import metrics as M  # noqa: E402
 from aire.evaluator import retrieval_metrics as R  # noqa: E402
 from aire.evaluator import tool_metrics as T  # noqa: E402
-from aire.evaluator.engine import EvaluationEngine, classify_failure  # noqa: E402
+from aire.evaluator.engine import EngineConfig, EvaluationEngine, classify_failure  # noqa: E402
 from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever  # noqa: E402
 from aire.regression import RegressionThresholds, compare_runs  # noqa: E402
 from aire.runner.dataset import EvalCase, load_eval_dataset  # noqa: E402
@@ -209,11 +209,25 @@ def test_engine_aggregates_and_failures(tmp_path: Path) -> None:
 
 
 def test_engine_flags_missed_abstention(tmp_path: Path) -> None:
-    # allow_irrelevant forces an answer even with zero retrieval score.
-    run_dir = _make_run(tmp_path, abstain_bug=True)
-    results = json.loads((run_dir / "eval_results.json").read_text(encoding="utf-8"))
+    """End-to-end: an unanswerable question that shares vocabulary with the
+    corpus gets answered by the extractive SUT (zero retrieval score only
+    abstains via min_score), and the engine must flag missed_abstention."""
+    sut = ExtractiveRAG("t", CORPUS, top_k=1, min_score=0.05)
+    ds = tmp_path / "ds.jsonl"
+    ds.write_text(
+        json.dumps({"case_id": "c1", "input": "What is the refund window for annual plans?",
+                    "expected_keywords": ["30 days"], "supporting_doc_ids": ["doc_a"]}) + "\n" +
+        json.dumps({"case_id": "c2", "input": "Do API rate limits differ for enterprise customers?",
+                    "expect_abstention": True, "must_cite": False}) + "\n"
+    )
+    runner = ExperimentRunner(sut, RunnerConfig(timeout_s=5))
+    run_dir = runner.run(ds, runs_root=tmp_path, run_name="r")
+    engine = EvaluationEngine(corpus=CORPUS)
+    results = engine.evaluate_run(load_run_traces(run_dir), load_eval_dataset(ds))
     by_case = {r["case_id"]: r for r in results["per_case"]}
     assert by_case["c2"]["failure"] == "missed_abstention"
+    assert by_case["c2"]["abstention_correct"] == 0.0
+    assert by_case["c1"]["failure"] is None
 
 
 def test_classify_failure_priority() -> None:
@@ -222,10 +236,51 @@ def test_classify_failure_priority() -> None:
     assert classify_failure(trace, case, {}) == "invocation_error"
 
 
+def test_classify_failure_uses_configured_thresholds() -> None:
+    """EngineConfig thresholds must gate the taxonomy, not be decorative."""
+    case = EvalCase(case_id="c", input="q", expected_keywords=["x"], supporting_doc_ids=["doc_a"])
+    trace = Trace(run_id="r", case_id="c", system_config={},
+                  final_answer="answer text [doc:doc_a]")
+    result = {"groundedness": 0.7, "keyword_recall": 0.9, "retrieval_recall": 1.0}
+    assert classify_failure(trace, case, result) is None
+    assert classify_failure(trace, case, result, groundedness_threshold=0.9) == "ungrounded"
+    result_kw = {"groundedness": 1.0, "keyword_recall": 0.7, "retrieval_recall": 1.0}
+    assert classify_failure(trace, case, result_kw) is None
+    assert classify_failure(trace, case, result_kw, keyword_threshold=0.9) == "incomplete_answer"
+
+
+def test_engine_threshold_configuration_changes_classification(tmp_path: Path) -> None:
+    """Engine-level seam: a stricter groundedness threshold flags the same trace
+    as ungrounded where the default threshold does not."""
+    case = EvalCase(case_id="c", input="q", supporting_doc_ids=["doc_a"])
+    trace = Trace(run_id="r", case_id="c", system_config={},
+                  final_answer="Credits are issued to the account [doc:doc_a]. "
+                               "We offer telepathic support [doc:doc_a].")
+    default = EvaluationEngine(corpus=CORPUS).evaluate_case(trace, case)
+    assert default["groundedness"] == 0.5
+    assert default["failure"] is None
+    strict = EvaluationEngine(
+        corpus=CORPUS, config=EngineConfig(groundedness_threshold=0.9)
+    ).evaluate_case(trace, case)
+    assert strict["failure"] == "ungrounded"
+
+
+def test_third_party_abstention_phrasing_is_not_detected() -> None:
+    """Documents the deliberate coupling: only the configured phrases count as
+    abstention. A third-party SUT that abstains with different wording is
+    classified as answering (missed_abstention on unanswerable cases)."""
+    assert M.abstained("I don't know.") is True
+    assert M.abstained("Unfortunately, no such policy exists.") is False
+    case = EvalCase(case_id="c2", input="q", expect_abstention=True, must_cite=False)
+    trace = Trace(run_id="r", case_id="c2", system_config={},
+                  final_answer="Unfortunately, no such policy exists.")
+    assert classify_failure(trace, case, {}) == "missed_abstention"
+
+
 # ---------------------------------------------------------------- regression
 
 
-def test_engine_flags_missed_abstention() -> None:
+def test_classify_failure_missed_abstention() -> None:
     """Classifier unit test: answering an unanswerable case is 'missed_abstention'."""
     case = EvalCase(case_id="c2", input="q", expect_abstention=True, must_cite=False)
     trace = Trace(run_id="r", case_id="c2", system_config={}, final_answer="Sure, we do!")

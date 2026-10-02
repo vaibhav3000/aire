@@ -15,5 +15,6 @@ __pycache__/
 Thumbs.db
 .DS_Store
 
-# Note: runs/, results/, and reports/ are intentionally tracked.
-# Committed run artifacts and reports are part of the reproducible demo.
+# Raw run directories are local working artifacts; the curated, verified
+# copies live in results/ (tracked). reports/ HTML is tracked.
+runs/

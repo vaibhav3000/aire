@@ -10,7 +10,6 @@ measurement instrument that itself needs evaluation.
 
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import Any
 
 from ..llm.base import Judge
@@ -68,16 +67,3 @@ class LLMJudge(Judge):
                 "warning": "model-based judge; validate against human labels before trusting",
             },
         }
-
-
-class RubricJudge(Judge):
-    """Abstract base for rubric-based judges with an explicit rubric."""
-
-    name = "rubric_judge"
-
-    @abstractmethod
-    def rubric(self) -> dict[str, Any]:
-        ...
-
-    def score(self, trace: Trace, context: dict[str, Any]) -> dict[str, Any]:
-        raise NotImplementedError

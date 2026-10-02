@@ -1,5 +1,7 @@
 # AIRE: AI Reliability and Evaluation Engine
 
+[![CI](https://github.com/vaibhav3000/aire/actions/workflows/ci.yml/badge.svg)](https://github.com/vaibhav3000/aire/actions/workflows/ci.yml)
+
 AIRE is a trace-based evaluation framework for LLM, RAG, and agent systems. It records what a system actually did (retrieved documents, tool calls, token usage, latencies), scores those records with deterministic metrics and pluggable judges, classifies failures into a fixed taxonomy, and compares runs to detect regressions between system versions.
 
 ## The problem
@@ -60,8 +62,8 @@ Aggregate results from the committed run (`results/`):
 
 | Metric | v1 baseline | v2 improved | v3 fluent |
 | --- | --- | --- | --- |
-| retrieval_recall | 0.7273 | 0.9091 | 0.9545 |
-| retrieval_mrr | 0.7727 | 0.8333 | 0.8485 |
+| retrieval_recall | 0.7273 | 0.9091 | 0.9091 |
+| retrieval_mrr | 0.7727 | 0.8333 | 0.8333 |
 | citation_coverage | 0.7273 | 0.7273 | 0.0000 |
 | groundedness | 0.5682 | 0.5682 | 0.0000 |
 | abstention_correct | 0.0 | 0.0 | 0.0 |
@@ -69,7 +71,7 @@ Aggregate results from the committed run (`results/`):
 Regression verdicts:
 
 - **v2 vs v1: no regressions detected** (2 improved, 7 neutral, 0 regressed). `retrieval_recall` improved from 0.7273 to 0.9091 and `retrieval_mrr` from 0.7727 to 0.8333; everything else held.
-- **v3 vs v1: regressions detected** (2 regressed, 3 improved, 4 neutral). `citation_coverage` fell from 0.7273 to 0.0 and `groundedness` from 0.5682 to 0.0, because the fluent style drops citations. At the same time retrieval metrics improved (`retrieval_recall` 0.7273 to 0.9545, `retrieval_mrr` 0.7727 to 0.8485) and mean latency moved lower (0.215 ms to 0.2023 ms, inside the 10 percent noise threshold). Failure-count deltas: `ungrounded` +22, `incomplete_answer` -9, `retrieval_miss` -1. The report surfaces the fluency-versus-grounding trade-off instead of a single pass/fail number.
+- **v3 vs v1: regressions detected** (3 regressed, 3 improved, 3 neutral). `citation_coverage` fell from 0.7273 to 0.0 and `groundedness` from 0.5682 to 0.0, because the fluent style drops citations. Retrieval improved exactly as in v2 (`retrieval_recall` 0.7273 to 0.9091, `retrieval_mrr` 0.7727 to 0.8333) and mean tokens dropped (83 to 73), while mean latency rose from 0.215 ms to 0.356 ms - idf-weighted retrieval does slightly more work per query, and the engine reports it as a regressed cost metric rather than hiding it behind the grounding collapse. Failure-count deltas: `ungrounded` +22, `incomplete_answer` -9, `retrieval_miss` -1. The report surfaces the fluency-versus-grounding trade-off instead of a single pass/fail number.
 
 ### A finding the evaluator surfaced: abstention does not work
 
@@ -169,7 +171,7 @@ Outputs:
 - `results/v2_improved_vs_v1_baseline.json` and `results/v3_fluent_regression_vs_v1_baseline.json`: regression reports
 - `reports/v2_improved_vs_v1_baseline.html` and `reports/v3_fluent_regression_vs_v1_baseline.html`: static dashboards (open in a browser)
 
-Run the test suite (20 tests):
+Run the test suite (24 tests):
 
 ```bash
 python -m pytest tests/ -q
@@ -213,8 +215,8 @@ aire/
         eval_set.jsonl        26 evaluation cases
         corpus/               12 Northwind Cloud documentation files
         validate_eval_set.py
-    tests/test_aire.py        20 tests
-    runs/                     stored run directories (tracked)
+    tests/test_aire.py        24 tests
+    runs/                     stored run directories (gitignored; results/ holds the curated copies)
     results/                  committed JSON reports (tracked)
     reports/                  committed HTML reports (tracked)
     docs/
@@ -235,7 +237,7 @@ Stated plainly, because an evaluation tool that oversells itself is worthless:
 - **Lexical groundedness is a proxy, not entailment.** The `groundedness` metric checks whether the content keywords of each cited sentence appear in the cited document (>= 50 percent overlap). It is cheap, deterministic, and auditable, but it can be fooled by paraphrases that share vocabulary with the source, and it may undercount legitimate rewordings. It measures citation hygiene, not semantic faithfulness.
 - **The demo system under test is not an LLM.** `ExtractiveRAG` is a deterministic stand-in so that every committed number is exactly reproducible without network access or keys. The `SystemUnderTest` interface is the integration point for real LLM applications; nothing in the evaluator assumes a deterministic system.
 - **Token counts are heuristic.** Without a real API response, usage is estimated at roughly 4 characters per token and labelled `token_source: "heuristic"` in every trace. Cost figures built on heuristic tokens are indicative only; the demo price table is 0 USD per 1k tokens for exactly this reason.
-- **Abstention is an open gap in the demo.** As described above, keyword-overlap scoring cannot separate answerable from unanswerable queries (overlapping score ranges), so `abstention_correct` is 0.0 across the demo versions. Fixing it requires semantic matching in the retriever or an answerability classifier.
+- **Abstention is an open gap in the demo.** As described above, keyword-overlap scoring cannot separate answerable from unanswerable queries (overlapping score ranges), so `abstention_correct` is 0.0 across the demo versions. Fixing it requires semantic matching in the retriever or an answerability classifier. Additionally, abstention *recognition* is deliberately exact-phrase: `metrics.ABSTENTION_PHRASES` is the single source of truth, the demo SUT emits exactly one of those phrases, and the real-LLM prompt mandates the same sentence. A third-party system under test that refuses with different wording is classified as answering.
 - **Retrieval ground truth is hand-declared.** Each case lists `supporting_doc_ids` by hand. Building reliable retrieval ground truth at scale is a separate, unsolved problem that this project does not pretend to solve.
 - **Thread-based timeout leaks.** The runner enforces invocation timeouts with a watchdog thread; Python threads cannot be killed, so a hung call leaks its worker thread. The watchdog bounds the runner's wait, not the underlying work.
 - **Latency in the demo is not LLM latency.** Sub-millisecond extractive answering says nothing about production latency behavior; the latency metric and its thresholds matter once a real system is attached.

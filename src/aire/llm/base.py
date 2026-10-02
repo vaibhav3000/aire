@@ -49,5 +49,5 @@ class Judge(abc.ABC):
 
     @abc.abstractmethod
     def score(self, trace: Trace, context: dict[str, Any]) -> dict[str, Any]:
-        """Return {"score": float|bool|None, "detail": str} — score in [0,1] or bool."""
+        """Return {"score": float|bool|None, "detail": str | dict}."""
         ...

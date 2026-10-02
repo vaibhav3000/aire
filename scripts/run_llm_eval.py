@@ -72,10 +72,19 @@ def main() -> None:
         json.dumps(results, indent=2), encoding="utf-8")
 
     det_run_dir = None
+    candidates = []
     for d in sorted((ROOT / "runs").glob("run_*")):
         m = d / "manifest.json"
-        if m.exists() and json.loads(m.read_text(encoding="utf-8")).get("name") == "v2_improved":
-            det_run_dir = d
+        if m.exists():
+            manifest = json.loads(m.read_text(encoding="utf-8"))
+            if manifest.get("name") == "v2_improved":
+                candidates.append((manifest.get("created_at", 0.0), d))
+    if candidates:
+        det_run_dir = max(candidates)[1]  # the most recent v2 run by manifest time
+    elif (ROOT / "results" / "v2_improved" / "eval_results.json").exists():
+        # runs/ is not tracked in git; the curated copy in results/ is the
+        # canonical deterministic baseline when no local run directory exists.
+        det_run_dir = ROOT / "results" / "v2_improved"
     if det_run_dir is not None:
         det_results = json.loads((det_run_dir / "eval_results.json").read_text(encoding="utf-8"))
         comparison = compare_runs(

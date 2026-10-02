@@ -23,7 +23,13 @@ from . import tool_metrics as T
 DEFAULT_PRICES: dict[str, float] = {"default": 0.0}
 
 
-def classify_failure(trace: Trace, case: EvalCase, case_result: dict[str, Any]) -> str | None:
+def classify_failure(
+    trace: Trace,
+    case: EvalCase,
+    case_result: dict[str, Any],
+    groundedness_threshold: float = 0.5,
+    keyword_threshold: float = 0.5,
+) -> str | None:
     """Map a case result to a failure category from a small, documented taxonomy.
 
     Taxonomy (mutually exclusive, first match wins):
@@ -44,10 +50,10 @@ def classify_failure(trace: Trace, case: EvalCase, case_result: dict[str, Any]) 
     if M.abstained(trace.final_answer):
         return "wrong_abstention"
     gr = case_result.get("groundedness")
-    if gr is not None and gr < 0.5:
+    if gr is not None and gr < groundedness_threshold:
         return "ungrounded"
     kr = case_result.get("keyword_recall")
-    if case.expected_keywords and kr is not None and kr < 0.5:
+    if case.expected_keywords and kr is not None and kr < keyword_threshold:
         return "incomplete_answer"
     if case.supporting_doc_ids:
         recall = case_result.get("retrieval_recall")
@@ -131,7 +137,11 @@ class EvaluationEngine:
         )
 
         # --- failure classification ---
-        result["failure"] = classify_failure(trace, case, result)
+        result["failure"] = classify_failure(
+            trace, case, result,
+            groundedness_threshold=self.config.groundedness_threshold,
+            keyword_threshold=self.config.keyword_threshold,
+        )
         return result
 
     def evaluate_run(
