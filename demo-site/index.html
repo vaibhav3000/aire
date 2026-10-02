@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIRE Trace Explorer - AI Reliability &amp; Evaluation Engine</title>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#1a1d21; --muted:#5c6470; --line:#e4e7eb; --panel:#f6f7f9;
+    --good:#0a7d33; --bad:#b3261e; --warn:#9a6b00; --accent:#0a7d33;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.55 ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  a{color:var(--accent)}
+  code,.mono{font-family:ui-monospace,"Cascadia Code",Consolas,Menlo,monospace;font-size:.92em}
+  header{border-bottom:1px solid var(--line);background:var(--panel)}
+  .bar{max-width:1080px;margin:0 auto;padding:14px 20px;display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+  .bar .name{font-weight:700}
+  .bar nav{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
+  .bar nav a{text-decoration:none;color:var(--ink);border-bottom:2px solid transparent;padding-bottom:2px}
+  .bar nav a:hover{border-bottom-color:var(--accent)}
+  main{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+  .hero h1{font-size:1.7rem;margin:.2em 0 .3em}
+  .hero p.lead{color:var(--muted);max-width:54rem;margin:.2em 0 1em}
+  .callout{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--panel);
+           border-radius:8px;padding:12px 16px;margin:14px 0}
+  .callout b{color:var(--ink)}
+  section{margin-top:40px}
+  h2{font-size:1.25rem;margin:0 0 4px;padding-bottom:6px;border-bottom:2px solid var(--accent);display:inline-block}
+  .sub{color:var(--muted);margin:6px 0 16px;max-width:56rem}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
+  .tabs button{border:1px solid var(--line);background:#fff;border-radius:8px 8px 0 0;
+    padding:8px 14px;font-size:.92rem;cursor:pointer;color:var(--ink)}
+  .tabs button[aria-selected="true"]{border-bottom:2px solid var(--accent);font-weight:600;background:var(--panel)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .chip{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 10px;font-size:.85rem}
+  .chip b{font-variant-numeric:tabular-nums}
+  .filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+  .filter select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;font:inherit}
+  details.case{border:1px solid var(--line);border-radius:8px;margin:8px 0;background:#fff}
+  details.case summary{cursor:pointer;padding:9px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;list-style:none}
+  details.case summary::-webkit-details-marker{display:none}
+  details.case summary:hover{background:var(--panel)}
+  .cid{font-weight:600;min-width:110px}
+  .fail{border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:600}
+  .fail.n{color:var(--good);background:#d4f0d4}
+  .fail.f{color:var(--bad);background:#f5d5d3}
+  .metrics-line{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+  .casebody{padding:4px 14px 14px;border-top:1px solid var(--line);font-size:.92rem}
+  .casebody h4{margin:12px 0 4px;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .casebody pre{white-space:pre-wrap;background:var(--panel);padding:8px 10px;border-radius:6px;margin:4px 0;font-size:.85rem}
+  table{border-collapse:collapse;width:100%;font-size:.9rem}
+  th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
+  th{background:var(--panel)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .v-good{color:var(--good);font-weight:600}.v-bad{color:var(--bad);font-weight:600}.v-neu{color:var(--muted)}
+  footer{border-top:1px solid var(--line);margin-top:56px;padding:18px 0 8px;color:var(--muted);font-size:.85rem}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <span class="name">AIRE &middot; AI Reliability &amp; Evaluation Engine</span>
+    <nav aria-label="project links">
+      <a href="https://github.com/vaibhav3000/aire">GitHub</a>
+      <a href="https://github.com/vaibhav3000/aire/blob/main/reports/AIRE_AI_Reliability_Evaluation_Engine.pdf">Technical report (PDF)</a>
+      <a href="https://github.com/vaibhav3000/aire/tree/main/results">Committed results</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Record, evaluate, compare - and catch what a pass/fail number hides</h1>
+    <p class="lead">AIRE is a trace-based evaluation framework for LLM/RAG systems. Every invocation is recorded as a
+      validated trace; deterministic metrics and a failure taxonomy score the records; a regression engine compares
+      versions metric-by-metric with per-case attribution. This explorer renders the committed evaluation of a small
+      RAG system - three deterministic versions plus one recorded live-LLM run.</p>
+    <div class="callout">
+      <b>What the evaluator caught in 60 seconds:</b> version 3 reads better and retrieves better
+      (recall 0.73 &rarr; 0.91) but silently drops every citation - <b>groundedness 0.57 &rarr; 0.00</b> across
+      22 ungrounded cases, flagged automatically as a regression. The live-LLM run then fixes abstention
+      (0.0 &rarr; 1.0) and grounding (1.0) at the price of 15&nbsp;s/case and ~605 tokens/case. No single number
+      tells this story; the metric set does.
+    </div>
+  </div>
+
+  <section aria-labelledby="explore-h">
+    <h2 id="explore-h">Explore a run</h2>
+    <p class="sub">Aggregate metrics first, then per-case evidence: open any case to see the recorded answer,
+      citations, retrieved documents, spans and token usage. Evaluation reads traces - the system is never re-run.</p>
+    <div class="tabs" role="tablist" aria-label="runs" id="tabs"></div>
+    <div id="run-panel"></div>
+  </section>
+
+  <section aria-labelledby="cmp-h">
+    <h2 id="cmp-h">Regression comparisons</h2>
+    <p class="sub">Direction-aware relative thresholds (higher-better vs lower-better), with every regression
+      attributed to the cases that moved. Verdicts come from the committed comparison reports.</p>
+    <div id="cmp-panel"></div>
+  </section>
+
+  <footer>
+    <div>Data: committed evaluations from <span class="mono">results/</span> in
+      <a href="https://github.com/vaibhav3000/aire">github.com/vaibhav3000/aire</a>, rendered by
+      <span class="mono">demo-site/build.py</span>. Deterministic runs are offline and exactly reproducible
+      (<span class="mono">python demo/run_demo.py</span>); the live-LLM run is recorded separately and is
+      nondeterministic by declaration. Groundedness is a lexical citation-overlap proxy - it measures citation
+      hygiene, not semantic faithfulness (documented in the README's Limitations).</div>
+  </footer>
+</main>
+
+<script src="data.js"></script>
+<script>
+"use strict";
+const DATA = window.DATA;
+const VERSION_META = {
+  v1_baseline:          {label:"v1 baseline",  kind:"det", note:"overlap retrieval, top-1, faithful citations"},
+  v2_improved:          {label:"v2 improved",  kind:"det", note:"idf retrieval, top-3"},
+  v3_fluent_regression: {label:"v3 fluent (planted regression)", kind:"det", note:"same retrieval as v2; fluent style drops citations"},
+  llm:                  {label:"Live LLM (gemini-2.5-flash)", kind:"llm", note:"idf retrieval + real generation, recorded 2026-09-16"},
+};
+const CHIP_KEYS = ["mean_retrieval_recall","mean_retrieval_mrr","mean_citation_coverage","mean_groundedness","mean_abstention_correct","mean_latency_ms","mean_total_tokens"];
+const CHIP_LABEL = {mean_retrieval_recall:"retrieval recall",mean_retrieval_mrr:"retrieval MRR",mean_citation_coverage:"citation coverage",mean_groundedness:"groundedness",mean_abstention_correct:"abstention correct",mean_latency_ms:"latency/case",mean_total_tokens:"tokens/case"};
+const FAILURE_LABEL = {invocation_error:"invocation_error",wrong_abstention:"wrong_abstention",missed_abstention:"missed_abstention",ungrounded:"ungrounded",incomplete_answer:"incomplete_answer",retrieval_miss:"retrieval_miss"};
+
+function fmt(v, digits){
+  if (v == null) return "-";
+  if (typeof v !== "number") return String(v);
+  if (v >= 1000) return Math.round(v).toLocaleString("en-US");
+  return (+v.toFixed(digits == null ? 3 : digits)).toString();
+}
+
+/* ---- run tabs ---- */
+const tabsBox = document.getElementById("tabs");
+const runPanel = document.getElementById("run-panel");
+let current = "v3_fluent_regression";
+let failureFilter = "all";
+
+function getAgg(id){
+  return id === "llm" ? DATA.llm.aggregates : DATA.versions[id].aggregates;
+}
+function getCases(id){
+  return id === "llm" ? DATA.llm.per_case : DATA.versions[id].per_case;
+}
+
+function buildTabs(){
+  Object.keys(VERSION_META).forEach(id => {
+    const b = document.createElement("button");
+    b.setAttribute("role","tab");
+    b.setAttribute("aria-selected", id === current ? "true" : "false");
+    b.textContent = VERSION_META[id].label;
+    b.addEventListener("click", () => { current = id; failureFilter = "all";
+      [...tabsBox.children].forEach(c => c.setAttribute("aria-selected", c === b ? "true" : "false"));
+      renderRun();
+    });
+    tabsBox.appendChild(b);
+  });
+}
+
+function renderRun(){
+  const agg = getAgg(current);
+  const meta = VERSION_META[current];
+  const chips = CHIP_KEYS.map(k => {
+    const v = agg[k];
+    const shown = k === "mean_latency_ms" ? fmt(v,1)+" ms" : k === "mean_total_tokens" ? fmt(v,1) : fmt(v,3);
+    return `<span class="chip">${CHIP_LABEL[k]}: <b>${shown}</b></span>`;
+  }).join("");
+  const fc = agg.failure_counts || {};
+  const failures = Object.keys(FAILURE_LABEL).filter(f => fc[f]);
+  const options = ['<option value="all">all cases</option>']
+    .concat(failures.map(f => `<option value="${f}">${f} (${fc[f]})</option>`))
+    .concat('<option value="success">success (' + (agg.n_success||0) + ')</option>');
+  const cases = getCases(current).filter(r =>
+    failureFilter === "all" ? true : failureFilter === "success" ? !r.failure : r.failure === failureFilter);
+  runPanel.innerHTML = `
+    <div class="chips">${chips}
+      <span class="chip">cases: <b>${agg.n_cases}</b></span>
+      <span class="chip">clean: <b>${agg.n_success}</b></span>
+      <span class="chip" style="border-color:${meta.kind==='llm'?'var(--warn)':'var(--good)'};color:${meta.kind==='llm'?'var(--warn)':'var(--good)'}">
+        ${meta.kind==='llm' ? "live LLM - nondeterministic" : "deterministic - offline reproducible"}</span>
+    </div>
+    <p class="sub" style="margin-top:0">${meta.note}</p>
+    <div class="filter">
+      <label for="ffilter">Show:</label>
+      <select id="ffilter">${options.join("")}</select>
+    </div>
+    <div id="case-list"></div>`;
+  const sel = document.getElementById("ffilter");
+  sel.value = failureFilter;
+  sel.addEventListener("change", () => { failureFilter = sel.value; renderRun(); });
+  const list = document.getElementById("case-list");
+  cases.forEach(r => list.appendChild(caseEl(r)));
+}
+
+function caseEl(r){
+  const d = document.createElement("details");
+  d.className = "case";
+  const t = r.trace || {};
+  const docs = t.retrieved_doc_ids || [];
+  const spans = t.spans || [];
+  const usage = t.usage || {};
+  const fail = r.failure
+    ? `<span class="fail f">${FAILURE_LABEL[r.failure] || r.failure}</span>`
+    : `<span class="fail n">success</span>`;
+  d.innerHTML = `
+    <summary>
+      <span class="cid"></span>${fail}
+      <span class="metrics-line">kw ${fmt(r.keyword_recall,2)} &middot; cite ${fmt(r.citation_coverage,2)} &middot; grd ${fmt(r.groundedness,2)} &middot; ret ${fmt(r.retrieval_recall,2)} &middot; ${fmt(r.total_tokens,0)} tok &middot; ${fmt(r.latency_ms,1)} ms</span>
+    </summary>
+    <div class="casebody">
+      <h4>Answer ${r.must_cite === false ? "(no citation expected)" : ""}</h4>
+      <pre class="answer"></pre>
+      <h4>Retrieved documents</h4>
+      <pre class="docs"></pre>
+      <h4>Spans</h4>
+      <pre class="spans"></pre>
+      <h4>Token usage</h4>
+      <pre class="usage"></pre>
+      ${r.error ? "<h4>Error</h4><pre class='err'></pre>" : ""}
+    </div>`;
+  d.querySelector(".cid").textContent = r.case_id;
+  d.querySelector(".answer").textContent = r.answer || "(none)";
+  d.querySelector(".docs").textContent = docs.length ? docs.join(", ") : "(none recorded)";
+  d.querySelector(".spans").textContent = spans.length
+    ? spans.map(s => `${s.kind}: ${s.name} - ${fmt(s.latency_ms,3)} ms`).join("\n")
+    : "(none recorded)";
+  d.querySelector(".usage").textContent = JSON.stringify(usage);
+  const errEl = d.querySelector(".err");
+  if (errEl) errEl.textContent = r.error;
+  return d;
+}
+
+/* ---- comparisons ---- */
+function renderComparisons(){
+  const panel = document.getElementById("cmp-panel");
+  const items = [
+    ["v2 vs v1 - the improvement", DATA.comparisons.v2_vs_v1],
+    ["v3 vs v1 - the planted regression", DATA.comparisons.v3_vs_v1],
+    ["live LLM vs deterministic v2", DATA.comparisons.llm_vs_v2],
+  ];
+  panel.innerHTML = items.map(([title, c]) => {
+    const s = c.summary;
+    const rows = c.metrics.map(m => `
+      <tr>
+        <td>${m.metric}</td><td>${m.direction}-better</td>
+        <td class="num">${fmt(m.baseline,4)}</td><td class="num">${fmt(m.candidate,4)}</td>
+        <td class="num">${fmt(m.delta,4)}</td>
+        <td class="v-${m.verdict==='improved'?'good':m.verdict==='regressed'?'bad':'neu'}">${m.verdict}</td>
+      </tr>`).join("");
+    const deltas = Object.entries(c.failure_count_deltas || {})
+      .map(([k,v]) => `${k} ${v>0?"+":""}${v}`).join(", ") || "none";
+    return `<div class="card" style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:14px 0">
+      <h3 style="margin:0 0 6px;font-size:1rem">${title}</h3>
+      <p style="margin:0 0 10px;color:${s.n_regressed?'var(--bad)':'var(--good)'};font-weight:600">
+        ${s.verdict} - improved ${s.n_improved}, regressed ${s.n_regressed}, neutral ${s.n_neutral}</p>
+      <table><thead><tr><th>metric</th><th>direction</th><th class="num">baseline</th>
+        <th class="num">candidate</th><th class="num">delta</th><th>verdict</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      <p style="margin:10px 0 0;font-size:.85rem;color:var(--muted)">Failure-count deltas: ${deltas}</p>
+    </div>`;
+  }).join("");
+}
+
+buildTabs();
+renderRun();
+renderComparisons();
+</script>
+</body>
+</html>
