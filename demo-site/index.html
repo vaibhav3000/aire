@@ -246,6 +246,12 @@ const VERSION_META = {
 };
 const CHIP_KEYS = ["mean_retrieval_recall","mean_retrieval_mrr","mean_citation_coverage","mean_groundedness","mean_abstention_correct","mean_latency_ms","mean_total_tokens"];
 const CHIP_LABEL = {mean_retrieval_recall:"retrieval recall",mean_retrieval_mrr:"retrieval MRR",mean_citation_coverage:"citation coverage",mean_groundedness:"groundedness",mean_abstention_correct:"abstention correct",mean_latency_ms:"latency/case",mean_total_tokens:"tokens/case"};
+const CHIP_TIP = {
+  mean_retrieval_recall: "Fraction of the declared supporting docs that were retrieved.",
+  mean_retrieval_mrr: "Mean reciprocal rank of the first supporting doc in the retrieved list.",
+  mean_groundedness: "Lexical citation-overlap proxy: supported cited sentences / total cited (threshold 0.5).",
+  mean_citation_coverage: "Fraction of supporting docs cited in the answer.",
+};
 const FAILURE_LABEL = {invocation_error:"invocation_error",wrong_abstention:"wrong_abstention",missed_abstention:"missed_abstention",ungrounded:"ungrounded",incomplete_answer:"incomplete_answer",retrieval_miss:"retrieval_miss"};
 const FAILURE_WHY = {
   invocation_error: "the system call itself failed (exception/timeout)",
@@ -256,6 +262,7 @@ const FAILURE_WHY = {
   retrieval_miss: "supporting docs not retrieved",
 };
 const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CITE_RE = /\[doc:[\w.\-]+\]/g;
 
 function fmt(v, digits){
   if (v == null) return "-";
@@ -293,7 +300,8 @@ function renderRun(){
   const chips = CHIP_KEYS.map(k => {
     const v = agg[k];
     const shown = k === "mean_latency_ms" ? fmt(v,1)+" ms" : k === "mean_total_tokens" ? fmt(v,1) : fmt(v,3);
-    return `<span class="chip">${CHIP_LABEL[k]}: <b>${shown}</b></span>`;
+    const tip = CHIP_TIP[k] ? ` class="chip term" tabindex="0" data-tip="${CHIP_TIP[k]}"` : ' class="chip"';
+    return `<span${tip}>${CHIP_LABEL[k]}: <b>${shown}</b></span>`;
   }).join("");
   const fc = agg.failure_counts || {};
   const chipsFail = [`<button type="button" class="chip" data-f="all" aria-pressed="${failureFilter==="all"}">all cases (${agg.n_cases})</button>`]
@@ -356,7 +364,7 @@ function caseEl(r){
   d.querySelector(".w-docs").textContent = docs.length ? docs.join(", ") : "(none recorded)";
   d.querySelector(".w-support").textContent = (c.supporting_doc_ids || []).join(", ") || "-";
   d.querySelector(".w-answer").textContent = r.answer || "(none)";
-  const cites = (r.answer && r.answer.match(/\[doc:[\w.\-]+\]/g)) || [];
+  const cites = (r.answer && r.answer.match(CITE_RE)) || [];
   d.querySelector(".w-cites").textContent = cites.length ? cites.join(" ") : "(no [doc:...] citations found)";
   const v = [];
   v.push(`failure: ${r.failure || "none (success)"}`);
@@ -440,7 +448,7 @@ function replayRender(){
   const stage = document.getElementById("replay-stage");
   const docs = t.retrieved_doc_ids || [];
   const support = c.supporting_doc_ids || [];
-  const cites = (r.answer && r.answer.match(/\[doc:[\w.\-]+\]/g)) || [];
+  const cites = (r.answer && r.answer.match(CITE_RE)) || [];
   const bodies = [
     `<b>RUN</b> - the system is invoked once on the case input.<pre>run: ${VERSION_META[document.getElementById("replay-ver").value].label}\ninput: ${c.input || "(not recorded)"}\nexpect_abstention: ${c.expect_abstention || false}</pre>`,
     `<b>TRACE</b> - the invocation is recorded as one validated trace (never re-run to score).<pre>spans: ${(t.spans||[]).map(s => s.kind + " " + fmt(s.latency_ms,3) + " ms").join(", ") || "(none recorded)"}\ntokens: ${JSON.stringify((t.usage||{}))}</pre>`,
@@ -584,8 +592,13 @@ const TOURS = {
 document.addEventListener("keydown", (e) => {
   const tag = (e.target.tagName || "").toLowerCase();
   if (tag === "input" || tag === "select" || tag === "textarea") return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const onBody = e.target === document.body;
+  const inReplay = onBody || document.getElementById("replay").contains(e.target);
   if (e.key === " "){
-    if (tour){ e.preventDefault(); tourPlayToggle(); }
+    if (!onBody) return; // a focused button keeps native Space activation
+    e.preventDefault();
+    if (tour) tourPlayToggle(); else document.getElementById("rp-play").click();
     return;
   }
   if (tour){
@@ -593,7 +606,13 @@ document.addEventListener("keydown", (e) => {
     else if (e.key === "ArrowLeft"){ e.preventDefault(); tourStop(); tourShow(tourIdx-1); }
     else if (e.key.toLowerCase() === "r"){ tourStop(); tourShow(0); }
     else if (e.key === "Escape"){ tourClose(); }
+    return;
   }
+  if (!inReplay) return;
+  const n = RSTEPS.length;
+  if (e.key === "ArrowRight"){ e.preventDefault(); rpStop(); rpStep = Math.min(n-1, rpStep+1); replayRender(); }
+  else if (e.key === "ArrowLeft"){ e.preventDefault(); rpStop(); rpStep = Math.max(0, rpStep-1); replayRender(); }
+  else if (e.key.toLowerCase() === "r"){ rpStop(); rpStep = 0; replayRender(); }
 });
 
 /* ---------------- init ---------------- */
