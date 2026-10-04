@@ -92,6 +92,18 @@
   .gbar{height:16px;border-radius:6px;background:var(--accent);transition:width .6s ease}
   .gbar.bad{background:var(--bad)}
   #vstory{min-height:3.4em;font-size:.92rem;margin-top:10px}
+  .dpill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;
+         padding:3px 10px;font-size:.82rem;font-variant-numeric:tabular-nums;background:#fff;
+         animation:dpill-in .35s ease both}
+  .dpill .d{font-weight:700}
+  .dpill.up{border-color:var(--bad);color:var(--bad)}
+  .dpill.down{border-color:var(--good);color:var(--good)}
+  .dpill.zero{color:var(--muted)}
+  .vpill{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.82rem;background:#fff}
+  .vpill.regressed{border-color:var(--bad);color:var(--bad);font-weight:600}
+  .vpill.improved{border-color:var(--good);color:var(--good);font-weight:600}
+  @keyframes dpill-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){.dpill{animation:none}}
 
   /* tour */
   #tour-dim{position:fixed;inset:0;background:rgba(8,14,10,.45);z-index:50;display:none}
@@ -152,6 +164,7 @@
     <div class="card" style="border:1px solid var(--line);border-radius:10px;padding:14px 16px">
       <div class="ctl">
         <button id="vt-play" type="button" class="primary">Play v1 &rarr; v2 &rarr; v3</button>
+        <button id="vt-back" type="button">&larr; Back</button>
         <button id="vt-step" type="button">Next version</button>
         <button id="vt-reset" type="button">Reset</button>
         <label class="mono" for="vt-speed" style="font-size:.8rem;color:var(--muted)">speed</label>
@@ -170,6 +183,10 @@
         </div>
       </div>
       <div id="vstory" aria-live="polite"></div>
+      <div id="vdeltas-wrap" hidden>
+        <h4 style="margin:12px 0 6px;font-size:.85rem;color:var(--muted)">Failure-count deltas <span class="mono" id="vdelta-src" style="font-weight:400"></span> <span class="badge badge-measured">measured</span></h4>
+        <div id="vdeltas" class="chips" style="margin:0"></div>
+      </div>
     </div>
   </section>
 
@@ -416,10 +433,36 @@ function vtRender(){
     "v3 fluent: same retrieval as v2 - but the fluent style drops citations. Recall holds at 0.91 while groundedness collapses 0.57 \u2192 0.00 (22 ungrounded cases) and citation coverage 0.73 \u2192 0. The regression engine flags it and attributes it per case.",
   ];
   document.getElementById("vstory").innerHTML = `<b>${VERSION_META[id].label}:</b> ${stories[vtIdx]}`;
+  renderVDeltas(id);
+}
+
+/* failure deltas: read ONLY from the committed comparison artifacts.
+   v2 and v3 are each compared against the v1 baseline in results/. */
+const VDELTA_SRC = { v1_baseline: null, v2_improved: "v2_vs_v1", v3_fluent_regression: "v3_vs_v1" };
+function renderVDeltas(id){
+  const wrap = document.getElementById("vdeltas-wrap");
+  const key = VDELTA_SRC[id];
+  if (!key){ wrap.hidden = true; return; }
+  const c = DATA.comparisons[key];
+  wrap.hidden = false;
+  document.getElementById("vdelta-src").textContent = "(" + key.replace("_vs_", " vs ").replace("_", " ") + " comparison)";
+  const pills = [];
+  const vc = c.summary;
+  pills.push('<span class="vpill regressed">regressed ' + vc.n_regressed + "</span>");
+  pills.push('<span class="vpill improved">improved ' + vc.n_improved + "</span>");
+  pills.push('<span class="vpill">neutral ' + vc.n_neutral + "</span>");
+  const deltas = c.failure_count_deltas || {};
+  const cats = Object.keys(deltas).sort((a, b) => Math.abs(deltas[b]) - Math.abs(deltas[a]));
+  for (const cat of cats){
+    const v = deltas[cat];
+    const cls = v > 0 ? "up" : v < 0 ? "down" : "zero";
+    pills.push('<span class="dpill ' + cls + '"><span class="d">' + (v > 0 ? "+" : "") + v + "</span> " + cat + "</span>");
+  }
+  document.getElementById("vdeltas").innerHTML = pills.join("");
 }
 function vtStop(){ if (vtTimer){ clearInterval(vtTimer); vtTimer = null;
   const p = document.getElementById("vt-play"); p.textContent = "Play v1 \u2192 v2 \u2192 v3"; p.setAttribute("aria-pressed","false"); } }
-document.getElementById("vt-play").addEventListener("click", () => {
+document.getElementById("vt-play").addEventListener("click", () => { activePlayer = "vt";
   if (vtTimer){ vtStop(); return; }
   const p = document.getElementById("vt-play"); p.textContent = "Pause"; p.setAttribute("aria-pressed","true");
   vtTimer = setInterval(() => {
@@ -427,6 +470,7 @@ document.getElementById("vt-play").addEventListener("click", () => {
     vtIdx++; vtRender();
   }, 2600 * vtSpeed);
 });
+document.getElementById("vt-back").addEventListener("click", () => { vtStop(); vtIdx = Math.max(0, vtIdx-1); vtRender(); });
 document.getElementById("vt-step").addEventListener("click", () => { vtStop(); vtIdx = Math.min(VSEQ.length-1, vtIdx+1); vtRender(); });
 document.getElementById("vt-reset").addEventListener("click", () => { vtStop(); vtIdx = 0; vtRender(); });
 document.getElementById("vt-speed").addEventListener("change", e => { vtSpeed = +e.target.value; });
@@ -434,6 +478,7 @@ document.getElementById("vt-speed").addEventListener("change", e => { vtSpeed = 
 /* ---------------- case replay through the evaluator (A) ---------------- */
 const RSTEPS = ["RUN","TRACE","RETRIEVAL","ANSWER","CITATION CHECK","GROUNDEDNESS","TAXONOMY"];
 let rpStep = 0, rpTimer = null, rpSpeed = 1;
+let activePlayer = "rp"; // which player answers keyboard: 'rp' (case replay) or 'vt' (version transition)
 function replayRow(){
   const ver = document.getElementById("replay-ver").value;
   const cid = document.getElementById("replay-case").value;
@@ -482,7 +527,7 @@ function replayFillCases(){
 }
 function rpStop(){ if (rpTimer){ clearInterval(rpTimer); rpTimer = null;
   const p = document.getElementById("rp-play"); p.textContent = "Play"; p.setAttribute("aria-pressed","false"); } }
-document.getElementById("rp-play").addEventListener("click", () => {
+document.getElementById("rp-play").addEventListener("click", () => { activePlayer = "rp";
   if (rpTimer){ rpStop(); return; }
   const p = document.getElementById("rp-play"); p.textContent = "Pause"; p.setAttribute("aria-pressed","true");
   rpTimer = setInterval(() => {
@@ -490,7 +535,7 @@ document.getElementById("rp-play").addEventListener("click", () => {
     rpStep++; replayRender();
   }, 1800 * rpSpeed);
 });
-document.getElementById("rp-next").addEventListener("click", () => { rpStop(); rpStep = Math.min(RSTEPS.length-1, rpStep+1); replayRender(); });
+document.getElementById("rp-next").addEventListener("click", () => { activePlayer = "rp"; rpStop(); rpStep = Math.min(RSTEPS.length-1, rpStep+1); replayRender(); });
 document.getElementById("rp-back").addEventListener("click", () => { rpStop(); rpStep = Math.max(0, rpStep-1); replayRender(); });
 document.getElementById("rp-reset").addEventListener("click", () => { rpStop(); rpStep = 0; replayRender(); });
 document.getElementById("rp-speed").addEventListener("change", e => { rpSpeed = +e.target.value; });
@@ -594,11 +639,17 @@ document.addEventListener("keydown", (e) => {
   if (tag === "input" || tag === "select" || tag === "textarea") return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const onBody = e.target === document.body;
-  const inReplay = onBody || document.getElementById("replay").contains(e.target);
+  const inTransition = !onBody && document.getElementById("transition").contains(e.target);
+  const inReplay = !onBody && document.getElementById("replay").contains(e.target);
+  // the active player is the one the user last interacted with
+  if (inTransition) activePlayer = "vt";
+  else if (inReplay) activePlayer = "rp";
   if (e.key === " "){
     if (!onBody) return; // a focused button keeps native Space activation
     e.preventDefault();
-    if (tour) tourPlayToggle(); else document.getElementById("rp-play").click();
+    if (tour) tourPlayToggle();
+    else if (activePlayer === "vt") document.getElementById("vt-play").click();
+    else document.getElementById("rp-play").click();
     return;
   }
   if (tour){
@@ -608,7 +659,13 @@ document.addEventListener("keydown", (e) => {
     else if (e.key === "Escape"){ tourClose(); }
     return;
   }
-  if (!inReplay) return;
+  if (activePlayer === "vt"){
+    if (e.key === "ArrowRight"){ e.preventDefault(); vtStop(); vtIdx = Math.min(VSEQ.length-1, vtIdx+1); vtRender(); }
+    else if (e.key === "ArrowLeft"){ e.preventDefault(); vtStop(); vtIdx = Math.max(0, vtIdx-1); vtRender(); }
+    else if (e.key.toLowerCase() === "r"){ vtStop(); vtIdx = 0; vtRender(); }
+    return;
+  }
+  if (!onBody && !inReplay) return;
   const n = RSTEPS.length;
   if (e.key === "ArrowRight"){ e.preventDefault(); rpStop(); rpStep = Math.min(n-1, rpStep+1); replayRender(); }
   else if (e.key === "ArrowLeft"){ e.preventDefault(); rpStop(); rpStep = Math.max(0, rpStep-1); replayRender(); }
