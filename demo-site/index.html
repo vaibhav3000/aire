@@ -7,16 +7,16 @@
 <style>
   :root{
     --bg:#ffffff; --ink:#1a1d21; --muted:#5c6470; --line:#e4e7eb; --panel:#f6f7f9;
-    --good:#0a7d33; --bad:#b3261e; --warn:#9a6b00; --accent:#0a7d33;
+    --good:#0a7d33; --bad:#b3261e; --warn:#9a6b00; --accent:#0a7d33; --accent-soft:#dff0e2;
   }
   *{box-sizing:border-box}
   body{margin:0;font:16px/1.55 ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
   a{color:var(--accent)}
   code,.mono{font-family:ui-monospace,"Cascadia Code",Consolas,Menlo,monospace;font-size:.92em}
-  header{border-bottom:1px solid var(--line);background:var(--panel)}
+  header{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:30}
   .bar{max-width:1080px;margin:0 auto;padding:14px 20px;display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
   .bar .name{font-weight:700}
-  .bar nav{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap}
+  .bar nav{margin-left:auto;display:flex;gap:18px;flex-wrap:wrap;align-items:baseline}
   .bar nav a{text-decoration:none;color:var(--ink);border-bottom:2px solid transparent;padding-bottom:2px}
   .bar nav a:hover{border-bottom-color:var(--accent)}
   main{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
@@ -25,7 +25,7 @@
   .callout{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--panel);
            border-radius:8px;padding:12px 16px;margin:14px 0}
   .callout b{color:var(--ink)}
-  section{margin-top:40px}
+  section{margin-top:40px;scroll-margin-top:70px}
   h2{font-size:1.25rem;margin:0 0 4px;padding-bottom:6px;border-bottom:2px solid var(--accent);display:inline-block}
   .sub{color:var(--muted);margin:6px 0 16px;max-width:56rem}
   .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
@@ -35,8 +35,12 @@
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
   .chip{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 10px;font-size:.85rem}
   .chip b{font-variant-numeric:tabular-nums}
-  .filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
-  .filter select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;font:inherit}
+  button.chip{cursor:pointer;font:inherit;font-size:.85rem}
+  button.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .badge{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.7rem;font-weight:700;
+         letter-spacing:.05em;text-transform:uppercase;vertical-align:middle}
+  .badge-measured{color:var(--good);background:#d4f0d4}
+  .badge-schematic{color:var(--warn);background:#f5ecd0}
   details.case{border:1px solid var(--line);border-radius:8px;margin:8px 0;background:#fff}
   details.case summary{cursor:pointer;padding:9px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;list-style:none}
   details.case summary::-webkit-details-marker{display:none}
@@ -49,6 +53,7 @@
   .casebody{padding:4px 14px 14px;border-top:1px solid var(--line);font-size:.92rem}
   .casebody h4{margin:12px 0 4px;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
   .casebody pre{white-space:pre-wrap;background:var(--panel);padding:8px 10px;border-radius:6px;margin:4px 0;font-size:.85rem}
+  .casebody .hl{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
   table{border-collapse:collapse;width:100%;font-size:.9rem}
   th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left}
   th{background:var(--panel)}
@@ -56,6 +61,50 @@
   .v-good{color:var(--good);font-weight:600}.v-bad{color:var(--bad);font-weight:600}.v-neu{color:var(--muted)}
   footer{border-top:1px solid var(--line);margin-top:56px;padding:18px 0 8px;color:var(--muted);font-size:.85rem}
   :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+  /* hover terms */
+  .term{border-bottom:1px dotted var(--accent);cursor:help;position:relative}
+  .term::after{content:attr(data-tip);position:absolute;left:50%;bottom:130%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:.78rem;font-weight:400;line-height:1.4;padding:7px 10px;
+    border-radius:6px;width:max-content;max-width:290px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:40}
+  .term:hover::after,.term:focus-visible::after{opacity:1}
+
+  /* replay pipeline */
+  #replay-steps{display:flex;gap:4px;flex-wrap:wrap;margin:12px 0;align-items:center}
+  #replay-steps .st{border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:.8rem;color:var(--muted);background:#fff}
+  #replay-steps .st.on{border-color:var(--accent);color:var(--accent);font-weight:700}
+  #replay-steps .st.done{color:var(--good);border-color:var(--good)}
+  #replay-steps .arr{color:var(--muted);font-size:.75rem}
+  #replay-stage{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;min-height:150px}
+  #replay-stage pre{white-space:pre-wrap;background:var(--panel);padding:8px 10px;border-radius:6px;margin:6px 0 0;font-size:.86rem}
+  .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .ctl button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 13px;font:inherit;font-size:.85rem;cursor:pointer}
+  .ctl button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ctl button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ctl select{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:.85rem;max-width:320px}
+  .ctl .pos{color:var(--muted);font-size:.8rem;font-variant-numeric:tabular-nums}
+
+  /* version transition */
+  #vtransition{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+  @media (max-width:720px){#vtransition{grid-template-columns:1fr}}
+  .gbar{height:16px;border-radius:6px;background:var(--accent);transition:width .6s ease}
+  .gbar.bad{background:var(--bad)}
+  #vstory{min-height:3.4em;font-size:.92rem;margin-top:10px}
+
+  /* tour */
+  #tour-dim{position:fixed;inset:0;background:rgba(8,14,10,.45);z-index:50;display:none}
+  .tour-hi{position:relative;z-index:51;border-radius:10px;box-shadow:0 0 0 3px var(--accent),0 0 0 3000px rgba(8,14,10,.45)!important}
+  #tour-card{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:52;display:none;
+    width:min(620px,calc(100vw - 24px));background:#fff;border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 12px 40px rgba(0,0,0,.22);padding:14px 16px}
+  #tour-card h4{margin:0 0 4px;font-size:.95rem}
+  #tour-card .body{font-size:.88rem;min-height:2.6em}
+  #tour-card .row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+  #tour-card button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 13px;font:inherit;font-size:.85rem;cursor:pointer}
+  #tour-card button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  #tour-card .stepno{margin-left:auto;color:var(--muted);font-size:.8rem}
+  #tour-card select{padding:5px 6px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:.8rem}
 </style>
 </head>
 <body>
@@ -63,6 +112,7 @@
   <div class="bar">
     <span class="name">AIRE &middot; AI Reliability &amp; Evaluation Engine</span>
     <nav aria-label="project links">
+      <button id="tour-open" type="button" class="chip" style="cursor:pointer">&#9654; Guided tour</button>
       <a href="https://github.com/vaibhav3000/aire">GitHub</a>
       <a href="https://github.com/vaibhav3000/aire/blob/main/reports/AIRE_AI_Reliability_Evaluation_Engine.pdf">Technical report (PDF)</a>
       <a href="https://github.com/vaibhav3000/aire/tree/main/results">Committed results</a>
@@ -73,31 +123,88 @@
 <main>
   <div class="hero">
     <h1>Record, evaluate, compare - and catch what a pass/fail number hides</h1>
-    <p class="lead">AIRE is a trace-based evaluation framework for LLM/RAG systems. Every invocation is recorded as a
-      validated trace; deterministic metrics and a failure taxonomy score the records; a regression engine compares
+    <p class="lead">AIRE is a <span class="term" tabindex="0" data-tip="Everything a system did in one invocation: answer, retrieved documents, spans with latencies, token usage, error. Stored once, never re-run.">trace-based</span> evaluation framework for LLM/RAG systems. Every invocation is recorded as a
+      validated trace; deterministic metrics and a <span class="term" tabindex="0" data-tip="Mutually exclusive failure categories: invocation_error, wrong_abstention, missed_abstention, ungrounded, incomplete_answer, retrieval_miss.">failure taxonomy</span> score the records; a regression engine compares
       versions metric-by-metric with per-case attribution. This explorer renders the committed evaluation of a small
       RAG system - three deterministic versions plus one recorded live-LLM run.</p>
-    <div class="callout">
+    <div class="callout" id="catch-callout">
       <b>What the evaluator caught in 60 seconds:</b> version 3 reads better and retrieves better
       (recall 0.73 &rarr; 0.91) but silently drops every citation - <b>groundedness 0.57 &rarr; 0.00</b> across
       22 ungrounded cases, flagged automatically as a regression. The live-LLM run then fixes abstention
       (0.0 &rarr; 1.0) and grounding (1.0) at the price of 15&nbsp;s/case and ~605 tokens/case. No single number
       tells this story; the metric set does.
+      <div style="margin-top:8px"><button id="story-open" type="button" class="chip" style="cursor:pointer">&#9654; Walk me through it</button></div>
     </div>
   </div>
 
-  <section aria-labelledby="explore-h">
+  <section id="explore" aria-labelledby="explore-h">
     <h2 id="explore-h">Explore a run</h2>
-    <p class="sub">Aggregate metrics first, then per-case evidence: open any case to see the recorded answer,
-      citations, retrieved documents, spans and token usage. Evaluation reads traces - the system is never re-run.</p>
+    <p class="sub">Aggregate metrics first, then per-case evidence. Evaluation reads traces - the system is never re-run. <span class="badge badge-measured">measured result</span></p>
     <div class="tabs" role="tablist" aria-label="runs" id="tabs"></div>
     <div id="run-panel"></div>
   </section>
 
-  <section aria-labelledby="cmp-h">
+  <section id="transition" aria-labelledby="trans-h">
+    <h2 id="trans-h">Watch v1 become v2 become v3</h2>
+    <p class="sub">The committed metrics, animated between the three deterministic versions. Watch retrieval climb while
+      groundedness holds - then collapses the moment the fluent style lands. <span class="badge badge-measured">measured result</span></p>
+    <div class="card" style="border:1px solid var(--line);border-radius:10px;padding:14px 16px">
+      <div class="ctl">
+        <button id="vt-play" type="button" class="primary">Play v1 &rarr; v2 &rarr; v3</button>
+        <button id="vt-step" type="button">Next version</button>
+        <button id="vt-reset" type="button">Reset</button>
+        <label class="mono" for="vt-speed" style="font-size:.8rem;color:var(--muted)">speed</label>
+        <select id="vt-speed" aria-label="transition speed"><option value="2">0.5x</option><option value="1" selected>1x</option><option value="0.5">2x</option></select>
+      </div>
+      <div id="vtransition">
+        <div>
+          <h4 style="margin:0 0 6px;font-size:.85rem;color:var(--muted)">Retrieval recall (higher is better)</h4>
+          <div class="gbar" id="bar-recall"></div>
+          <p class="mono" id="val-recall" style="margin:6px 0 0;font-size:.9rem"></p>
+        </div>
+        <div>
+          <h4 style="margin:0 0 6px;font-size:.85rem;color:var(--muted)">Groundedness (higher is better)</h4>
+          <div class="gbar" id="bar-ground"></div>
+          <p class="mono" id="val-ground" style="margin:6px 0 0;font-size:.9rem"></p>
+        </div>
+      </div>
+      <div id="vstory" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="replay" aria-labelledby="replay-h">
+    <h2 id="replay-h">Replay one case through the evaluator</h2>
+    <p class="sub">The evaluator's decision path for a single recorded case: run &rarr; trace &rarr; retrieval &rarr; answer &rarr;
+      citation check &rarr; <span class="term" tabindex="0" data-tip="Lexical proxy: for each cited sentence, do its content words appear in the cited document? Score = supported cited sentences / total cited sentences.">groundedness</span> &rarr; failure taxonomy. Every value shown is from the stored trace and committed metrics. <span class="badge badge-measured">measured result</span></p>
+    <div class="card" style="border:1px solid var(--line);border-radius:10px;padding:14px 16px">
+      <div class="ctl">
+        <label for="replay-case">Case:</label>
+        <select id="replay-case" aria-label="choose a case to replay"></select>
+        <label for="replay-ver">Run:</label>
+        <select id="replay-ver" aria-label="choose which run to replay">
+          <option value="v1_baseline">v1 baseline</option>
+          <option value="v2_improved">v2 improved</option>
+          <option value="v3_fluent_regression" selected>v3 fluent (regression)</option>
+        </select>
+      </div>
+      <div id="replay-steps" aria-label="evaluator pipeline"></div>
+      <div id="replay-stage" aria-live="polite"></div>
+      <div class="ctl">
+        <button id="rp-back" type="button">&larr; Back</button>
+        <button id="rp-play" type="button" aria-pressed="false">Play</button>
+        <button id="rp-next" type="button" class="primary">Step &rarr;</button>
+        <button id="rp-reset" type="button">Reset</button>
+        <label class="mono" for="rp-speed" style="font-size:.8rem;color:var(--muted)">speed</label>
+        <select id="rp-speed" aria-label="replay speed"><option value="2">0.5x</option><option value="1" selected>1x</option><option value="0.5">2x</option></select>
+        <span class="pos" id="rp-pos"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="compare" aria-labelledby="cmp-h">
     <h2 id="cmp-h">Regression comparisons</h2>
     <p class="sub">Direction-aware relative thresholds (higher-better vs lower-better), with every regression
-      attributed to the cases that moved. Verdicts come from the committed comparison reports.</p>
+      attributed to the cases that moved. Verdicts come from the committed comparison reports. <span class="badge badge-measured">measured result</span></p>
     <div id="cmp-panel"></div>
   </section>
 
@@ -106,10 +213,25 @@
       <a href="https://github.com/vaibhav3000/aire">github.com/vaibhav3000/aire</a>, rendered by
       <span class="mono">demo-site/build.py</span>. Deterministic runs are offline and exactly reproducible
       (<span class="mono">python demo/run_demo.py</span>); the live-LLM run is recorded separately and is
-      nondeterministic by declaration. Groundedness is a lexical citation-overlap proxy - it measures citation
-      hygiene, not semantic faithfulness (documented in the README's Limitations).</div>
+      nondeterministic by declaration. <span class="term" tabindex="0" data-tip="Lexical citation-overlap proxy - it measures citation hygiene, not semantic faithfulness (see the README's Limitations).">Groundedness</span> is a lexical citation-overlap proxy.
+      Keyboard: Space play/pause, &larr;/&rarr; step, R reset - for the active player.</div>
   </footer>
 </main>
+
+<div id="tour-dim" aria-hidden="true"></div>
+<div id="tour-card" role="dialog" aria-modal="false" aria-label="guided tour">
+  <h4 id="tour-title"></h4>
+  <div class="body" id="tour-body"></div>
+  <div class="row">
+    <button id="tour-back" type="button">&larr; Back</button>
+    <button id="tour-play" type="button" aria-pressed="false">Play</button>
+    <button id="tour-next" type="button" class="primary">Next &rarr;</button>
+    <button id="tour-exit" type="button">Exit</button>
+    <label class="mono" for="tour-speed" style="font-size:.8rem;color:var(--muted)">speed</label>
+    <select id="tour-speed" aria-label="tour speed"><option value="2">0.5x</option><option value="1" selected>1x</option><option value="0.5">2x</option></select>
+    <span class="stepno" id="tour-pos"></span>
+  </div>
+</div>
 
 <script src="data.js"></script>
 <script>
@@ -124,6 +246,15 @@ const VERSION_META = {
 const CHIP_KEYS = ["mean_retrieval_recall","mean_retrieval_mrr","mean_citation_coverage","mean_groundedness","mean_abstention_correct","mean_latency_ms","mean_total_tokens"];
 const CHIP_LABEL = {mean_retrieval_recall:"retrieval recall",mean_retrieval_mrr:"retrieval MRR",mean_citation_coverage:"citation coverage",mean_groundedness:"groundedness",mean_abstention_correct:"abstention correct",mean_latency_ms:"latency/case",mean_total_tokens:"tokens/case"};
 const FAILURE_LABEL = {invocation_error:"invocation_error",wrong_abstention:"wrong_abstention",missed_abstention:"missed_abstention",ungrounded:"ungrounded",incomplete_answer:"incomplete_answer",retrieval_miss:"retrieval_miss"};
+const FAILURE_WHY = {
+  invocation_error: "the system call itself failed (exception/timeout)",
+  wrong_abstention: "abstained on an answerable question",
+  missed_abstention: "answered an unanswerable question",
+  ungrounded: "groundedness below 0.5 despite answering",
+  incomplete_answer: "keyword recall below 0.5",
+  retrieval_miss: "supporting docs not retrieved",
+};
+const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function fmt(v, digits){
   if (v == null) return "-";
@@ -131,19 +262,14 @@ function fmt(v, digits){
   if (v >= 1000) return Math.round(v).toLocaleString("en-US");
   return (+v.toFixed(digits == null ? 3 : digits)).toString();
 }
+function getAgg(id){ return id === "llm" ? DATA.llm.aggregates : DATA.versions[id].aggregates; }
+function getCases(id){ return id === "llm" ? DATA.llm.per_case : DATA.versions[id].per_case; }
 
-/* ---- run tabs ---- */
+/* ---------------- run tabs + failure chips ---------------- */
 const tabsBox = document.getElementById("tabs");
 const runPanel = document.getElementById("run-panel");
 let current = "v3_fluent_regression";
 let failureFilter = "all";
-
-function getAgg(id){
-  return id === "llm" ? DATA.llm.aggregates : DATA.versions[id].aggregates;
-}
-function getCases(id){
-  return id === "llm" ? DATA.llm.per_case : DATA.versions[id].per_case;
-}
 
 function buildTabs(){
   Object.keys(VERSION_META).forEach(id => {
@@ -151,14 +277,15 @@ function buildTabs(){
     b.setAttribute("role","tab");
     b.setAttribute("aria-selected", id === current ? "true" : "false");
     b.textContent = VERSION_META[id].label;
-    b.addEventListener("click", () => { current = id; failureFilter = "all";
-      [...tabsBox.children].forEach(c => c.setAttribute("aria-selected", c === b ? "true" : "false"));
-      renderRun();
-    });
+    b.addEventListener("click", () => selectVersion(id));
     tabsBox.appendChild(b);
   });
 }
-
+function selectVersion(id){
+  current = id; failureFilter = "all";
+  [...tabsBox.children].forEach((c,i) => c.setAttribute("aria-selected", Object.keys(VERSION_META)[i] === id ? "true" : "false"));
+  renderRun();
+}
 function renderRun(){
   const agg = getAgg(current);
   const meta = VERSION_META[current];
@@ -168,10 +295,10 @@ function renderRun(){
     return `<span class="chip">${CHIP_LABEL[k]}: <b>${shown}</b></span>`;
   }).join("");
   const fc = agg.failure_counts || {};
-  const failures = Object.keys(FAILURE_LABEL).filter(f => fc[f]);
-  const options = ['<option value="all">all cases</option>']
-    .concat(failures.map(f => `<option value="${f}">${f} (${fc[f]})</option>`))
-    .concat('<option value="success">success (' + (agg.n_success||0) + ')</option>');
+  const chipsFail = [`<button type="button" class="chip" data-f="all" aria-pressed="${failureFilter==="all"}">all cases (${agg.n_cases})</button>`]
+    .concat(Object.keys(FAILURE_LABEL).filter(f => fc[f]).map(f =>
+      `<button type="button" class="chip term" data-f="${f}" aria-pressed="${failureFilter===f}" data-tip="${FAILURE_WHY[f]} — click to see the cases">${f} (${fc[f]})</button>`))
+    .concat(`<button type="button" class="chip" data-f="success" aria-pressed="${failureFilter==="success"}">success (${agg.n_success||0})</button>`);
   const cases = getCases(current).filter(r =>
     failureFilter === "all" ? true : failureFilter === "success" ? !r.failure : r.failure === failureFilter);
   runPanel.innerHTML = `
@@ -182,14 +309,10 @@ function renderRun(){
         ${meta.kind==='llm' ? "live LLM - nondeterministic" : "deterministic - offline reproducible"}</span>
     </div>
     <p class="sub" style="margin-top:0">${meta.note}</p>
-    <div class="filter">
-      <label for="ffilter">Show:</label>
-      <select id="ffilter">${options.join("")}</select>
-    </div>
+    <div class="chips" id="fail-chips" role="group" aria-label="filter by failure category">${chipsFail.join("")}</div>
     <div id="case-list"></div>`;
-  const sel = document.getElementById("ffilter");
-  sel.value = failureFilter;
-  sel.addEventListener("change", () => { failureFilter = sel.value; renderRun(); });
+  document.querySelectorAll("#fail-chips .chip").forEach(b =>
+    b.addEventListener("click", () => { failureFilter = b.dataset.f; renderRun(); }));
   const list = document.getElementById("case-list");
   cases.forEach(r => list.appendChild(caseEl(r)));
 }
@@ -201,6 +324,7 @@ function caseEl(r){
   const docs = t.retrieved_doc_ids || [];
   const spans = t.spans || [];
   const usage = t.usage || {};
+  const c = r.case || {};
   const fail = r.failure
     ? `<span class="fail f">${FAILURE_LABEL[r.failure] || r.failure}</span>`
     : `<span class="fail n">success</span>`;
@@ -210,29 +334,161 @@ function caseEl(r){
       <span class="metrics-line">kw ${fmt(r.keyword_recall,2)} &middot; cite ${fmt(r.citation_coverage,2)} &middot; grd ${fmt(r.groundedness,2)} &middot; ret ${fmt(r.retrieval_recall,2)} &middot; ${fmt(r.total_tokens,0)} tok &middot; ${fmt(r.latency_ms,1)} ms</span>
     </summary>
     <div class="casebody">
-      <h4>Answer ${r.must_cite === false ? "(no citation expected)" : ""}</h4>
-      <pre class="answer"></pre>
-      <h4>Retrieved documents</h4>
-      <pre class="docs"></pre>
-      <h4>Spans</h4>
-      <pre class="spans"></pre>
-      <h4>Token usage</h4>
-      <pre class="usage"></pre>
+      <h4>Walk this case</h4>
+      <div class="ctl" style="margin:0 0 8px">
+        <button type="button" class="wk-next">Next: input &rarr; evidence &rarr; answer &rarr; verdict</button>
+        <button type="button" class="wk-reset">Reset</button>
+        <span class="mono wk-pos" style="font-size:.78rem;color:var(--muted)"></span>
+      </div>
+      <div class="wk-step0" data-wk="0"><h4>1 - Input (from the committed eval set)</h4><pre class="w-input"></pre></div>
+      <div class="wk-step" data-wk="1" hidden><h4>2 - Retrieved evidence</h4><pre class="w-docs"></pre>
+        <p class="note" style="margin:4px 0 0;font-size:.8rem">Supporting (declared ground truth): <span class="w-support"></span></p></div>
+      <div class="wk-step" data-wk="2" hidden><h4>3 - Recorded answer</h4><pre class="w-answer"></pre></div>
+      <div class="wk-step" data-wk="3" hidden><h4>4 - Citations found in the answer</h4><pre class="w-cites"></pre></div>
+      <div class="wk-step" data-wk="4" hidden><h4>5 - Evaluator verdict</h4><pre class="w-verdict"></pre></div>
+      <h4>Recorded spans &amp; usage</h4>
+      <pre class="w-spans"></pre>
       ${r.error ? "<h4>Error</h4><pre class='err'></pre>" : ""}
     </div>`;
   d.querySelector(".cid").textContent = r.case_id;
-  d.querySelector(".answer").textContent = r.answer || "(none)";
-  d.querySelector(".docs").textContent = docs.length ? docs.join(", ") : "(none recorded)";
-  d.querySelector(".spans").textContent = spans.length
-    ? spans.map(s => `${s.kind}: ${s.name} - ${fmt(s.latency_ms,3)} ms`).join("\n")
-    : "(none recorded)";
-  d.querySelector(".usage").textContent = JSON.stringify(usage);
-  const errEl = d.querySelector(".err");
-  if (errEl) errEl.textContent = r.error;
+  d.querySelector(".w-input").textContent = c.input || "(input not recorded for this run)";
+  d.querySelector(".w-docs").textContent = docs.length ? docs.join(", ") : "(none recorded)";
+  d.querySelector(".w-support").textContent = (c.supporting_doc_ids || []).join(", ") || "-";
+  d.querySelector(".w-answer").textContent = r.answer || "(none)";
+  const cites = (r.answer && r.answer.match(/\[doc:[\w.\-]+\]/g)) || [];
+  d.querySelector(".w-cites").textContent = cites.length ? cites.join(" ") : "(no [doc:...] citations found)";
+  const v = [];
+  v.push(`failure: ${r.failure || "none (success)"}`);
+  if (r.groundedness != null) v.push(`groundedness: ${r.groundedness} (lexical proxy, threshold 0.5)`);
+  if (r.citation_coverage != null) v.push(`citation coverage: ${r.citation_coverage}`);
+  if (r.keyword_recall != null) v.push(`keyword recall: ${r.keyword_recall}`);
+  if (r.retrieval_recall != null) v.push(`retrieval recall: ${r.retrieval_recall}`);
+  if (r.expect_abstention || r.abstention_correct != null) v.push(`abstention correct: ${fmt(r.abstention_correct,2)}`);
+  d.querySelector(".w-verdict").textContent = v.join("\n");
+  d.querySelector(".w-spans").textContent =
+    (spans.length ? spans.map(s => `${s.kind}: ${s.name} - ${fmt(s.latency_ms,3)} ms`).join("\n") : "(none recorded)")
+    + "\nusage: " + JSON.stringify(usage);
+  if (r.error) d.querySelector(".err").textContent = r.error;
+  // inline walkthrough
+  let wk = 0; const total = 5;
+  const pos = d.querySelector(".wk-pos");
+  const sync = () => {
+    d.querySelectorAll("[data-wk]").forEach(s => {
+      const i = +s.dataset.wk;
+      s.hidden = i > wk;
+      s.querySelector("h4").classList.toggle("hl", i === wk);
+    });
+    pos.textContent = `stage ${wk+1} / ${total}`;
+    d.querySelector(".wk-next").textContent = wk >= total-1 ? "Restart walkthrough" : "Next: " +
+      ["input","evidence","answer","citations","verdict"][Math.min(wk+1, total-1)];
+  };
+  d.querySelector(".wk-next").addEventListener("click", () => { wk = wk >= total-1 ? 0 : wk+1; sync(); });
+  d.querySelector(".wk-reset").addEventListener("click", () => { wk = 0; sync(); });
+  sync();
   return d;
 }
 
-/* ---- comparisons ---- */
+/* ---------------- version transition (B) ---------------- */
+const VSEQ = ["v1_baseline","v2_improved","v3_fluent_regression"];
+let vtIdx = 0, vtTimer = null, vtSpeed = 1;
+function vtRender(){
+  const id = VSEQ[vtIdx];
+  const agg = getAgg(id);
+  const recall = agg.mean_retrieval_recall, ground = agg.mean_groundedness;
+  const br = document.getElementById("bar-recall"), bg = document.getElementById("bar-ground");
+  br.style.width = (recall*100) + "%";
+  bg.style.width = (ground*100) + "%";
+  bg.classList.toggle("bad", ground < 0.25);
+  document.getElementById("val-recall").textContent = `${VERSION_META[id].label}: ${recall}`;
+  document.getElementById("val-ground").textContent = `${VERSION_META[id].label}: ${ground}`;
+  const stories = [
+    "v1 baseline: overlap retrieval, top-1. Recall 0.73 - the floor we improve from.",
+    "v2 improved: idf-weighted retrieval, top-3. Recall 0.73 \u2192 0.91, MRR up, everything else held. No regressions detected.",
+    "v3 fluent: same retrieval as v2 - but the fluent style drops citations. Recall holds at 0.91 while groundedness collapses 0.57 \u2192 0.00 (22 ungrounded cases) and citation coverage 0.73 \u2192 0. The regression engine flags it and attributes it per case.",
+  ];
+  document.getElementById("vstory").innerHTML = `<b>${VERSION_META[id].label}:</b> ${stories[vtIdx]}`;
+}
+function vtStop(){ if (vtTimer){ clearInterval(vtTimer); vtTimer = null;
+  const p = document.getElementById("vt-play"); p.textContent = "Play v1 \u2192 v2 \u2192 v3"; p.setAttribute("aria-pressed","false"); } }
+document.getElementById("vt-play").addEventListener("click", () => {
+  if (vtTimer){ vtStop(); return; }
+  const p = document.getElementById("vt-play"); p.textContent = "Pause"; p.setAttribute("aria-pressed","true");
+  vtTimer = setInterval(() => {
+    if (vtIdx >= VSEQ.length-1){ vtStop(); return; }
+    vtIdx++; vtRender();
+  }, 2600 * vtSpeed);
+});
+document.getElementById("vt-step").addEventListener("click", () => { vtStop(); vtIdx = Math.min(VSEQ.length-1, vtIdx+1); vtRender(); });
+document.getElementById("vt-reset").addEventListener("click", () => { vtStop(); vtIdx = 0; vtRender(); });
+document.getElementById("vt-speed").addEventListener("change", e => { vtSpeed = +e.target.value; });
+
+/* ---------------- case replay through the evaluator (A) ---------------- */
+const RSTEPS = ["RUN","TRACE","RETRIEVAL","ANSWER","CITATION CHECK","GROUNDEDNESS","TAXONOMY"];
+let rpStep = 0, rpTimer = null, rpSpeed = 1;
+function replayRow(){
+  const ver = document.getElementById("replay-ver").value;
+  const cid = document.getElementById("replay-case").value;
+  return getCases(ver).find(r => r.case_id === cid) || getCases(ver)[0];
+}
+function replayRender(){
+  const r = replayRow();
+  const t = r.trace || {}, c = r.case || {};
+  const box = document.getElementById("replay-steps");
+  box.innerHTML = RSTEPS.map((s,i) =>
+    `<span class="st ${i===rpStep?"on":(i<rpStep?"done":"")}">${s}</span>`).join("<span class='arr' aria-hidden='true'>\u2192</span>");
+  const stage = document.getElementById("replay-stage");
+  const docs = t.retrieved_doc_ids || [];
+  const support = c.supporting_doc_ids || [];
+  const cites = (r.answer && r.answer.match(/\[doc:[\w.\-]+\]/g)) || [];
+  const bodies = [
+    `<b>RUN</b> - the system is invoked once on the case input.<pre>run: ${VERSION_META[document.getElementById("replay-ver").value].label}\ninput: ${c.input || "(not recorded)"}\nexpect_abstention: ${c.expect_abstention || false}</pre>`,
+    `<b>TRACE</b> - the invocation is recorded as one validated trace (never re-run to score).<pre>spans: ${(t.spans||[]).map(s => s.kind + " " + fmt(s.latency_ms,3) + " ms").join(", ") || "(none recorded)"}\ntokens: ${JSON.stringify((t.usage||{}))}</pre>`,
+    `<b>RETRIEVAL</b> - what the system fetched vs what the case declares as ground truth.<pre>retrieved: ${docs.join(", ") || "(none)"}\nsupporting: ${support.join(", ") || "-"}</pre>`,
+    `<b>ANSWER</b> - the recorded final answer.<pre>${(r.answer || "(none)").slice(0, 400)}</pre>`,
+    `<b>CITATION CHECK</b> - [doc:...] citations extracted from the answer, matched against supporting docs.<pre>citations found: ${cites.join(" ") || "(none)"}\ncitation coverage: ${fmt(r.citation_coverage,3)}  (fraction of supporting docs cited)</pre>`,
+    `<b>GROUNDEDNESS</b> - lexical proxy: does each cited sentence's content appear in the cited doc?<pre>groundedness: ${fmt(r.groundedness,3)}  (supported cited sentences / total cited; threshold 0.5)</pre>`,
+    `<b>TAXONOMY</b> - first-match classification of the outcome.<pre>failure: ${r.failure || "none - success"}\n(${r.failure ? (FAILURE_WHY[r.failure] || "") : "all checked expectations passed"})</pre>`,
+  ];
+  stage.innerHTML = bodies[rpStep];
+  document.getElementById("rp-pos").textContent = `stage ${rpStep+1} / ${RSTEPS.length}`;
+  document.getElementById("rp-next").disabled = rpStep >= RSTEPS.length-1;
+}
+function replayFillCases(){
+  const sel = document.getElementById("replay-case");
+  const ver = document.getElementById("replay-ver").value;
+  const keep = sel.value;
+  sel.innerHTML = "";
+  getCases(ver).forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.case_id;
+    o.textContent = `${r.case_id}${r.failure ? " - " + r.failure : " - success"}`;
+    sel.appendChild(o);
+  });
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+  else {
+    // default to the most instructive case: an ungrounded one on v3
+    const ug = getCases(ver).find(r => r.failure === "ungrounded");
+    sel.value = ug ? ug.case_id : sel.options[0].value;
+  }
+}
+function rpStop(){ if (rpTimer){ clearInterval(rpTimer); rpTimer = null;
+  const p = document.getElementById("rp-play"); p.textContent = "Play"; p.setAttribute("aria-pressed","false"); } }
+document.getElementById("rp-play").addEventListener("click", () => {
+  if (rpTimer){ rpStop(); return; }
+  const p = document.getElementById("rp-play"); p.textContent = "Pause"; p.setAttribute("aria-pressed","true");
+  rpTimer = setInterval(() => {
+    if (rpStep >= RSTEPS.length-1){ rpStop(); return; }
+    rpStep++; replayRender();
+  }, 1800 * rpSpeed);
+});
+document.getElementById("rp-next").addEventListener("click", () => { rpStop(); rpStep = Math.min(RSTEPS.length-1, rpStep+1); replayRender(); });
+document.getElementById("rp-back").addEventListener("click", () => { rpStop(); rpStep = Math.max(0, rpStep-1); replayRender(); });
+document.getElementById("rp-reset").addEventListener("click", () => { rpStop(); rpStep = 0; replayRender(); });
+document.getElementById("rp-speed").addEventListener("change", e => { rpSpeed = +e.target.value; });
+document.getElementById("replay-case").addEventListener("change", () => { rpStop(); rpStep = 0; replayRender(); });
+document.getElementById("replay-ver").addEventListener("change", () => { rpStop(); rpStep = 0; replayFillCases(); replayRender(); });
+
+/* ---------------- comparisons ---------------- */
 function renderComparisons(){
   const panel = document.getElementById("cmp-panel");
   const items = [
@@ -263,9 +519,90 @@ function renderComparisons(){
   }).join("");
 }
 
+/* ---------------- tour engine ---------------- */
+let tour = null, tourIdx = 0, tourTimer = null, tourSpeed = 1;
+const tourDim = document.getElementById("tour-dim");
+const tourCard = document.getElementById("tour-card");
+function tourShow(i){
+  tourIdx = Math.max(0, Math.min(i, tour.steps.length-1));
+  const st = tour.steps[tourIdx];
+  document.querySelectorAll(".tour-hi").forEach(e => e.classList.remove("tour-hi"));
+  tourDim.style.display = "block";
+  tourCard.style.display = "block";
+  document.getElementById("tour-title").textContent = st.title;
+  document.getElementById("tour-body").innerHTML = st.html;
+  document.getElementById("tour-pos").textContent = `step ${tourIdx+1} / ${tour.steps.length}`;
+  document.getElementById("tour-back").disabled = tourIdx === 0;
+  document.getElementById("tour-next").disabled = tourIdx >= tour.steps.length-1;
+  if (st.onEnter) try { st.onEnter(); } catch(e) { /* tour must not break the page */ }
+  if (st.el){
+    const t = typeof st.el === "function" ? st.el() : document.querySelector(st.el);
+    if (t){ t.classList.add("tour-hi");
+      t.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block: "center"}); }
+  }
+}
+function tourStop(){ if (tourTimer){ clearInterval(tourTimer); tourTimer = null;
+  const p = document.getElementById("tour-play"); p.textContent = "Play"; p.setAttribute("aria-pressed","false"); } }
+function tourClose(){ tourStop(); tour = null; tourDim.style.display = "none"; tourCard.style.display = "none";
+  document.querySelectorAll(".tour-hi").forEach(e => e.classList.remove("tour-hi")); }
+function startTour(def){ if (tour) tourClose(); tour = def; tourShow(0); if (!REDUCED) tourPlayToggle(); }
+function tourPlayToggle(){
+  if (tourTimer){ tourStop(); return; }
+  const p = document.getElementById("tour-play"); p.textContent = "Pause"; p.setAttribute("aria-pressed","true");
+  tourTimer = setInterval(() => {
+    if (!tour || tourIdx >= tour.steps.length-1){ tourStop(); return; }
+    tourShow(tourIdx+1);
+  }, 4200 * tourSpeed);
+}
+document.getElementById("tour-open").addEventListener("click", () => startTour(TOURS.main));
+document.getElementById("tour-next").addEventListener("click", () => { tourStop(); tourShow(tourIdx+1); });
+document.getElementById("tour-back").addEventListener("click", () => { tourStop(); tourShow(tourIdx-1); });
+document.getElementById("tour-exit").addEventListener("click", tourClose);
+document.getElementById("tour-play").addEventListener("click", tourPlayToggle);
+document.getElementById("tour-speed").addEventListener("change", e => { tourSpeed = +e.target.value; });
+
+const TOURS = {
+  main: { steps: [
+    { title: "What this page is", el: ".hero", html: "AIRE evaluates AI systems from <b>recorded traces</b>: run once, score many times, compare versions. Every number here is committed measurement from the repo's results/." },
+    { title: "The three deterministic versions", el: "#tabs", html: "v1 (overlap retrieval), v2 (idf retrieval), v3 (planted fluent regression). Click through tabs anytime; the tour will visit v3 in a moment." },
+    { title: "Watch the versions transition", el: "#transition", html: "Press 'Play v1 \u2192 v2 \u2192 v3': recall climbs 0.73 \u2192 0.91, then groundedness collapses 0.57 \u2192 0.00 - the page's key measured story." },
+    { title: "Replay one case", el: "#replay", html: "Pick any case and step through the evaluator's decision path: run \u2192 trace \u2192 retrieval \u2192 answer \u2192 citation check \u2192 groundedness \u2192 taxonomy. This is how 'a score' becomes 'an explanation'." },
+    { title: "Failure categories are the point", el: "#fail-chips", html: "Click a failure category (e.g. ungrounded (22)) to see exactly which cases regressed and why the engine classified them so. The engine doesn't produce one score - it identifies WHY." },
+    { title: "The comparisons", el: "#compare", html: "Direction-aware thresholds with per-case attribution. v3 vs v1: regressions detected. Now explore on your own - keyboard: Space play/pause, arrows step, R resets an active player." },
+  ]},
+  story: { steps: [
+    { title: "1. v3 sounds better", el: "#catch-callout", html: "The team ships a 'fluent' style: sentences merge, prose flows. It even retrieves better. Nothing looks broken in a chat window." },
+    { title: "2. Retrieval looks improved", el: "#transition", html: "Recall: 0.73 \u2192 0.91 (v2's idf retrieval, kept in v3). A single composite score would call v3 an upgrade. Play the transition to watch it.", onEnter: () => { vtIdx = 1; vtRender(); } },
+    { title: "3. Grounding collapses", el: "#transition", html: "The fluent style drops every citation. Groundedness: 0.57 \u2192 0.00 across 22 ungrounded cases; citation coverage 0.73 \u2192 0. Step to v3.", onEnter: () => { vtIdx = 2; vtRender(); } },
+    { title: "4. The evaluator flags it", el: "#compare", html: "The regression engine reports 'regressions detected' for v3 vs v1 with per-case attribution - not one blurry number, but which metric moved and which cases caused it." },
+    { title: "5. Case-level evidence explains why", el: () => document.querySelector("#case-list details"), html: "Open any ungrounded case: the recorded answer has no [doc:...] citations, so the lexical groundedness check scores 0 and the taxonomy says 'ungrounded'. That's the difference between seeing a score and understanding a regression." },
+  ]},
+};
+
+/* keyboard: active player first (replay > tour), guarded */
+document.addEventListener("keydown", (e) => {
+  const tag = (e.target.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "select" || tag === "textarea") return;
+  if (e.key === " "){
+    if (tour){ e.preventDefault(); tourPlayToggle(); }
+    return;
+  }
+  if (tour){
+    if (e.key === "ArrowRight"){ e.preventDefault(); tourStop(); tourShow(tourIdx+1); }
+    else if (e.key === "ArrowLeft"){ e.preventDefault(); tourStop(); tourShow(tourIdx-1); }
+    else if (e.key.toLowerCase() === "r"){ tourStop(); tourShow(0); }
+    else if (e.key === "Escape"){ tourClose(); }
+  }
+});
+
+/* ---------------- init ---------------- */
 buildTabs();
-renderRun();
+selectVersion("v3_fluent_regression");
 renderComparisons();
+replayFillCases();
+replayRender();
+vtRender();
+document.getElementById("story-open").addEventListener("click", () => startTour(TOURS.story));
 </script>
 </body>
 </html>

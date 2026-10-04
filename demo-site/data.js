@@ -35,6 +35,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long do I have to request a refund after a charge?",
+      "supporting_doc_ids": [
+       "doc_refunds"
+      ],
+      "expected_keywords": [
+       "30 days",
+       "full refund",
+       "payment card"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -69,6 +82,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How many API requests per minute does the Growth tier allow?",
+      "supporting_doc_ids": [
+       "doc_rate_limits"
+      ],
+      "expected_keywords": [
+       "300 requests per minute",
+       "rolling one-minute windows",
+       "x-ratelimit-remaining"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -103,6 +129,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What monthly uptime does the standard tier guarantee?",
+      "supporting_doc_ids": [
+       "doc_sla"
+      ],
+      "expected_keywords": [
+       "99.9%",
+       "monthly uptime",
+       "standard tier"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -137,6 +176,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long does Northwind Cloud keep application logs?",
+      "supporting_doc_ids": [
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "application logs",
+       "30 days",
+       "permanently removed"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -171,6 +223,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Which encryption standard protects stored data?",
+      "supporting_doc_ids": [
+       "doc_encryption"
+      ],
+      "expected_keywords": [
+       "aes-256",
+       "encrypted at rest",
+       "key service"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -205,6 +270,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What are the first steps to get an API key on Northwind Cloud?",
+      "supporting_doc_ids": [
+       "doc_onboarding"
+      ],
+      "expected_keywords": [
+       "verify email",
+       "create project",
+       "api key",
+       "console"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -239,6 +318,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How much does the Starter plan cost, and what usage is included?",
+      "supporting_doc_ids": [
+       "doc_billing_plans"
+      ],
+      "expected_keywords": [
+       "19 usd",
+       "100 gb",
+       "egress traffic"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -273,6 +365,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What do the incident severity levels on the status page mean?",
+      "supporting_doc_ids": [
+       "doc_status_page"
+      ],
+      "expected_keywords": [
+       "severity 1",
+       "severity 2",
+       "severity 3",
+       "full outage"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -307,6 +413,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What first response time does email support have on the Growth plan?",
+      "supporting_doc_ids": [
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "email support",
+       "24 hours",
+       "around the clock"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -341,6 +460,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long does a data export take to process?",
+      "supporting_doc_ids": [
+       "doc_export"
+      ],
+      "expected_keywords": [
+       "processing time",
+       "48 hours",
+       "30 minutes"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -375,6 +507,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Which regions does Northwind Cloud operate in?",
+      "supporting_doc_ids": [
+       "doc_regions"
+      ],
+      "expected_keywords": [
+       "us-east",
+       "eu-west",
+       "ap-south",
+       "data residency"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -409,6 +555,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Does Northwind Cloud hold SOC 2 certification?",
+      "supporting_doc_ids": [
+       "doc_compliance"
+      ],
+      "expected_keywords": [
+       "soc 2 type ii",
+       "annual audit",
+       "nda"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -443,6 +602,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What should my client do when the API answers with a limit error?",
+      "supporting_doc_ids": [
+       "doc_rate_limits"
+      ],
+      "expected_keywords": [
+       "http 429",
+       "retry-after",
+       "exponential backoff"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -477,6 +649,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How is a service credit calculated when uptime misses the target?",
+      "supporting_doc_ids": [
+       "doc_sla"
+      ],
+      "expected_keywords": [
+       "service credit",
+       "5%",
+       "0.1%",
+       "capped at 50%"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -511,6 +697,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "If I upgrade to the Business plan, what uptime do I get and how fast does priority support respond?",
+      "supporting_doc_ids": [
+       "doc_sla",
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "99.95%",
+       "priority support",
+       "4-hour"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -545,6 +745,21 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I export my logs, and how long does Northwind Cloud keep them?",
+      "supporting_doc_ids": [
+       "doc_export",
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "json",
+       "csv",
+       "30 days",
+       "application logs"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -574,6 +789,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Do you offer phone support in Swahili?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -603,6 +825,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I deploy IPv6-only clusters on Northwind Cloud?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -632,6 +861,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Is there an on-premises deployment option for Northwind Cloud?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -661,6 +897,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I pay for my plan with Bitcoin or another virtual currency?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -695,6 +938,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Are domain registration fees eligible for a refund?",
+      "supporting_doc_ids": [
+       "doc_refunds"
+      ],
+      "expected_keywords": [
+       "domain registration fees",
+       "excluded",
+       "migration services"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -729,6 +985,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I have my logs and backups deleted before the retention period ends?",
+      "supporting_doc_ids": [
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "deletion on request",
+       "72 hours",
+       "irreversible"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -763,6 +1032,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How often are encryption keys rotated, and can I rotate them myself?",
+      "supporting_doc_ids": [
+       "doc_encryption"
+      ],
+      "expected_keywords": [
+       "90 days",
+       "rotate automatically",
+       "manual key rotation"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -797,6 +1079,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What am I charged if I go over the egress included in my plan?",
+      "supporting_doc_ids": [
+       "doc_billing_plans"
+      ],
+      "expected_keywords": [
+       "overage",
+       "0.08 usd",
+       "billing console"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -831,6 +1126,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How will I be notified when something breaks on the platform?",
+      "supporting_doc_ids": [
+       "doc_status_page"
+      ],
+      "expected_keywords": [
+       "status.northwind.cloud",
+       "email",
+       "sms",
+       "webhook"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -865,6 +1174,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What response target does priority support have for Business customers?",
+      "supporting_doc_ids": [
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "priority support",
+       "4-hour",
+       "business hours"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     }
    ],
@@ -929,6 +1251,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long do I have to request a refund after a charge?",
+      "supporting_doc_ids": [
+       "doc_refunds"
+      ],
+      "expected_keywords": [
+       "30 days",
+       "full refund",
+       "payment card"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -965,6 +1300,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How many API requests per minute does the Growth tier allow?",
+      "supporting_doc_ids": [
+       "doc_rate_limits"
+      ],
+      "expected_keywords": [
+       "300 requests per minute",
+       "rolling one-minute windows",
+       "x-ratelimit-remaining"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1001,6 +1349,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What monthly uptime does the standard tier guarantee?",
+      "supporting_doc_ids": [
+       "doc_sla"
+      ],
+      "expected_keywords": [
+       "99.9%",
+       "monthly uptime",
+       "standard tier"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1037,6 +1398,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long does Northwind Cloud keep application logs?",
+      "supporting_doc_ids": [
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "application logs",
+       "30 days",
+       "permanently removed"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1073,6 +1447,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Which encryption standard protects stored data?",
+      "supporting_doc_ids": [
+       "doc_encryption"
+      ],
+      "expected_keywords": [
+       "aes-256",
+       "encrypted at rest",
+       "key service"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1109,6 +1496,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What are the first steps to get an API key on Northwind Cloud?",
+      "supporting_doc_ids": [
+       "doc_onboarding"
+      ],
+      "expected_keywords": [
+       "verify email",
+       "create project",
+       "api key",
+       "console"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1145,6 +1546,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How much does the Starter plan cost, and what usage is included?",
+      "supporting_doc_ids": [
+       "doc_billing_plans"
+      ],
+      "expected_keywords": [
+       "19 usd",
+       "100 gb",
+       "egress traffic"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1181,6 +1595,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What do the incident severity levels on the status page mean?",
+      "supporting_doc_ids": [
+       "doc_status_page"
+      ],
+      "expected_keywords": [
+       "severity 1",
+       "severity 2",
+       "severity 3",
+       "full outage"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1217,6 +1645,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What first response time does email support have on the Growth plan?",
+      "supporting_doc_ids": [
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "email support",
+       "24 hours",
+       "around the clock"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1253,6 +1694,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long does a data export take to process?",
+      "supporting_doc_ids": [
+       "doc_export"
+      ],
+      "expected_keywords": [
+       "processing time",
+       "48 hours",
+       "30 minutes"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1289,6 +1743,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Which regions does Northwind Cloud operate in?",
+      "supporting_doc_ids": [
+       "doc_regions"
+      ],
+      "expected_keywords": [
+       "us-east",
+       "eu-west",
+       "ap-south",
+       "data residency"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1325,6 +1793,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Does Northwind Cloud hold SOC 2 certification?",
+      "supporting_doc_ids": [
+       "doc_compliance"
+      ],
+      "expected_keywords": [
+       "soc 2 type ii",
+       "annual audit",
+       "nda"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1361,6 +1842,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What should my client do when the API answers with a limit error?",
+      "supporting_doc_ids": [
+       "doc_rate_limits"
+      ],
+      "expected_keywords": [
+       "http 429",
+       "retry-after",
+       "exponential backoff"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1397,6 +1891,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How is a service credit calculated when uptime misses the target?",
+      "supporting_doc_ids": [
+       "doc_sla"
+      ],
+      "expected_keywords": [
+       "service credit",
+       "5%",
+       "0.1%",
+       "capped at 50%"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1433,6 +1941,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "If I upgrade to the Business plan, what uptime do I get and how fast does priority support respond?",
+      "supporting_doc_ids": [
+       "doc_sla",
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "99.95%",
+       "priority support",
+       "4-hour"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1469,6 +1991,21 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I export my logs, and how long does Northwind Cloud keep them?",
+      "supporting_doc_ids": [
+       "doc_export",
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "json",
+       "csv",
+       "30 days",
+       "application logs"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1500,6 +2037,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Do you offer phone support in Swahili?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -1531,6 +2075,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I deploy IPv6-only clusters on Northwind Cloud?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -1562,6 +2113,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Is there an on-premises deployment option for Northwind Cloud?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -1593,6 +2151,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I pay for my plan with Bitcoin or another virtual currency?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -1627,6 +2192,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Are domain registration fees eligible for a refund?",
+      "supporting_doc_ids": [
+       "doc_refunds"
+      ],
+      "expected_keywords": [
+       "domain registration fees",
+       "excluded",
+       "migration services"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1663,6 +2241,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I have my logs and backups deleted before the retention period ends?",
+      "supporting_doc_ids": [
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "deletion on request",
+       "72 hours",
+       "irreversible"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1698,6 +2289,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How often are encryption keys rotated, and can I rotate them myself?",
+      "supporting_doc_ids": [
+       "doc_encryption"
+      ],
+      "expected_keywords": [
+       "90 days",
+       "rotate automatically",
+       "manual key rotation"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1734,6 +2338,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What am I charged if I go over the egress included in my plan?",
+      "supporting_doc_ids": [
+       "doc_billing_plans"
+      ],
+      "expected_keywords": [
+       "overage",
+       "0.08 usd",
+       "billing console"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1768,6 +2385,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How will I be notified when something breaks on the platform?",
+      "supporting_doc_ids": [
+       "doc_status_page"
+      ],
+      "expected_keywords": [
+       "status.northwind.cloud",
+       "email",
+       "sms",
+       "webhook"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1804,6 +2435,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What response target does priority support have for Business customers?",
+      "supporting_doc_ids": [
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "priority support",
+       "4-hour",
+       "business hours"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     }
    ],
@@ -1867,6 +2511,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long do I have to request a refund after a charge?",
+      "supporting_doc_ids": [
+       "doc_refunds"
+      ],
+      "expected_keywords": [
+       "30 days",
+       "full refund",
+       "payment card"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1903,6 +2560,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How many API requests per minute does the Growth tier allow?",
+      "supporting_doc_ids": [
+       "doc_rate_limits"
+      ],
+      "expected_keywords": [
+       "300 requests per minute",
+       "rolling one-minute windows",
+       "x-ratelimit-remaining"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1939,6 +2609,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What monthly uptime does the standard tier guarantee?",
+      "supporting_doc_ids": [
+       "doc_sla"
+      ],
+      "expected_keywords": [
+       "99.9%",
+       "monthly uptime",
+       "standard tier"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -1975,6 +2658,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long does Northwind Cloud keep application logs?",
+      "supporting_doc_ids": [
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "application logs",
+       "30 days",
+       "permanently removed"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2011,6 +2707,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Which encryption standard protects stored data?",
+      "supporting_doc_ids": [
+       "doc_encryption"
+      ],
+      "expected_keywords": [
+       "aes-256",
+       "encrypted at rest",
+       "key service"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2047,6 +2756,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What are the first steps to get an API key on Northwind Cloud?",
+      "supporting_doc_ids": [
+       "doc_onboarding"
+      ],
+      "expected_keywords": [
+       "verify email",
+       "create project",
+       "api key",
+       "console"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2083,6 +2806,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How much does the Starter plan cost, and what usage is included?",
+      "supporting_doc_ids": [
+       "doc_billing_plans"
+      ],
+      "expected_keywords": [
+       "19 usd",
+       "100 gb",
+       "egress traffic"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2119,6 +2855,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What do the incident severity levels on the status page mean?",
+      "supporting_doc_ids": [
+       "doc_status_page"
+      ],
+      "expected_keywords": [
+       "severity 1",
+       "severity 2",
+       "severity 3",
+       "full outage"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2155,6 +2905,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What first response time does email support have on the Growth plan?",
+      "supporting_doc_ids": [
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "email support",
+       "24 hours",
+       "around the clock"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2191,6 +2954,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How long does a data export take to process?",
+      "supporting_doc_ids": [
+       "doc_export"
+      ],
+      "expected_keywords": [
+       "processing time",
+       "48 hours",
+       "30 minutes"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2227,6 +3003,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Which regions does Northwind Cloud operate in?",
+      "supporting_doc_ids": [
+       "doc_regions"
+      ],
+      "expected_keywords": [
+       "us-east",
+       "eu-west",
+       "ap-south",
+       "data residency"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2263,6 +3053,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Does Northwind Cloud hold SOC 2 certification?",
+      "supporting_doc_ids": [
+       "doc_compliance"
+      ],
+      "expected_keywords": [
+       "soc 2 type ii",
+       "annual audit",
+       "nda"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2299,6 +3102,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What should my client do when the API answers with a limit error?",
+      "supporting_doc_ids": [
+       "doc_rate_limits"
+      ],
+      "expected_keywords": [
+       "http 429",
+       "retry-after",
+       "exponential backoff"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2335,6 +3151,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How is a service credit calculated when uptime misses the target?",
+      "supporting_doc_ids": [
+       "doc_sla"
+      ],
+      "expected_keywords": [
+       "service credit",
+       "5%",
+       "0.1%",
+       "capped at 50%"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2371,6 +3201,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "If I upgrade to the Business plan, what uptime do I get and how fast does priority support respond?",
+      "supporting_doc_ids": [
+       "doc_sla",
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "99.95%",
+       "priority support",
+       "4-hour"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2407,6 +3251,21 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I export my logs, and how long does Northwind Cloud keep them?",
+      "supporting_doc_ids": [
+       "doc_export",
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "json",
+       "csv",
+       "30 days",
+       "application logs"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2438,6 +3297,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Do you offer phone support in Swahili?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -2469,6 +3335,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I deploy IPv6-only clusters on Northwind Cloud?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -2500,6 +3373,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Is there an on-premises deployment option for Northwind Cloud?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -2531,6 +3411,13 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I pay for my plan with Bitcoin or another virtual currency?",
+      "supporting_doc_ids": [],
+      "expected_keywords": [],
+      "expect_abstention": true,
+      "must_cite": false
      }
     },
     {
@@ -2565,6 +3452,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Are domain registration fees eligible for a refund?",
+      "supporting_doc_ids": [
+       "doc_refunds"
+      ],
+      "expected_keywords": [
+       "domain registration fees",
+       "excluded",
+       "migration services"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2601,6 +3501,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "Can I have my logs and backups deleted before the retention period ends?",
+      "supporting_doc_ids": [
+       "doc_data_retention"
+      ],
+      "expected_keywords": [
+       "deletion on request",
+       "72 hours",
+       "irreversible"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2636,6 +3549,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How often are encryption keys rotated, and can I rotate them myself?",
+      "supporting_doc_ids": [
+       "doc_encryption"
+      ],
+      "expected_keywords": [
+       "90 days",
+       "rotate automatically",
+       "manual key rotation"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2672,6 +3598,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What am I charged if I go over the egress included in my plan?",
+      "supporting_doc_ids": [
+       "doc_billing_plans"
+      ],
+      "expected_keywords": [
+       "overage",
+       "0.08 usd",
+       "billing console"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2706,6 +3645,20 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "How will I be notified when something breaks on the platform?",
+      "supporting_doc_ids": [
+       "doc_status_page"
+      ],
+      "expected_keywords": [
+       "status.northwind.cloud",
+       "email",
+       "sms",
+       "webhook"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     },
     {
@@ -2742,6 +3695,19 @@ window.DATA = {
        "token_source": "heuristic"
       },
       "error": null
+     },
+     "case": {
+      "input": "What response target does priority support have for Business customers?",
+      "supporting_doc_ids": [
+       "doc_support_tiers"
+      ],
+      "expected_keywords": [
+       "priority support",
+       "4-hour",
+       "business hours"
+      ],
+      "expect_abstention": false,
+      "must_cite": true
      }
     }
    ],
@@ -2805,7 +3771,20 @@ window.DATA = {
     "total_tokens": 692,
     "cost_usd": 0.0,
     "failure": "incomplete_answer",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How long do I have to request a refund after a charge?",
+     "supporting_doc_ids": [
+      "doc_refunds"
+     ],
+     "expected_keywords": [
+      "30 days",
+      "full refund",
+      "payment card"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "rate_limit_tiers",
@@ -2822,7 +3801,20 @@ window.DATA = {
     "total_tokens": 674,
     "cost_usd": 0.0,
     "failure": "incomplete_answer",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How many API requests per minute does the Growth tier allow?",
+     "supporting_doc_ids": [
+      "doc_rate_limits"
+     ],
+     "expected_keywords": [
+      "300 requests per minute",
+      "rolling one-minute windows",
+      "x-ratelimit-remaining"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "sla_standard_uptime",
@@ -2839,7 +3831,20 @@ window.DATA = {
     "total_tokens": 663,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What monthly uptime does the standard tier guarantee?",
+     "supporting_doc_ids": [
+      "doc_sla"
+     ],
+     "expected_keywords": [
+      "99.9%",
+      "monthly uptime",
+      "standard tier"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "retention_log_days",
@@ -2856,7 +3861,20 @@ window.DATA = {
     "total_tokens": 656,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How long does Northwind Cloud keep application logs?",
+     "supporting_doc_ids": [
+      "doc_data_retention"
+     ],
+     "expected_keywords": [
+      "application logs",
+      "30 days",
+      "permanently removed"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "encryption_at_rest",
@@ -2873,7 +3891,20 @@ window.DATA = {
     "total_tokens": 640,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Which encryption standard protects stored data?",
+     "supporting_doc_ids": [
+      "doc_encryption"
+     ],
+     "expected_keywords": [
+      "aes-256",
+      "encrypted at rest",
+      "key service"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "onboarding_api_key",
@@ -2890,7 +3921,21 @@ window.DATA = {
     "total_tokens": 681,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What are the first steps to get an API key on Northwind Cloud?",
+     "supporting_doc_ids": [
+      "doc_onboarding"
+     ],
+     "expected_keywords": [
+      "verify email",
+      "create project",
+      "api key",
+      "console"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "plans_starter_price",
@@ -2907,7 +3952,20 @@ window.DATA = {
     "total_tokens": 650,
     "cost_usd": 0.0,
     "failure": "wrong_abstention",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How much does the Starter plan cost, and what usage is included?",
+     "supporting_doc_ids": [
+      "doc_billing_plans"
+     ],
+     "expected_keywords": [
+      "19 usd",
+      "100 gb",
+      "egress traffic"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "status_severities",
@@ -2924,7 +3982,21 @@ window.DATA = {
     "total_tokens": 669,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What do the incident severity levels on the status page mean?",
+     "supporting_doc_ids": [
+      "doc_status_page"
+     ],
+     "expected_keywords": [
+      "severity 1",
+      "severity 2",
+      "severity 3",
+      "full outage"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "support_growth_email",
@@ -2941,7 +4013,20 @@ window.DATA = {
     "total_tokens": 647,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What first response time does email support have on the Growth plan?",
+     "supporting_doc_ids": [
+      "doc_support_tiers"
+     ],
+     "expected_keywords": [
+      "email support",
+      "24 hours",
+      "around the clock"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "export_processing_time",
@@ -2958,7 +4043,20 @@ window.DATA = {
     "total_tokens": 643,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How long does a data export take to process?",
+     "supporting_doc_ids": [
+      "doc_export"
+     ],
+     "expected_keywords": [
+      "processing time",
+      "48 hours",
+      "30 minutes"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "regions_available",
@@ -2975,7 +4073,21 @@ window.DATA = {
     "total_tokens": 633,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Which regions does Northwind Cloud operate in?",
+     "supporting_doc_ids": [
+      "doc_regions"
+     ],
+     "expected_keywords": [
+      "us-east",
+      "eu-west",
+      "ap-south",
+      "data residency"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "compliance_soc2",
@@ -2992,7 +4104,20 @@ window.DATA = {
     "total_tokens": 661,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Does Northwind Cloud hold SOC 2 certification?",
+     "supporting_doc_ids": [
+      "doc_compliance"
+     ],
+     "expected_keywords": [
+      "soc 2 type ii",
+      "annual audit",
+      "nda"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "rate_limit_429",
@@ -3009,7 +4134,20 @@ window.DATA = {
     "total_tokens": 709,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What should my client do when the API answers with a limit error?",
+     "supporting_doc_ids": [
+      "doc_rate_limits"
+     ],
+     "expected_keywords": [
+      "http 429",
+      "retry-after",
+      "exponential backoff"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "sla_credit_formula",
@@ -3026,7 +4164,21 @@ window.DATA = {
     "total_tokens": 718,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How is a service credit calculated when uptime misses the target?",
+     "supporting_doc_ids": [
+      "doc_sla"
+     ],
+     "expected_keywords": [
+      "service credit",
+      "5%",
+      "0.1%",
+      "capped at 50%"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "multi_business_uptime_support",
@@ -3043,7 +4195,21 @@ window.DATA = {
     "total_tokens": 711,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "If I upgrade to the Business plan, what uptime do I get and how fast does priority support respond?",
+     "supporting_doc_ids": [
+      "doc_sla",
+      "doc_support_tiers"
+     ],
+     "expected_keywords": [
+      "99.95%",
+      "priority support",
+      "4-hour"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "multi_export_retention",
@@ -3060,7 +4226,22 @@ window.DATA = {
     "total_tokens": 633,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Can I export my logs, and how long does Northwind Cloud keep them?",
+     "supporting_doc_ids": [
+      "doc_export",
+      "doc_data_retention"
+     ],
+     "expected_keywords": [
+      "json",
+      "csv",
+      "30 days",
+      "application logs"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "absent_phone_support_swahili",
@@ -3072,7 +4253,14 @@ window.DATA = {
     "total_tokens": 613,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Do you offer phone support in Swahili?",
+     "supporting_doc_ids": [],
+     "expected_keywords": [],
+     "expect_abstention": true,
+     "must_cite": false
+    }
    },
    {
     "case_id": "absent_ipv6_clusters",
@@ -3084,7 +4272,14 @@ window.DATA = {
     "total_tokens": 609,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Can I deploy IPv6-only clusters on Northwind Cloud?",
+     "supporting_doc_ids": [],
+     "expected_keywords": [],
+     "expect_abstention": true,
+     "must_cite": false
+    }
    },
    {
     "case_id": "absent_onprem_deployment",
@@ -3096,7 +4291,14 @@ window.DATA = {
     "total_tokens": 608,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Is there an on-premises deployment option for Northwind Cloud?",
+     "supporting_doc_ids": [],
+     "expected_keywords": [],
+     "expect_abstention": true,
+     "must_cite": false
+    }
    },
    {
     "case_id": "absent_crypto_payments",
@@ -3108,7 +4310,14 @@ window.DATA = {
     "total_tokens": 620,
     "cost_usd": 0.0,
     "failure": null,
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Can I pay for my plan with Bitcoin or another virtual currency?",
+     "supporting_doc_ids": [],
+     "expected_keywords": [],
+     "expect_abstention": true,
+     "must_cite": false
+    }
    },
    {
     "case_id": "refunds_exclusions",
@@ -3125,7 +4334,20 @@ window.DATA = {
     "total_tokens": 221,
     "cost_usd": 0.0,
     "failure": "invocation_error",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Are domain registration fees eligible for a refund?",
+     "supporting_doc_ids": [
+      "doc_refunds"
+     ],
+     "expected_keywords": [
+      "domain registration fees",
+      "excluded",
+      "migration services"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "retention_early_deletion",
@@ -3142,7 +4364,20 @@ window.DATA = {
     "total_tokens": 598,
     "cost_usd": 0.0,
     "failure": "invocation_error",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "Can I have my logs and backups deleted before the retention period ends?",
+     "supporting_doc_ids": [
+      "doc_data_retention"
+     ],
+     "expected_keywords": [
+      "deletion on request",
+      "72 hours",
+      "irreversible"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "encryption_key_rotation",
@@ -3159,7 +4394,20 @@ window.DATA = {
     "total_tokens": 394,
     "cost_usd": 0.0,
     "failure": "invocation_error",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How often are encryption keys rotated, and can I rotate them myself?",
+     "supporting_doc_ids": [
+      "doc_encryption"
+     ],
+     "expected_keywords": [
+      "90 days",
+      "rotate automatically",
+      "manual key rotation"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "plans_overage",
@@ -3176,7 +4424,20 @@ window.DATA = {
     "total_tokens": 561,
     "cost_usd": 0.0,
     "failure": "invocation_error",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What am I charged if I go over the egress included in my plan?",
+     "supporting_doc_ids": [
+      "doc_billing_plans"
+     ],
+     "expected_keywords": [
+      "overage",
+      "0.08 usd",
+      "billing console"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "status_notifications",
@@ -3193,7 +4454,21 @@ window.DATA = {
     "total_tokens": 207,
     "cost_usd": 0.0,
     "failure": "invocation_error",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "How will I be notified when something breaks on the platform?",
+     "supporting_doc_ids": [
+      "doc_status_page"
+     ],
+     "expected_keywords": [
+      "status.northwind.cloud",
+      "email",
+      "sms",
+      "webhook"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    },
    {
     "case_id": "support_business_priority",
@@ -3210,7 +4485,20 @@ window.DATA = {
     "total_tokens": 616,
     "cost_usd": 0.0,
     "failure": "invocation_error",
-    "trace": {}
+    "trace": {},
+    "case": {
+     "input": "What response target does priority support have for Business customers?",
+     "supporting_doc_ids": [
+      "doc_support_tiers"
+     ],
+     "expected_keywords": [
+      "priority support",
+      "4-hour",
+      "business hours"
+     ],
+     "expect_abstention": false,
+     "must_cite": true
+    }
    }
   ],
   "generator": "gemini-2.5-flash via OpenAI-compatible API",

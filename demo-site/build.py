@@ -18,6 +18,24 @@ def load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+# Case definitions from the committed evaluation set: the walkthrough needs the
+# user input and declared expectations that the trace alone does not carry.
+CASES: dict[str, dict] = {}
+_eval_set = ROOT / "demo" / "eval_set.jsonl"
+for _line in _eval_set.read_text(encoding="utf-8").splitlines():
+    _line = _line.strip()
+    if not _line or _line.startswith("#"):
+        continue
+    _c = json.loads(_line)
+    CASES[_c["case_id"]] = {
+        "input": _c.get("input"),
+        "supporting_doc_ids": _c.get("supporting_doc_ids", []),
+        "expected_keywords": _c.get("expected_keywords", []),
+        "expect_abstention": _c.get("expect_abstention", False),
+        "must_cite": _c.get("must_cite", True),
+    }
+
+
 def load_version(name: str) -> dict:
     d = load(RESULTS / name / "eval_results.json")
     traces = {}
@@ -38,6 +56,7 @@ def load_version(name: str) -> dict:
                 }
     for row in d.get("per_case", []):
         row["trace"] = traces.get(row.get("case_id"), {})
+        row["case"] = CASES.get(row.get("case_id"), {})
     return d
 
 
@@ -53,6 +72,7 @@ def slim_comparison(name: str) -> dict:
 llm = load(RESULTS / "llm_eval_results.json")
 for row in llm.get("per_case", []):
     row["trace"] = {}  # live-LLM run has no committed traces.jsonl in results/
+    row["case"] = CASES.get(row.get("case_id"), {})
 llm_slim = {
     "aggregates": llm["aggregates"],
     "per_case": llm["per_case"],
