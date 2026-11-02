@@ -241,3 +241,11 @@ Stated plainly, because an evaluation tool that oversells itself is worthless:
 - **Retrieval ground truth is hand-declared.** Each case lists `supporting_doc_ids` by hand. Building reliable retrieval ground truth at scale is a separate, unsolved problem that this project does not pretend to solve.
 - **Thread-based timeout leaks.** The runner enforces invocation timeouts with a watchdog thread; Python threads cannot be killed, so a hung call leaks its worker thread. The watchdog bounds the runner's wait, not the underlying work.
 - **Latency in the demo is not LLM latency.** Sub-millisecond extractive answering says nothing about production latency behavior; the latency metric and its thresholds matter once a real system is attached.
+
+## Docker Quickstart
+
+```bash
+docker build -t aire-engine .
+docker run --rm aire-engine
+docker run --rm aire-engine python demo/run_demo.py
+```
