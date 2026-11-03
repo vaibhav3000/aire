@@ -15,7 +15,10 @@ LLM-backed systems fail in ways that ordinary unit tests do not catch:
 Scoring answers inside the application, or eyeballing outputs in a chat window, does not scale and is not reproducible. Teams need a recorded, comparable, version-to-version view of system behavior.
 
 ## The key idea
-
+```mermaid
+flowchart LR
+    A["Eval Suite (26 Cases)"] --> B["RAG Runner (v1/v2/v3)"] --> C["Trace Recorder"] --> D["Metric & Judge Engine (Recall@K, MRR, Groundedness, Citation)"] --> E["4-Class Failure Taxonomy (RETRIEVAL_MISSING, GROUNDING_FAIL, TOOL_SELECTION_FAIL, ABSTENTION_FAIL)"] --> F["CI Regression Gate & HTML Report"]
+```
 AIRE separates three concerns that are usually tangled together:
 
 1. **Record traces.** Every invocation of the system under test produces a validated `Trace`: spans with real latencies, retrieved document ids, tool calls, and token usage. Traces are written once to a run directory (`manifest.json` plus `traces.jsonl`) and are never modified afterwards.
