@@ -17,6 +17,25 @@ Scoring answers inside the application, or eyeballing outputs in a chat window, 
 ## The key idea
 ```mermaid
 flowchart LR
+  subgraph S1["1. Execution & Trace Capture"]
+    D[("Eval Dataset\n26 RAG Cases")] --> R["Pipeline Runner\nv1 / v2 / v3"]
+    R --> T[("Deterministic\nJSONL Traces")]
+  end
+  subgraph S2["2. Metric & Judge Engine"]
+    T --> M1["Retrieval Metrics\nRecall@K & MRR"]
+    T --> M2["Grounding & Citation\nCoverage Judges"]
+    T --> M3["Tool Selection &\nAbstention Evaluators"]
+  end
+  subgraph S3["3. Failure Taxonomy & CI Gate"]
+    M1 & M2 & M3 --> F{"4-Class Failure\nClassifier"}
+    F -->|Compare Versions| G["CI Regression Gate\n& HTML Report"]
+  end
+  classDef stage1 fill:#1e293b,stroke:#475569,color:#f8fafc,stroke-width:1.5px;
+  classDef stage2 fill:#17376e,stroke:#3b82f6,color:#ffffff,stroke-width:1.5px;
+  classDef stage3 fill:#065f46,stroke:#10b981,color:#ffffff,stroke-width:1.5px;
+  class D,R,T stage1;
+  class M1,M2,M3 stage2;
+  class F,G stage3;
     A["Eval Suite (26 Cases)"] --> B["RAG Runner (v1/v2/v3)"] --> C["Trace Recorder"] --> D["Metric & Judge Engine (Recall@K, MRR, Groundedness, Citation)"] --> E["4-Class Failure Taxonomy (RETRIEVAL_MISSING, GROUNDING_FAIL, TOOL_SELECTION_FAIL, ABSTENTION_FAIL)"] --> F["CI Regression Gate & HTML Report"]
 ```
 AIRE separates three concerns that are usually tangled together:
