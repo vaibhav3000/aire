@@ -18,17 +18,17 @@ Scoring answers inside the application, or eyeballing outputs in a chat window, 
 ```mermaid
 flowchart LR
   subgraph S1["1. Execution & Trace Capture"]
-    D[("Eval Dataset\n26 RAG Cases")] --> R["Pipeline Runner\nv1 / v2 / v3"]
-    R --> T[("Deterministic\nJSONL Traces")]
+    D[("Eval Dataset<br>26 RAG Cases")] --> R["Pipeline Runner<br>v1 / v2 / v3"]
+    R --> T[("Replayable<br>JSONL Traces")]
   end
   subgraph S2["2. Metric & Judge Engine"]
-    T --> M1["Retrieval Metrics\nRecall@K & MRR"]
-    T --> M2["Grounding & Citation\nCoverage Judges"]
-    T --> M3["Tool Selection &\nAbstention Evaluators"]
+    T --> M1["Retrieval Metrics<br>Recall@K & MRR"]
+    T --> M2["Grounding & Citation<br>Coverage Judges"]
+    T --> M3["Tool Selection &<br>Abstention Evaluators"]
   end
   subgraph S3["3. Failure Taxonomy & CI Gate"]
-    M1 & M2 & M3 --> F{"4-Class Failure\nClassifier"}
-    F -->|Compare Versions| G["CI Regression Gate\n& HTML Report"]
+    M1 & M2 & M3 --> F{"6-Class Failure<br>Classifier"}
+    F -->|Compare Versions| G["Regression Gate (exit 1 in CI)<br>& HTML Report"]
   end
   classDef stage1 fill:#1e293b,stroke:#475569,color:#f8fafc,stroke-width:1.5px;
   classDef stage2 fill:#17376e,stroke:#3b82f6,color:#ffffff,stroke-width:1.5px;
@@ -36,7 +36,6 @@ flowchart LR
   class D,R,T stage1;
   class M1,M2,M3 stage2;
   class F,G stage3;
-    A["Eval Suite (26 Cases)"] --> B["RAG Runner (v1/v2/v3)"] --> C["Trace Recorder"] --> D["Metric & Judge Engine (Recall@K, MRR, Groundedness, Citation)"] --> E["4-Class Failure Taxonomy (RETRIEVAL_MISSING, GROUNDING_FAIL, TOOL_SELECTION_FAIL, ABSTENTION_FAIL)"] --> F["CI Regression Gate & HTML Report"]
 ```
 AIRE separates three concerns that are usually tangled together:
 
@@ -97,7 +96,7 @@ Regression verdicts:
 
 ### A finding the evaluator surfaced: abstention does not work
 
-`abstention_correct` is 0.0 for both v1 and v2. The unanswerable questions in the eval set are never refused. The measured reason: top retrieval scores for unanswerable queries fall between 0.18 and 0.46, while the minimum top scores for answerable queries fall between 0.19 and 0.26. The two ranges overlap, so no calibrated `min_score` threshold can separate answerable from unanswerable inputs. Deciding answerability requires semantic matching, which a bag-of-words retriever cannot do. The evaluator earns its place here: the metric exposed a real capability gap rather than hiding it behind an average. See `docs/interview_guide.md`.
+`abstention_correct` is 0.0 for both v1 and v2. The unanswerable questions in the eval set are never refused. The measured reason: top retrieval scores for unanswerable queries fall between 0.18 and 0.46, while the minimum top scores for answerable queries fall between 0.19 and 0.26. The two ranges overlap, so no calibrated `min_score` threshold can separate answerable from unanswerable inputs. Deciding answerability requires semantic matching, which a bag-of-words retriever cannot do. The evaluator earns its place here: the metric exposed a real capability gap rather than hiding it behind an average. See `docs/design_faq.md`.
 
 ## Real-LLM mode (recorded separately)
 
@@ -193,7 +192,16 @@ Outputs:
 - `results/v2_improved_vs_v1_baseline.json` and `results/v3_fluent_regression_vs_v1_baseline.json`: regression reports
 - `reports/v2_improved_vs_v1_baseline.html` and `reports/v3_fluent_regression_vs_v1_baseline.html`: static dashboards (open in a browser)
 
-Run the test suite (27 tests):
+Gate a change in CI. `aire-gate` (also `python -m aire.regression.gate`) compares two evaluated runs and exits 0 when no gated metric regressed, 1 when one did, and 2 on a usage error, printing per-case attribution for every regression:
+
+```bash
+python -m aire.regression.gate results/v1_baseline runs/<candidate_run_id> \
+    --threshold 0.02 --override latency_ms=0.5 --ignore cost_usd --report gate.json
+```
+
+This repository gates itself: the `eval-gate` job in `.github/workflows/ci.yml` re-runs the three-version demo from scratch on every push, requires v2 to pass against v1, and requires the gate to block v3 (the seeded citation-dropping regression). If the gate ever lets v3 through, the build fails.
+
+Run the test suite (32 tests):
 
 ```bash
 python -m pytest tests/ -q
@@ -230,6 +238,7 @@ aire/
             engine.py         EvaluationEngine, failure taxonomy, aggregates
         regression/
             compare.py        compare_runs, RegressionThresholds
+            gate.py           aire-gate CLI: exit 1 on regression, for CI
         report/
             html.py           static HTML run and comparison reports
     demo/
@@ -237,12 +246,12 @@ aire/
         eval_set.jsonl        26 evaluation cases
         corpus/               12 Northwind Cloud documentation files
         validate_eval_set.py
-    tests/test_aire.py        27 tests
+    tests/                    32 tests (test_aire.py, test_gate.py)
     runs/                     stored run directories (gitignored; results/ holds the curated copies)
     results/                  committed JSON reports (tracked)
     reports/                  committed HTML reports (tracked)
     docs/
-        interview_guide.md    design Q&A for reviews and interviews
+        design_faq.md         design Q&A for code reviews and design discussions
         trace_schema.md       trace JSON schema and run directory layout
 ```
 
