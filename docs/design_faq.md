@@ -1,6 +1,6 @@
-# AIRE Interview Guide
+# AIRE Design FAQ
 
-Questions and answers about the design of AIRE, written for code reviews, design discussions, and interview preparation. Every claim here matches the code in `src/aire/` and the committed results in `results/`.
+Questions and answers about the design of AIRE, written for code reviews and design discussions. Every claim here matches the code in `src/aire/` and the committed results in `results/`.
 
 ## Evaluation fundamentals
 
