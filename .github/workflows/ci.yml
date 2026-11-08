@@ -22,3 +22,39 @@ jobs:
         run: python demo/validate_eval_set.py
       - name: Run tests
         run: python -m pytest tests/ -q
+
+  eval-gate:
+    name: Evaluation regression gate
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Re-run the three-version demo from scratch
+        run: python demo/run_demo.py
+      # Sub-millisecond latencies of the offline demo are noise on shared CI
+      # runners, so latency is reported but not gated here. Gate it for a real
+      # system with e.g. --override latency_ms=0.5 instead of --ignore.
+      - name: Gate v2 against v1 (must pass)
+        run: python -m aire.regression.gate results/v1_baseline results/v2_improved --ignore latency_ms --report gate-v2.json
+      - name: Gate v3 against v1 (must be blocked)
+        run: |
+          code=0
+          python -m aire.regression.gate results/v1_baseline results/v3_fluent_regression --ignore latency_ms --report gate-v3.json || code=$?
+          if [ "$code" -ne 1 ]; then
+            echo "::error::expected the gate to block v3 with exit code 1, got $code"
+            exit 1
+          fi
+          echo "Seeded regression blocked as expected."
+      - name: Upload gate reports and HTML dashboards
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aire-gate-reports
+          path: |
+            gate-*.json
+            reports/*.html
