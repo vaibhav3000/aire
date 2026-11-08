@@ -14,6 +14,9 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest"]
 
+[project.scripts]
+aire-gate = "aire.regression.gate:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
