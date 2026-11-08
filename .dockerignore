@@ -1,0 +1,7 @@
+.git
+runs/
+demo-site/node_modules/
+**/__pycache__/
+.pytest_cache/
+.venv/
+*.egg-info/
