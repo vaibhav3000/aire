@@ -3,7 +3,7 @@
 Design position (deliberate, defensible): AIRE ships ONE built-in deterministic
 judge (citation groundedness) and a clean interface for model-based judges.
 We do NOT oversell LLM-as-judge — the interface records the judge's own
-identity and configuration in every result, and the interview docs discuss
+identity and configuration in every result, and docs/design_faq.md discusses
 position bias, verbosity bias, self-preference and cost. An LLM judge is a
 measurement instrument that itself needs evaluation.
 """
