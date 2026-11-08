@@ -88,7 +88,7 @@ def groundedness(answer: str | None, corpus: dict[str, str]) -> float | None:
     This is a LEXICAL proxy, not semantic entailment: it is cheap, auditable
     and deterministic, but it can be fooled by paraphrases with overlapping
     vocabulary. The design deliberately exposes that limitation; see
-    docs/interview_guide.md.
+    docs/design_faq.md.
     """
     if not answer or abstained(answer):
         return None
