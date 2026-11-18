@@ -109,14 +109,17 @@ class KeywordRetriever:
         if not q:
             # Degenerate query: no signal - return nothing rather than arbitrary docs.
             return []
+        # Float sums run in sorted term order so scores do not depend on set
+        # iteration order (which varies with PYTHONHASHSEED).
+        terms = sorted(q)
         scored: list[RetrievedDoc] = []
         for doc_id, doc_keywords in self._doc_keywords.items():
             if self.weighting == "idf":
-                weights = {w: self._idf.get(w, self._default_idf) for w in q}
+                weights = {w: self._idf.get(w, self._default_idf) for w in terms}
                 denom = sum(weights.values())
                 if denom <= 0:
                     continue
-                score = sum(weights[w] for w in q if w in doc_keywords) / denom
+                score = sum(weights[w] for w in terms if w in doc_keywords) / denom
             else:
                 score = len(q & doc_keywords) / max(len(q), 1)
             scored.append(RetrievedDoc(doc_id, self.corpus[doc_id], round(score, 4)))

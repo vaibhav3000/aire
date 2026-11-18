@@ -179,7 +179,7 @@ class EvaluationEngine:
         for row in per_case:
             keys.update(k for k, v in row.items() if isinstance(v, (int, float)) and k != "case_id")
         aggregates: dict[str, Any] = {}
-        for key in keys:
+        for key in sorted(keys):
             values = [row[key] for row in per_case if isinstance(row.get(key), (int, float))]
             if not values:
                 continue
