@@ -204,22 +204,46 @@ def cost_estimate(usage_total_tokens: int, price_per_1k_tokens: float) -> float:
 
 
 def metric_spec() -> dict[str, dict[str, Any]]:
-    """Declarative metric registry used by the engine and the report.
+    """Declarative metric registry used by the engine, the regression gate and reports.
 
     direction: "higher" | "lower", needed by the regression engine.
+    bounded:   True for scores in [0, 1], which the gate compares with an
+               absolute tolerance; False for latency, tokens and cost, which
+               it compares relative to the baseline.
+    Retrieval metrics are reported per cut-off as retrieval_recall_at_<k> and
+    retrieval_mrr_at_<k>; metric_info() resolves those names.
     """
     return {
-        "keyword_recall": {"direction": "higher", "kind": "quality"},
-        "exact_match": {"direction": "higher", "kind": "quality"},
-        "gold_citation_recall": {"direction": "higher", "kind": "quality"},
-        "groundedness": {"direction": "higher", "kind": "quality"},
-        "abstention_correct": {"direction": "higher", "kind": "quality"},
-        "retrieval_recall": {"direction": "higher", "kind": "retrieval"},
-        "retrieval_mrr": {"direction": "higher", "kind": "retrieval"},
-        "tool_selection_correct": {"direction": "higher", "kind": "tool"},
-        "tool_args_valid": {"direction": "higher", "kind": "tool"},
-        "latency_ms": {"direction": "lower", "kind": "cost"},
-        "cost_usd": {"direction": "lower", "kind": "cost"},
-        "total_tokens": {"direction": "lower", "kind": "cost"},
-        "errors": {"direction": "lower", "kind": "reliability"},
+        "keyword_recall": {"direction": "higher", "kind": "quality", "bounded": True},
+        "exact_match": {"direction": "higher", "kind": "quality", "bounded": True},
+        "gold_citation_recall": {"direction": "higher", "kind": "quality", "bounded": True},
+        "citation_precision": {"direction": "higher", "kind": "quality", "bounded": True},
+        "groundedness": {"direction": "higher", "kind": "quality", "bounded": True},
+        "abstention_correct": {"direction": "higher", "kind": "quality", "bounded": True},
+        "abstention_accuracy": {"direction": "higher", "kind": "quality", "bounded": True},
+        "false_refusal": {"direction": "lower", "kind": "quality", "bounded": True},
+        "retrieval_recall": {"direction": "higher", "kind": "retrieval", "bounded": True},
+        "retrieval_mrr": {"direction": "higher", "kind": "retrieval", "bounded": True},
+        "tool_selection_correct": {"direction": "higher", "kind": "tool", "bounded": True},
+        "tool_args_valid": {"direction": "higher", "kind": "tool", "bounded": True},
+        "tool_args_match": {"direction": "higher", "kind": "tool", "bounded": True},
+        "latency_ms": {"direction": "lower", "kind": "cost", "bounded": False},
+        "cost_usd": {"direction": "lower", "kind": "cost", "bounded": False},
+        "total_tokens": {"direction": "lower", "kind": "cost", "bounded": False},
+        "errors": {"direction": "lower", "kind": "reliability", "bounded": True},
+        "success_rate": {"direction": "higher", "kind": "reliability", "bounded": True},
     }
+
+
+_AT_K_RE = re.compile(r"^(?P<base>.+)_at_\d+$")
+
+
+def metric_info(metric: str) -> dict[str, Any] | None:
+    """Registry entry for a metric name, resolving '<base>_at_<k>' names; None if unknown."""
+    spec = metric_spec()
+    if metric in spec:
+        return spec[metric]
+    match = _AT_K_RE.match(metric)
+    if match:
+        return spec.get(match.group("base"))
+    return None

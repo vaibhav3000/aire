@@ -298,10 +298,10 @@ def test_classify_failure_uses_configured_thresholds() -> None:
     """EngineConfig thresholds must gate the taxonomy, not be decorative."""
     case = EvalCase(case_id="c", input="q", expected_keywords=["x"], supporting_doc_ids=["doc_a"])
     trace = Trace(run_id="r", case_id="c", system_config={}, final_answer="answer text [doc:doc_a]")
-    result = {"groundedness": 0.7, "keyword_recall": 0.9, "retrieval_recall": 1.0}
+    result = {"groundedness": 0.7, "keyword_recall": 0.9, "retrieval_recall_at_3": 1.0}
     assert classify_failure(trace, case, result) is None
     assert classify_failure(trace, case, result, groundedness_threshold=0.9) == "ungrounded"
-    result_kw = {"groundedness": 1.0, "keyword_recall": 0.7, "retrieval_recall": 1.0}
+    result_kw = {"groundedness": 1.0, "keyword_recall": 0.7, "retrieval_recall_at_3": 1.0}
     assert classify_failure(trace, case, result_kw) is None
     assert classify_failure(trace, case, result_kw, keyword_threshold=0.9) == "incomplete_answer"
 
@@ -314,6 +314,7 @@ def test_engine_threshold_configuration_changes_classification(tmp_path: Path) -
         run_id="r",
         case_id="c",
         system_config={},
+        retrieved_doc_ids=["doc_a"],
         final_answer="Credits are issued to the account [doc:doc_a]. "
         "We offer telepathic support [doc:doc_a].",
     )

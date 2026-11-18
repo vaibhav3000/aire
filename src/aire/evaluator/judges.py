@@ -29,7 +29,9 @@ class GroundednessJudge(Judge):
         self.corpus = corpus
 
     def score(self, trace: Trace, context: dict[str, Any]) -> dict[str, Any]:
-        value = lexical_groundedness(trace.final_answer, self.corpus)
+        # Only documents the system actually retrieved can ground its answer.
+        retrieved = {d: self.corpus[d] for d in trace.retrieved_doc_ids if d in self.corpus}
+        value = lexical_groundedness(trace.final_answer, retrieved)
         if value is None:
             detail = "not measurable (empty or abstained answer)"
         else:
