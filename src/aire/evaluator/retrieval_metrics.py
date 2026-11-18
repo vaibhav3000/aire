@@ -2,7 +2,7 @@
 
 Ground truth is declarative: each eval case lists the doc ids that SHOULD be
 retrieved (supporting_doc_ids). Metrics compare the trace's retrieved_doc_ids
-against that list. Simple by design — retrieval ground truth for real systems
+against that list. Simple by design: retrieval ground truth for real systems
 is the hard part, and this project does not pretend otherwise.
 """
 

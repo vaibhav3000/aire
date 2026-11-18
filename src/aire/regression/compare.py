@@ -1,7 +1,7 @@
 """Regression engine: compares two evaluation runs and gates each metric.
 
 The output answers the question a team actually asks after a change:
-"what got better, what got worse, and by how much?" — per metric, with
+"what got better, what got worse, and by how much?", per metric, with
 configurable thresholds and per-case attribution for every regression.
 """
 
@@ -34,7 +34,7 @@ def _load_eval_results(run_dir: str | Path) -> dict[str, Any]:
     path = Path(run_dir) / "eval_results.json"
     if not path.exists():
         raise FileNotFoundError(
-            f"{path} not found — evaluate both runs before comparing "
+            f"{path} not found; evaluate both runs before comparing "
             f"(EvaluationEngine.evaluate_run + write_eval_results)"
         )
     return json.loads(path.read_text(encoding="utf-8"))

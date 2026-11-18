@@ -2,7 +2,7 @@
 
 A *trace* is the complete, serialisable record of one system invocation for
 one evaluation case. Everything downstream (metrics, judges, regression,
-reports) reads traces — nothing re-runs the system.
+reports) reads traces; nothing re-runs the system.
 
 Schema rules:
 - Every field is JSON-serialisable.

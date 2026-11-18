@@ -2,8 +2,8 @@
 
 The engine reads recorded traces (it never re-runs the system), applies the
 metric suite defined by each case's expectations, classifies failures, and
-writes eval_results.json. This separation — run once, evaluate many times,
-compare across runs — is what makes evaluation replayable.
+writes eval_results.json. This separation (run once, evaluate many times,
+compare across runs) is what makes evaluation replayable.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from . import metrics as M
 from . import retrieval_metrics as R
 from . import tool_metrics as T
 
-# Pricing table (USD per 1k tokens) — demo uses heuristic tokens at $0.0/1k.
+# Pricing table (USD per 1k tokens). The demo uses heuristic tokens at $0.0/1k.
 DEFAULT_PRICES: dict[str, float] = {"default": 0.0}
 
 

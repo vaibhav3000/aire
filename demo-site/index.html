@@ -323,7 +323,7 @@ function renderRun(){
   const fc = agg.failure_counts || {};
   const chipsFail = [`<button type="button" class="chip" data-f="all" aria-pressed="${failureFilter==="all"}">all cases (${agg.n_cases})</button>`]
     .concat(Object.keys(FAILURE_LABEL).filter(f => fc[f]).map(f =>
-      `<button type="button" class="chip term" data-f="${f}" aria-pressed="${failureFilter===f}" data-tip="${FAILURE_WHY[f]} — click to see the cases">${f} (${fc[f]})</button>`))
+      `<button type="button" class="chip term" data-f="${f}" aria-pressed="${failureFilter===f}" data-tip="${FAILURE_WHY[f]}; click to see the cases">${f} (${fc[f]})</button>`))
     .concat(`<button type="button" class="chip" data-f="success" aria-pressed="${failureFilter==="success"}">success (${agg.n_success||0})</button>`);
   const cases = getCases(current).filter(r =>
     failureFilter === "all" ? true : failureFilter === "success" ? !r.failure : r.failure === failureFilter);

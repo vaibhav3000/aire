@@ -33,8 +33,8 @@ class InvocationTimeout(Exception):
 def _invoke_with_timeout(sut: SystemUnderTest, case_input: str, timeout_s: float) -> Any:
     """Run sut.invoke in a worker thread; raise InvocationTimeout on overrun.
 
-    Threads cannot be killed in Python, so a hung call leaks its thread —
-    documented honestly; the watchdog only bounds the runner's wait.
+    Threads cannot be killed in Python, so a hung call leaks its thread
+    (a documented limitation); the watchdog only bounds the runner's wait.
     """
     result: dict[str, Any] = {}
 

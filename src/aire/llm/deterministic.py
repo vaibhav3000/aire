@@ -11,7 +11,7 @@ The responder answers extractively: it picks sentences from the retrieved
 documents that share the most keywords with the question and prefixes them
 with citations of the form [doc:<id>]. `style="fluent"` (the deliberate
 regression in the demo) paraphrases by stripping citations and merging
-sentences — which reads better but breaks grounding, exactly what the
+sentences, which reads better but breaks grounding, exactly what the
 groundedness judge should catch.
 """
 

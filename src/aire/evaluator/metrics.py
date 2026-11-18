@@ -1,7 +1,7 @@
 """Deterministic answer-level metrics.
 
-All metrics are pure functions of (trace, case) pairs — no network, no model
-calls — so they are fast, exactly reproducible, and unit-testable. Probabilistic
+All metrics are pure functions of (trace, case) pairs (no network, no model
+calls), so they are fast, exactly reproducible, and unit-testable. Probabilistic
 or model-based scoring lives in judges.py, clearly separated.
 """
 
@@ -18,7 +18,7 @@ _SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 # The single source of truth for what counts as an abstention. Deliberately a
 # fixed phrase set, not configurable: the demo SUT emits exactly one of these,
 # and the real-LLM system prompt (openai_compat.py) mandates the same sentence.
-# A third-party SUT that abstains with different wording is NOT detected —
+# A third-party SUT that abstains with different wording is NOT detected;
 # see tests/test_aire.py::test_third_party_abstention_phrasing_is_not_detected.
 ABSTENTION_PHRASES = frozenset({"i don't know", "i do not know", "i don't know."})
 
@@ -140,7 +140,7 @@ def cost_estimate(usage_total_tokens: int, price_per_1k_tokens: float) -> float:
 def metric_spec() -> dict[str, dict[str, Any]]:
     """Declarative metric registry used by the engine and the report.
 
-    direction: "higher" | "lower" — needed by the regression engine.
+    direction: "higher" | "lower", needed by the regression engine.
     """
     return {
         "keyword_recall": {"direction": "higher", "kind": "quality"},
