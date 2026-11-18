@@ -1,0 +1,6 @@
+# Keep text files LF in every checkout. The demo hashes demo/eval_set.jsonl
+# into each run manifest and quotes corpus text into answers, so CRLF
+# checkouts would change committed results on Windows.
+* text=auto eol=lf
+*.pdf binary
+*.png binary
