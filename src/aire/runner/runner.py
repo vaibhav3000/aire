@@ -2,10 +2,13 @@
 
 Responsibilities:
 - invoke the SUT once per case, wrap the result into a validated Trace
-- record spans (retrieval/generation) with real latencies
+- record one span per attempt, failed attempts included, with real latencies;
+  client-side pacing (SystemUnderTest.before_invoke) runs before the timer and
+  waits the SUT reports (SUTResult.wait_ms) are subtracted from the latency
 - retry policy (attempts, backoff) for transient invocation errors
 - timeout enforcement (each invocation runs in a watchdog thread)
-- token usage accounting (heuristic unless the SUT provides real counts)
+- token usage accounting (heuristic unless the SUT provides real counts;
+  failed calls get token_source "none")
 - persist manifest + traces via RunStore
 
 The runner never imports the SUT's dependencies: the SUT is injected, so the
@@ -21,7 +24,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..llm.base import SystemUnderTest
+from ..llm.base import SUTResult, SystemUnderTest
 from ..schema import Span, Timer, Trace, Usage, estimate_tokens, new_id
 from ..tracing.storage import RunStore
 from .dataset import EvalCase, load_eval_dataset
@@ -49,7 +52,7 @@ def _invoke_with_timeout(sut: SystemUnderTest, case_input: str, timeout_s: float
     thread.start()
     thread.join(timeout_s)
     if thread.is_alive():
-        raise InvocationTimeout(f"invocation exceeded {timeout_s:.0f}s timeout")
+        raise InvocationTimeout(f"invocation exceeded {timeout_s:g}s timeout")
     if "error" in result:
         raise RuntimeError(result["error"])
     if "value" not in result:
@@ -114,57 +117,76 @@ class ExperimentRunner:
             case_id=case.case_id,
             system_config=dict(self.sut.config),
             started_at=time.time(),
+            usage=Usage(token_source="none"),
         )
         attempts = self.config.max_retries + 1
-        last_error: str | None = None
-        for attempt in range(attempts):
+        for attempt in range(1, attempts + 1):
+            self.sut.before_invoke()  # client-side pacing, deliberately untimed
+            span_start = time.time()
+            timer = Timer()
             try:
-                with Timer() as gen_timer:
+                with timer:
                     result = _invoke_with_timeout(self.sut, case.input, self.config.timeout_s)
-                trace.final_answer = result.answer
-                trace.retrieved_doc_ids = list(result.retrieved_doc_ids)
-                trace.tool_calls = list(result.tool_calls)
-                if result.error:
-                    # The system under test failed internally (e.g. provider
-                    # error); surface it as the trace error so the failure
-                    # taxonomy classifies it as invocation_error, not as an
-                    # empty answer.
-                    trace.error = result.error
+            except Exception as exc:  # timeout or SUT exception: recorded, retried, classified
+                error = f"{type(exc).__name__}: {exc}"
                 trace.spans.append(
                     Span(
                         kind="generation",
                         name=f"{self.sut.name}.invoke",
-                        started_at=trace.started_at,
-                        latency_ms=gen_timer.latency_ms,
-                        attributes={"attempt": attempt + 1},
+                        started_at=span_start,
+                        latency_ms=timer.latency_ms,
+                        attributes={"attempt": attempt},
+                        error=error,
                     )
                 )
-                if result.usage:
-                    # Real API usage reported by the system under test.
-                    trace.usage = Usage(
-                        prompt_tokens=int(result.usage.get("prompt_tokens", 0)),
-                        completion_tokens=int(result.usage.get("completion_tokens", 0)),
-                        token_source=result.usage.get("token_source", "api"),
-                    )
-                else:
-                    prompt_tokens = (
-                        estimate_tokens(result.prompt_text) if self.config.heuristic_tokens else 0
-                    )
-                    completion_tokens = (
-                        estimate_tokens(result.answer or "") if self.config.heuristic_tokens else 0
-                    )
-                    trace.usage = Usage(
-                        prompt_tokens=prompt_tokens,
-                        completion_tokens=completion_tokens,
-                        token_source="heuristic" if self.config.heuristic_tokens else "none",
-                    )
-                last_error = None
-                break
-            except Exception as exc:  # recorded, retried, then classified
-                last_error = f"{type(exc).__name__}: {exc}"
-                if attempt < attempts - 1:
-                    time.sleep(self.config.retry_backoff_s * (attempt + 1))
+                trace.error = error
+                if attempt < attempts:
+                    time.sleep(self.config.retry_backoff_s * attempt)
+                continue
 
-        if last_error is not None:
-            trace.error = last_error
+            wait_ms = max(0.0, float(result.wait_ms))
+            attributes: dict[str, Any] = {"attempt": attempt, **result.span_attributes}
+            if wait_ms:
+                attributes["wait_ms"] = round(wait_ms, 3)
+            trace.spans.append(
+                Span(
+                    kind="generation",
+                    name=f"{self.sut.name}.invoke",
+                    started_at=span_start,
+                    latency_ms=max(0.0, timer.latency_ms - wait_ms),
+                    attributes=attributes,
+                    error=result.error,
+                )
+            )
+            trace.final_answer = result.answer
+            trace.retrieved_doc_ids = list(result.retrieved_doc_ids)
+            trace.tool_calls = list(result.tool_calls)
+            # A failure reported by the system under test (e.g. a provider
+            # error) becomes the trace error, so the taxonomy classifies it as
+            # invocation_error rather than as an empty answer.
+            trace.error = result.error
+            trace.usage = self._usage(result)
+            break
         return trace
+
+    def _usage(self, result: SUTResult) -> Usage:
+        """Token usage for one completed attempt.
+
+        Counts reported by the SUT are kept as given. A failed call reports
+        nothing and gets token_source "none" with zero tokens; it is never
+        filled with an estimate. Otherwise tokens are estimated from the
+        prompt and answer text and labelled "heuristic".
+        """
+        if result.usage:
+            return Usage(
+                prompt_tokens=int(result.usage.get("prompt_tokens") or 0),
+                completion_tokens=int(result.usage.get("completion_tokens") or 0),
+                token_source=str(result.usage.get("token_source", "api")),
+            )
+        if result.error or not self.config.heuristic_tokens:
+            return Usage(token_source="none")
+        return Usage(
+            prompt_tokens=estimate_tokens(result.prompt_text),
+            completion_tokens=estimate_tokens(result.answer or ""),
+            token_source="heuristic",
+        )

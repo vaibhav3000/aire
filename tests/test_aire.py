@@ -441,7 +441,11 @@ def test_runner_retry_then_success(tmp_path):
     run_dir = runner.run(ds, runs_root=tmp_path, run_name="flaky")
     traces = load_run_traces(run_dir)
     assert traces[0].error is None and traces[0].final_answer == "I don't know."
-    assert traces[0].spans[0].attributes["attempt"] == 2
+    # The failed first attempt keeps its own span (with the error) before the
+    # successful second one.
+    spans = traces[0].spans
+    assert [s.attributes["attempt"] for s in spans] == [1, 2]
+    assert spans[0].error is not None and spans[1].error is None
     assert sut.calls == 2
 
 

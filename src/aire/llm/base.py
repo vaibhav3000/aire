@@ -28,6 +28,12 @@ class SUTResult:
     prompt_text: str = ""
     usage: dict[str, Any] | None = None  # {"prompt_tokens","completion_tokens","token_source"}
     error: str | None = None
+    # Time spent deliberately waiting inside invoke() (e.g. rate-limit backoff
+    # between provider retries). The runner records it on the span and
+    # subtracts it from the measured latency.
+    wait_ms: float = 0.0
+    # Extra span attributes, e.g. the number of provider attempts.
+    span_attributes: dict[str, Any] = field(default_factory=dict)
 
 
 class SystemUnderTest(abc.ABC):
@@ -38,6 +44,15 @@ class SystemUnderTest(abc.ABC):
     # Read-only shared default; implementations assign their own dict per instance.
     config: Mapping[str, Any] = MappingProxyType({})
     deterministic: bool = True
+
+    def before_invoke(self) -> None:
+        """Hook the runner calls before each timed attempt, outside the timer.
+
+        Use it for client-side pacing (waiting for a rate-limit slot), so the
+        recorded latency measures the system rather than the rate limiter.
+        The default does nothing.
+        """
+        return None
 
     @abc.abstractmethod
     def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult: ...

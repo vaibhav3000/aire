@@ -18,7 +18,7 @@ from typing import Any
 
 from ..llm.base import SUTResult, SystemUnderTest
 from .deterministic import KeywordRetriever
-from .provider import LLMResponse, OpenAICompatProvider
+from .provider import LLMResponse, OpenAICompatProvider, ProviderError
 
 _SYSTEM_PROMPT = (
     "You are a customer-support assistant for Northwind Cloud. Answer the "
@@ -61,20 +61,20 @@ class OpenAIChatResponder(SystemUnderTest):
         self.retriever = KeywordRetriever(corpus, top_k=top_k, weighting=weighting)
         self.provider = provider
         self.min_call_interval_s = min_call_interval_s
-        self._last_call_start = 0.0
-        self.prompt_tokens = 0
-        self.completion_tokens = 0
-        self.calls = 0
+        self._last_call_start: float | None = None
 
-    def _pace(self) -> None:
-        """Sleep so calls respect the provider's rate limit; runs BEFORE the
-        runner's timer starts, so measured latency is the system's, not the
-        rate limiter's."""
-        if self.min_call_interval_s <= 0:
-            return
-        elapsed = time.time() - self._last_call_start
-        if elapsed < self.min_call_interval_s:
-            time.sleep(self.min_call_interval_s - elapsed)
+    def before_invoke(self) -> None:
+        """Pace calls to respect the provider's rate limit.
+
+        The runner calls this before it starts the timer, so the recorded
+        latency measures the call, not the rate limiter.
+        """
+        now = time.monotonic()
+        if self.min_call_interval_s > 0 and self._last_call_start is not None:
+            remaining = self.min_call_interval_s - (now - self._last_call_start)
+            if remaining > 0:
+                time.sleep(remaining)
+        self._last_call_start = time.monotonic()
 
     def _build_context(self, query: str) -> tuple[str, list[str]]:
         retrieved = self.retriever.retrieve(query)
@@ -86,22 +86,28 @@ class OpenAIChatResponder(SystemUnderTest):
         return context, doc_ids
 
     def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult:
-        self._pace()
-        self._last_call_start = time.time()
         context, doc_ids = self._build_context(case_input)
         user = f"Context documents:\n{context}\n\nQuestion: {case_input}"
         try:
             resp: LLMResponse = self.provider.chat(_SYSTEM_PROMPT, user)
-        except Exception as exc:  # recorded as the trace error
+        except ProviderError as exc:
+            # The retry loop's waits are reported so the runner can keep them
+            # out of the measured latency.
+            return SUTResult(
+                answer=None,
+                retrieved_doc_ids=doc_ids,
+                prompt_text=user,
+                error=f"ProviderError: {exc}",
+                wait_ms=exc.backoff_s * 1000.0,
+                span_attributes={"provider_attempts": exc.attempts, "http_status": exc.status},
+            )
+        except Exception as exc:  # anything else is recorded as the trace error
             return SUTResult(
                 answer=None,
                 retrieved_doc_ids=doc_ids,
                 prompt_text=user,
                 error=f"{type(exc).__name__}: {exc}",
             )
-        self.calls += 1
-        self.prompt_tokens += resp.prompt_tokens
-        self.completion_tokens += resp.completion_tokens
         return SUTResult(
             answer=resp.content.strip(),
             retrieved_doc_ids=doc_ids,
@@ -109,7 +115,13 @@ class OpenAIChatResponder(SystemUnderTest):
             usage={
                 "prompt_tokens": resp.prompt_tokens,
                 "completion_tokens": resp.completion_tokens,
-                "token_source": "api",
+                "token_source": resp.token_source,
                 "model": resp.model,
+            },
+            wait_ms=resp.backoff_s * 1000.0,
+            span_attributes={
+                "provider_attempts": resp.attempts,
+                "model": resp.model,
+                "finish_reason": resp.finish_reason,
             },
         )

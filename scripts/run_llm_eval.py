@@ -57,12 +57,16 @@ def main() -> None:
     run_dir = runner.run(dataset, runs_root=ROOT / "runs", run_name=sut.name)
 
     engine = EvaluationEngine(corpus=corpus)
-    results = engine.evaluate_run(load_run_traces(run_dir), load_eval_dataset(dataset))
+    traces = load_run_traces(run_dir)
+    results = engine.evaluate_run(traces, load_eval_dataset(dataset))
     results["mode"] = "llm"
     results["generator"] = sut.config["generator"]
-    results["total_api_prompt_tokens"] = sut.prompt_tokens
-    results["total_api_completion_tokens"] = sut.completion_tokens
-    results["total_api_calls"] = sut.calls
+    # Totals come from the recorded traces, so a timed-out worker thread that
+    # finishes later cannot inflate them.
+    api_usage = [t.usage for t in traces if t.usage.token_source == "api"]
+    results["total_api_prompt_tokens"] = sum(u.prompt_tokens for u in api_usage)
+    results["total_api_completion_tokens"] = sum(u.completion_tokens for u in api_usage)
+    results["total_api_calls"] = len(api_usage)
     write_eval_results(run_dir, results)
 
     # Commit a copy + a comparison against the deterministic improved version.
