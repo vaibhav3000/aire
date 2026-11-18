@@ -26,11 +26,13 @@ def _esc(value: Any) -> str:
 
 
 def _fmt(value: Any) -> str:
+    """Format a value for an HTML cell. The result is always escaped, because
+    case ids, failure labels and metric names come from results files."""
     if value is None:
         return "-"
     if isinstance(value, float):
         return f"{value:.4f}".rstrip("0").rstrip(".") or "0"
-    return str(value)
+    return _esc(value)
 
 
 def _metric_table(rows: list[dict[str, Any]]) -> str:
@@ -43,11 +45,12 @@ def _metric_table(rows: list[dict[str, Any]]) -> str:
     body = []
     for row in rows:
         color = _COLOR.get(row["verdict"], "#555")
+        verdict = row["verdict"] if row.get("gated", True) else f"{row['verdict']} (ignored)"
         body.append(
             f"<tr><td>{_esc(row['metric'])}</td><td>{_esc(row['direction'])}-better</td>"
             f"<td>{_fmt(row['baseline'])}</td><td>{_fmt(row['candidate'])}</td>"
             f"<td>{_fmt(row['delta'])}</td>"
-            f"<td style='color:{color};font-weight:600'>{_esc(row['verdict'])}</td></tr>"
+            f"<td style='color:{color};font-weight:600'>{_esc(verdict)}</td></tr>"
         )
     return f"<table>{header}{''.join(body)}</table>"
 
@@ -140,7 +143,7 @@ def render_run_report(
         if k != "failure_counts"
     )
     failures = agg.get("failure_counts", {})
-    failure_str = ", ".join(f"{_esc(k)}: {v}" for k, v in failures.items()) or "none"
+    failure_str = ", ".join(f"{_esc(k)}: {_fmt(v)}" for k, v in failures.items()) or "none"
 
     body = f"""
 <h1>AIRE run report: {_esc(title)}</h1>
@@ -171,9 +174,9 @@ def render_comparison_report(
 <h1>AIRE comparison: {_esc(title)}</h1>
 <div class="summary">
   <span class="verdict-{_esc(verdict.replace(" ", "-"))}">{_esc(verdict)}</span><br>
-  improved: {comparison["summary"]["n_improved"]} -
-  regressed: {comparison["summary"]["n_regressed"]} -
-  neutral: {comparison["summary"]["n_neutral"]}<br>
+  improved: {_fmt(comparison["summary"]["n_improved"])} -
+  regressed: {_fmt(comparison["summary"]["n_regressed"])} -
+  neutral: {_fmt(comparison["summary"]["n_neutral"])}<br>
   <b>Failure count deltas</b>: {_esc(comparison.get("failure_count_deltas") or "none")}
 </div>
 <h2>Metric comparison</h2>

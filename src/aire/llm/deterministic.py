@@ -7,12 +7,13 @@ The evaluation framework is the project; the demo application only needs to be
 committed result reproducible without API keys, while the `SystemUnderTest`
 interface accepts real LLM adapters (see openai_compat.py) unchanged.
 
-The responder answers extractively: it picks sentences from the retrieved
-documents that share the most keywords with the question and prefixes them
-with citations of the form [doc:<id>]. `style="fluent"` (the deliberate
-regression in the demo) paraphrases by stripping citations and merging
-sentences, which reads better but breaks grounding, exactly what the
-groundedness judge should catch.
+The responder answers extractively: it picks the sentences of the top
+retrieved document (markdown headings excluded) that share the most keywords
+with the question and follows each with a citation of the form [doc:<id>].
+`style="fluent"` (the deliberate regression in the demo) merges the same
+sentences into one and drops the citations. The text is still quoted from
+the document, but no claim is cited any more, which is exactly what the
+groundedness and citation metrics should catch.
 """
 
 from __future__ import annotations
@@ -25,6 +26,16 @@ from typing import Any
 from .base import SUTResult, SystemUnderTest
 
 _WORD_RE = re.compile(r"[a-z0-9']+")
+# Quotable units: sentences, and separate lines (so a list item is never glued
+# to the next one).
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\s*\n\s*")
+_HEADING_LINE_RE = re.compile(r"^\s{0,3}#+[^\n]*$", re.MULTILINE)
+
+
+def _strip_headings(text: str) -> str:
+    """Document text without markdown heading lines, which are titles, not claims."""
+    return _HEADING_LINE_RE.sub("", text).strip()
+
 
 STOPWORDS = {
     "the",
@@ -171,7 +182,7 @@ class ExtractiveRAG(SystemUnderTest):
 
         best = retrieved[0]
         q = content_keywords(case_input)
-        sentences = re.split(r"(?<=[.!?])\s+", best.text.strip())
+        sentences = _SENTENCE_SPLIT_RE.split(_strip_headings(best.text))
         ranked = sorted(
             (
                 (len(q & content_keywords(s)) / max(len(q), 1), s.strip())
@@ -182,18 +193,14 @@ class ExtractiveRAG(SystemUnderTest):
             reverse=True,
         )
         top_sentences = [s for score, s in ranked[:2] if score > 0]
-
-        if self.config["style"] == "fluent":
-            # Regression hazard: merge sentences into one flowing sentence, drop citations.
-            merged = " ".join(s.rstrip(".") for s in top_sentences) + "."
-            merged = merged.capitalize()
-            return SUTResult(
-                answer=merged or "I don't know.",
-                retrieved_doc_ids=doc_ids,
-                prompt_text=case_input,
-            )
-
         if not top_sentences:
             return SUTResult(answer="I don't know.", retrieved_doc_ids=doc_ids)
+
+        if self.config["style"] == "fluent":
+            # Regression hazard: merge the sentences into one and drop the
+            # citations. Wording and capitalisation are kept as quoted.
+            merged = "; ".join(s.rstrip(".") for s in top_sentences) + "."
+            merged = merged[:1].upper() + merged[1:]
+            return SUTResult(answer=merged, retrieved_doc_ids=doc_ids, prompt_text=case_input)
         answer = " ".join(f"{s} [doc:{best.doc_id}]" for s in top_sentences)
         return SUTResult(answer=answer, retrieved_doc_ids=doc_ids, prompt_text=case_input)
