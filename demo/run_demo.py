@@ -33,10 +33,7 @@ from aire.tracing.storage import load_run_traces  # noqa: E402
 
 
 def load_corpus(corpus_dir: Path) -> dict[str, str]:
-    return {
-        p.stem: p.read_text(encoding="utf-8")
-        for p in sorted(corpus_dir.glob("*.md"))
-    }
+    return {p.stem: p.read_text(encoding="utf-8") for p in sorted(corpus_dir.glob("*.md"))}
 
 
 def evaluate_version(
@@ -68,7 +65,9 @@ def main() -> None:
 
     versions = {
         "v1_baseline": ExtractiveRAG("v1_baseline", corpus, top_k=1, min_score=0.05),
-        "v2_improved": ExtractiveRAG("v2_improved", corpus, top_k=3, min_score=0.05, weighting="idf"),
+        "v2_improved": ExtractiveRAG(
+            "v2_improved", corpus, top_k=3, min_score=0.05, weighting="idf"
+        ),
         # Same retrieval as v2 (idf); the only change is the fluent style, so the
         # regression the evaluator catches is attributable to the style change.
         "v3_fluent_regression": ExtractiveRAG(
@@ -95,8 +94,12 @@ def main() -> None:
         thresholds = RegressionThresholds(default=0.02, overrides={"latency_ms": 0.10})
         comparison = compare_runs(run_dirs[base], run_dirs[cand], thresholds=thresholds)
         write_regression_report(comparison, results_dir / f"{stem}.json")
-        base_results = json.loads((run_dirs[base] / "eval_results.json").read_text(encoding="utf-8"))
-        cand_results = json.loads((run_dirs[cand] / "eval_results.json").read_text(encoding="utf-8"))
+        base_results = json.loads(
+            (run_dirs[base] / "eval_results.json").read_text(encoding="utf-8")
+        )
+        cand_results = json.loads(
+            (run_dirs[cand] / "eval_results.json").read_text(encoding="utf-8")
+        )
         render_comparison_report(
             comparison,
             base_results,
@@ -105,9 +108,12 @@ def main() -> None:
             title=stem.replace("_", " "),
         )
         summary = comparison["summary"]
-        print(f"[{stem}] {summary['verdict']}: "
-              f"improved={summary['n_improved']} regressed={summary['n_regressed']} "
-              f"neutral={summary['n_neutral']}", flush=True)
+        print(
+            f"[{stem}] {summary['verdict']}: "
+            f"improved={summary['n_improved']} regressed={summary['n_regressed']} "
+            f"neutral={summary['n_neutral']}",
+            flush=True,
+        )
 
     # Commit copies of run JSON artifacts into results/ for reproducibility.
     if results_dir.exists():

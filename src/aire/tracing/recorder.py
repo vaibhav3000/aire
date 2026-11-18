@@ -57,9 +57,7 @@ class SpanTimer:
 
     def __init__(self, recorder: TraceRecorder, kind: str, name: str) -> None:
         self._recorder = recorder
-        self._span = Span(
-            kind=kind, name=name, started_at=time.time(), latency_ms=0.0
-        )
+        self._span = Span(kind=kind, name=name, started_at=time.time(), latency_ms=0.0)
 
     def __enter__(self) -> "SpanTimer":
         self._timer = Timer()

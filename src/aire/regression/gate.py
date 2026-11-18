@@ -48,23 +48,35 @@ def build_parser() -> argparse.ArgumentParser:
         "baseline", type=Path, help="evaluated baseline run directory (contains eval_results.json)"
     )
     parser.add_argument(
-        "candidate", type=Path, help="evaluated candidate run directory (contains eval_results.json)"
+        "candidate",
+        type=Path,
+        help="evaluated candidate run directory (contains eval_results.json)",
     )
     parser.add_argument(
-        "--threshold", type=float, default=0.02,
+        "--threshold",
+        type=float,
+        default=0.02,
         help="default relative threshold per metric (default: 0.02, i.e. 2%%)",
     )
     parser.add_argument(
-        "--override", type=_parse_override, action="append", default=[],
+        "--override",
+        type=_parse_override,
+        action="append",
+        default=[],
         metavar="METRIC=THRESHOLD",
         help="per-metric relative threshold, e.g. latency_ms=0.5 (repeatable)",
     )
     parser.add_argument(
-        "--ignore", action="append", default=[], metavar="METRIC",
+        "--ignore",
+        action="append",
+        default=[],
+        metavar="METRIC",
         help="report this metric but never fail on it (repeatable)",
     )
     parser.add_argument(
-        "--report", type=Path, default=None,
+        "--report",
+        type=Path,
+        default=None,
         help="also write the full comparison (with per-case attribution) as JSON",
     )
     return parser

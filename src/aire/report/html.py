@@ -55,8 +55,16 @@ def _metric_table(rows: list[dict[str, Any]]) -> str:
 def _case_table(per_case: list[dict[str, Any]], include_answer: bool = True) -> str:
     if not per_case:
         return "<p>No cases.</p>"
-    cols = ["case_id", "keyword_recall", "citation_coverage", "groundedness",
-            "retrieval_recall", "latency_ms", "total_tokens", "failure"]
+    cols = [
+        "case_id",
+        "keyword_recall",
+        "citation_coverage",
+        "groundedness",
+        "retrieval_recall",
+        "latency_ms",
+        "total_tokens",
+        "failure",
+    ]
     cols = [c for c in cols if any(c in row for row in per_case)]
     header = "".join(f"<th>{_esc(c)}</th>" for c in cols)
     body = []
@@ -126,7 +134,11 @@ def render_run_report(
         manifest = json.loads(mpath.read_text(encoding="utf-8"))
     title = title or manifest.get("name", run_dir.name)
     agg = eval_results.get("aggregates", {})
-    chips = ", ".join(f"{_esc(k.removeprefix('mean_'))}: {_fmt(v)}" for k, v in agg.items() if k != "failure_counts")
+    chips = ", ".join(
+        f"{_esc(k.removeprefix('mean_'))}: {_fmt(v)}"
+        for k, v in agg.items()
+        if k != "failure_counts"
+    )
     failures = agg.get("failure_counts", {})
     failure_str = ", ".join(f"{_esc(k)}: {v}" for k, v in failures.items()) or "none"
 
@@ -135,10 +147,10 @@ def render_run_report(
 <div class="summary">
   <b>Aggregate metrics</b> - {chips or "none"}<br>
   <b>Failures</b> - {failure_str}<br>
-  <b>Cases</b> - {_fmt(agg.get('n_cases', len(eval_results.get('per_case', []))))}
+  <b>Cases</b> - {_fmt(agg.get("n_cases", len(eval_results.get("per_case", []))))}
 </div>
 <h2>Per-case results</h2>
-{_case_table(eval_results.get('per_case', []))}
+{_case_table(eval_results.get("per_case", []))}
 """
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -158,18 +170,18 @@ def render_comparison_report(
     body = f"""
 <h1>AIRE comparison: {_esc(title)}</h1>
 <div class="summary">
-  <span class="verdict-{_esc(verdict.replace(' ', '-'))}">{_esc(verdict)}</span><br>
-  improved: {comparison['summary']['n_improved']} -
-  regressed: {comparison['summary']['n_regressed']} -
-  neutral: {comparison['summary']['n_neutral']}<br>
-  <b>Failure count deltas</b>: {_esc(comparison.get('failure_count_deltas') or 'none')}
+  <span class="verdict-{_esc(verdict.replace(" ", "-"))}">{_esc(verdict)}</span><br>
+  improved: {comparison["summary"]["n_improved"]} -
+  regressed: {comparison["summary"]["n_regressed"]} -
+  neutral: {comparison["summary"]["n_neutral"]}<br>
+  <b>Failure count deltas</b>: {_esc(comparison.get("failure_count_deltas") or "none")}
 </div>
 <h2>Metric comparison</h2>
-{_metric_table(comparison.get('metrics', []))}
+{_metric_table(comparison.get("metrics", []))}
 <h2>Baseline cases</h2>
-{_case_table(eval_results_baseline.get('per_case', []), include_answer=False)}
+{_case_table(eval_results_baseline.get("per_case", []), include_answer=False)}
 <h2>Candidate cases</h2>
-{_case_table(eval_results_candidate.get('per_case', []), include_answer=False)}
+{_case_table(eval_results_candidate.get("per_case", []), include_answer=False)}
 """
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)

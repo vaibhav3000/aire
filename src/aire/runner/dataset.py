@@ -16,15 +16,15 @@ from typing import Any
 @dataclass
 class EvalCase:
     case_id: str
-    input: str                                   # user query / task input
+    input: str  # user query / task input
     # --- expectations (all optional; the engine only checks what is present) ---
     expected_keywords: list[str] = field(default_factory=list)
-    expected_answer: str | None = None           # for exact-match style checks
+    expected_answer: str | None = None  # for exact-match style checks
     supporting_doc_ids: list[str] = field(default_factory=list)  # retrieval ground truth
     expected_tool: str | None = None
     expected_tool_args: dict[str, Any] = field(default_factory=dict)
-    expect_abstention: bool = False              # true for unanswerable questions
-    must_cite: bool = True                       # answer must reference supporting docs
+    expect_abstention: bool = False  # true for unanswerable questions
+    must_cite: bool = True  # answer must reference supporting docs
     tags: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:

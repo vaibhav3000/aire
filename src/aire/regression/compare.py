@@ -79,12 +79,14 @@ def compare_runs(
         threshold = thresholds.for_metric(metric)
         if direction == "higher":
             verdict = (
-                "regressed" if rel_delta < -threshold
+                "regressed"
+                if rel_delta < -threshold
                 else ("improved" if rel_delta > threshold else "neutral")
             )
         else:
             verdict = (
-                "regressed" if rel_delta > threshold
+                "regressed"
+                if rel_delta > threshold
                 else ("improved" if rel_delta < -threshold else "neutral")
             )
         row = {

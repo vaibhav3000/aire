@@ -91,9 +91,7 @@ class EvaluationEngine:
 
         # --- quality metrics (only when the case specifies expectations) ---
         if case.expected_keywords:
-            result["keyword_recall"] = round(
-                M.keyword_recall(answer, case.expected_keywords), 4
-            )
+            result["keyword_recall"] = round(M.keyword_recall(answer, case.expected_keywords), 4)
         if case.expected_answer is not None:
             result["exact_match"] = M.exact_match(answer, case.expected_answer)
         if case.expect_abstention:
@@ -132,21 +130,19 @@ class EvaluationEngine:
         latency = sum(s.latency_ms for s in trace.spans)
         result["latency_ms"] = round(latency, 2)
         result["total_tokens"] = trace.usage.total_tokens
-        result["cost_usd"] = M.cost_estimate(
-            trace.usage.total_tokens, self.config.price_per_1k
-        )
+        result["cost_usd"] = M.cost_estimate(trace.usage.total_tokens, self.config.price_per_1k)
 
         # --- failure classification ---
         result["failure"] = classify_failure(
-            trace, case, result,
+            trace,
+            case,
+            result,
             groundedness_threshold=self.config.groundedness_threshold,
             keyword_threshold=self.config.keyword_threshold,
         )
         return result
 
-    def evaluate_run(
-        self, traces: list[Trace], cases: list[EvalCase]
-    ) -> dict[str, Any]:
+    def evaluate_run(self, traces: list[Trace], cases: list[EvalCase]) -> dict[str, Any]:
         by_case = {t.case_id: t for t in traces}
         per_case = []
         missing = [c.case_id for c in cases if c.case_id not in by_case]
@@ -184,9 +180,7 @@ class EvaluationEngine:
             keys.update(k for k, v in row.items() if isinstance(v, (int, float)) and k != "case_id")
         aggregates: dict[str, Any] = {}
         for key in keys:
-            values = [
-                row[key] for row in per_case if isinstance(row.get(key), (int, float))
-            ]
+            values = [row[key] for row in per_case if isinstance(row.get(key), (int, float))]
             if not values:
                 continue
             aggregates[f"mean_{key}"] = round(statistics.fmean(values), 4)

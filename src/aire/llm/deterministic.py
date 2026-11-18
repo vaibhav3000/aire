@@ -27,9 +27,39 @@ from .base import SUTResult, SystemUnderTest
 _WORD_RE = re.compile(r"[a-z0-9']+")
 
 STOPWORDS = {
-    "the", "a", "an", "is", "are", "was", "were", "of", "to", "in", "for", "on",
-    "and", "or", "does", "do", "what", "how", "when", "which", "who", "can",
-    "with", "my", "our", "your", "i", "we", "it", "at", "by", "from", "be",
+    "the",
+    "a",
+    "an",
+    "is",
+    "are",
+    "was",
+    "were",
+    "of",
+    "to",
+    "in",
+    "for",
+    "on",
+    "and",
+    "or",
+    "does",
+    "do",
+    "what",
+    "how",
+    "when",
+    "which",
+    "who",
+    "can",
+    "with",
+    "my",
+    "our",
+    "your",
+    "i",
+    "we",
+    "it",
+    "at",
+    "by",
+    "from",
+    "be",
 }
 
 
@@ -131,7 +161,9 @@ class ExtractiveRAG(SystemUnderTest):
     def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult:
         retrieved = self.retriever.retrieve(case_input)
         doc_ids = [r.doc_id for r in retrieved]
-        if not retrieved or (retrieved[0].score < self.config["min_score"] and not self.config["allow_irrelevant"]):
+        if not retrieved or (
+            retrieved[0].score < self.config["min_score"] and not self.config["allow_irrelevant"]
+        ):
             return SUTResult(answer="I don't know.", retrieved_doc_ids=doc_ids)
 
         best = retrieved[0]

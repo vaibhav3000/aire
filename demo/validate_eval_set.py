@@ -83,7 +83,9 @@ def load_cases(path: Path, errors: list[str]) -> list[Case]:
             errors.append(f"line {line_number}: invalid JSON ({exc})")
             continue
         if not isinstance(payload, dict):
-            errors.append(f"line {line_number}: expected a JSON object, got {type(payload).__name__}")
+            errors.append(
+                f"line {line_number}: expected a JSON object, got {type(payload).__name__}"
+            )
             continue
         cases.append(Case(line_number=line_number, data=payload))
     return cases
@@ -94,7 +96,9 @@ def load_corpus(errors: list[str]) -> dict[str, str]:
     if not CORPUS_DIR.is_dir():
         errors.append(f"missing corpus directory: {CORPUS_DIR}")
         return {}
-    corpus = {path.stem: path.read_text(encoding="utf-8") for path in sorted(CORPUS_DIR.glob("*.md"))}
+    corpus = {
+        path.stem: path.read_text(encoding="utf-8") for path in sorted(CORPUS_DIR.glob("*.md"))
+    }
     if not corpus:
         errors.append(f"no markdown documents found in {CORPUS_DIR}")
     return corpus
@@ -143,7 +147,9 @@ def check_answerable(case: Case, corpus: dict[str, str], errors: list[str]) -> N
     if not isinstance(keywords, list):
         return  # schema check already reported the type problem
     if not MIN_KEYWORDS <= len(keywords) <= MAX_KEYWORDS:
-        errors.append(f"{where}: expected {MIN_KEYWORDS}-{MAX_KEYWORDS} keywords, found {len(keywords)}")
+        errors.append(
+            f"{where}: expected {MIN_KEYWORDS}-{MAX_KEYWORDS} keywords, found {len(keywords)}"
+        )
     for keyword in keywords:
         if isinstance(keyword, str) and keyword.lower() not in haystack:
             errors.append(f"{where}: keyword {keyword!r} not found in {', '.join(doc_ids)}")

@@ -134,9 +134,7 @@ class ExperimentRunner:
                     )
                 else:
                     prompt_tokens = (
-                        estimate_tokens(result.prompt_text)
-                        if self.config.heuristic_tokens
-                        else 0
+                        estimate_tokens(result.prompt_text) if self.config.heuristic_tokens else 0
                     )
                     completion_tokens = (
                         estimate_tokens(result.answer or "") if self.config.heuristic_tokens else 0

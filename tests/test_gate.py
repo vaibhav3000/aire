@@ -34,7 +34,16 @@ def test_gate_blocks_the_seeded_grounding_regression(tmp_path: Path) -> None:
 
 
 def test_ignored_metrics_never_fail_the_gate() -> None:
-    args = [V1, V3, "--ignore", "groundedness", "--ignore", "citation_coverage", "--ignore", "latency_ms"]
+    args = [
+        V1,
+        V3,
+        "--ignore",
+        "groundedness",
+        "--ignore",
+        "citation_coverage",
+        "--ignore",
+        "latency_ms",
+    ]
     assert run_gate(args) == EXIT_PASS
 
 

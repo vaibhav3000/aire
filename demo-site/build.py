@@ -7,6 +7,7 @@ Renders exactly the committed evaluations: deterministic v1/v2/v3 runs (with
 traces joined per case) and the recorded live-LLM run, plus the committed
 regression comparisons. Nothing is hand-typed.
 """
+
 import json
 from pathlib import Path
 
@@ -47,8 +48,11 @@ def load_version(name: str) -> dict:
                 traces[t["case_id"]] = {
                     "retrieved_doc_ids": t.get("retrieved_doc_ids", []),
                     "spans": [
-                        {"kind": s.get("kind"), "name": s.get("name"),
-                         "latency_ms": round(s.get("latency_ms", 0), 3)}
+                        {
+                            "kind": s.get("kind"),
+                            "name": s.get("name"),
+                            "latency_ms": round(s.get("latency_ms", 0), 3),
+                        }
                         for s in t.get("spans", [])
                     ],
                     "usage": t.get("usage", {}),

@@ -60,15 +60,17 @@ class OpenAICompatProvider:
         return key
 
     def chat(self, system: str, user: str, retries: int = 3) -> LLMResponse:
-        payload = json.dumps({
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            "temperature": self.temperature,
-            "max_tokens": self.max_tokens,
-        }).encode("utf-8")
+        payload = json.dumps(
+            {
+                "model": self.model,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                "temperature": self.temperature,
+                "max_tokens": self.max_tokens,
+            }
+        ).encode("utf-8")
         last_error: Exception | None = None
         for attempt in range(retries + 1):
             req = urllib.request.Request(

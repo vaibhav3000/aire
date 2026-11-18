@@ -27,12 +27,12 @@ def new_id(prefix: str) -> str:
 class Span:
     """One timed step inside a trace (retrieval, generation, tool call, ...)."""
 
-    kind: str                      # "retrieval" | "generation" | "tool_call" | "custom"
-    name: str                      # human-readable step name
-    started_at: float              # unix seconds
+    kind: str  # "retrieval" | "generation" | "tool_call" | "custom"
+    name: str  # human-readable step name
+    started_at: float  # unix seconds
     latency_ms: float
     attributes: dict[str, Any] = field(default_factory=dict)
-    error: str | None = None       # non-null means the span failed
+    error: str | None = None  # non-null means the span failed
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -57,14 +57,14 @@ class Trace:
 
     run_id: str
     case_id: str
-    system_config: dict[str, Any]      # SUT version/config fingerprint
+    system_config: dict[str, Any]  # SUT version/config fingerprint
     started_at: float = field(default_factory=time.time)
     final_answer: str | None = None
     retrieved_doc_ids: list[str] = field(default_factory=list)
     tool_calls: list[dict[str, Any]] = field(default_factory=list)
     spans: list[Span] = field(default_factory=list)
     usage: Usage = field(default_factory=Usage)
-    error: str | None = None           # non-null means the whole invocation failed
+    error: str | None = None  # non-null means the whole invocation failed
     trace_id: str = field(default_factory=lambda: new_id("tr"))
 
     def to_dict(self) -> dict[str, Any]:

@@ -50,7 +50,11 @@ def main() -> None:
         temperature=0.0,
     )
     sut = OpenAIChatResponder(
-        f"llm_rag_{model}", corpus, provider, top_k=3, weighting="idf",
+        f"llm_rag_{model}",
+        corpus,
+        provider,
+        top_k=3,
+        weighting="idf",
         min_call_interval_s=5.0,  # stay under 15 requests/minute
     )
     runner = ExperimentRunner(sut, RunnerConfig(timeout_s=150.0))
@@ -69,7 +73,8 @@ def main() -> None:
     results_dir = ROOT / "results"
     results_dir.mkdir(exist_ok=True)
     (results_dir / "llm_eval_results.json").write_text(
-        json.dumps(results, indent=2), encoding="utf-8")
+        json.dumps(results, indent=2), encoding="utf-8"
+    )
 
     det_run_dir = None
     candidates = []
@@ -88,21 +93,26 @@ def main() -> None:
     if det_run_dir is not None:
         det_results = json.loads((det_run_dir / "eval_results.json").read_text(encoding="utf-8"))
         comparison = compare_runs(
-            det_run_dir, run_dir,
+            det_run_dir,
+            run_dir,
             thresholds=RegressionThresholds(default=0.02, overrides={"latency_ms": 0.5}),
             labels=("deterministic v2 (extractive)", f"LLM RAG ({model})"),
         )
         write_regression_report(comparison, results_dir / "llm_vs_deterministic.json")
         render_comparison_report(
-            comparison, det_results, results,
+            comparison,
+            det_results,
+            results,
             ROOT / "reports" / "llm_vs_deterministic_v2.html",
             title="deterministic v2 vs real-LLM RAG",
         )
         print("comparison:", comparison["summary"])
 
     agg = results["aggregates"]
-    print(f"LLM RAG ({model}): {agg['n_success']}/{agg['n_cases']} cases clean |",
-          {k: v for k, v in agg.items() if k.startswith("mean_") and k != "mean_cost_usd"})
+    print(
+        f"LLM RAG ({model}): {agg['n_success']}/{agg['n_cases']} cases clean |",
+        {k: v for k, v in agg.items() if k.startswith("mean_") and k != "mean_cost_usd"},
+    )
 
 
 if __name__ == "__main__":

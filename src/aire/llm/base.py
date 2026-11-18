@@ -37,8 +37,7 @@ class SystemUnderTest(abc.ABC):
     deterministic: bool = True
 
     @abc.abstractmethod
-    def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult:
-        ...
+    def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult: ...
 
 
 class Judge(abc.ABC):

@@ -91,8 +91,12 @@ class OpenAIChatResponder:
         try:
             resp: LLMResponse = self.provider.chat(_SYSTEM_PROMPT, user)
         except Exception as exc:  # noqa: BLE001 - recorded as trace error
-            return SUTResult(answer=None, retrieved_doc_ids=doc_ids,
-                             prompt_text=user, error=f"{type(exc).__name__}: {exc}")
+            return SUTResult(
+                answer=None,
+                retrieved_doc_ids=doc_ids,
+                prompt_text=user,
+                error=f"{type(exc).__name__}: {exc}",
+            )
         self.calls += 1
         self.prompt_tokens += resp.prompt_tokens
         self.completion_tokens += resp.completion_tokens

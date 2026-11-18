@@ -1,10 +1,10 @@
 """Run storage: every experiment run writes a self-describing directory.
 
-    runs/<run_name>/
-        manifest.json     run metadata (name, config, timestamp, dataset hash)
-        traces.jsonl      one trace per line
-        eval_results.json per-case + aggregate metric outputs
-        regression.json   only when a comparison was requested
+runs/<run_name>/
+    manifest.json     run metadata (name, config, timestamp, dataset hash)
+    traces.jsonl      one trace per line
+    eval_results.json per-case + aggregate metric outputs
+    regression.json   only when a comparison was requested
 """
 
 from __future__ import annotations
