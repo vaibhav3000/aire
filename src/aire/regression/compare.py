@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any, TypeGuard
 
 from ..evaluator.metrics import metric_info
+from ..tracing.storage import atomic_write_text
 
 _TOKEN_METRICS = frozenset({"total_tokens", "cost_usd"})
 _STANDALONE_METRICS = frozenset({"success_rate"})
@@ -288,7 +289,4 @@ def _attribute_regressions(
 
 
 def write_regression_report(report: dict[str, Any], out_path: str | Path) -> Path:
-    path = Path(out_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    return path
+    return atomic_write_text(out_path, json.dumps(report, indent=2))

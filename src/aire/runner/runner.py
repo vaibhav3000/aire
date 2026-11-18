@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import threading
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -76,7 +77,17 @@ class ExperimentRunner:
         dataset_path: str | Path,
         runs_root: str | Path = "runs",
         run_name: str | None = None,
+        *,
+        corpus: Mapping[str, str] | None = None,
+        path_root: str | Path | None = None,
     ) -> Path:
+        """Run every case and store manifest + traces under runs_root/<run_id>.
+
+        `corpus` (optional) is hashed into the manifest so runs over different
+        documents are distinguishable. `path_root` is the directory the
+        manifest's dataset_path is recorded relative to (default: the working
+        directory); a dataset outside it is recorded by file name only.
+        """
         cases: list[EvalCase] = load_eval_dataset(dataset_path)
         run_id = new_id("run")
         name = run_name or f"{self.sut.name}_{run_id}"
@@ -86,6 +97,9 @@ class ExperimentRunner:
             system_config=dict(self.sut.config),
             dataset_path=dataset_path,
             n_cases=len(cases),
+            deterministic=self.sut.deterministic,
+            corpus=corpus,
+            path_root=path_root,
         )
 
         for case in cases:

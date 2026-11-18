@@ -17,6 +17,7 @@ Scoring rules that keep a broken run from looking good:
 
 from __future__ import annotations
 
+import json
 import math
 import re
 import statistics
@@ -26,6 +27,7 @@ from typing import Any
 
 from ..runner.dataset import EvalCase
 from ..schema import Trace
+from ..tracing.storage import atomic_write_text
 from . import metrics as M
 from . import retrieval_metrics as R
 from . import tool_metrics as T
@@ -239,7 +241,17 @@ class EvaluationEngine:
         return result
 
     def evaluate_run(self, traces: list[Trace], cases: list[EvalCase]) -> dict[str, Any]:
-        by_case = {t.case_id: t for t in traces}
+        case_ids = [c.case_id for c in cases]
+        if len(set(case_ids)) != len(case_ids):
+            raise ValueError("duplicate case_id in the evaluation cases")
+        by_case: dict[str, Trace] = {}
+        for t in traces:
+            if t.case_id in by_case:
+                raise ValueError(f"duplicate traces for case {t.case_id!r}")
+            by_case[t.case_id] = t
+        unknown = sorted(set(by_case) - set(case_ids))
+        if unknown:
+            raise ValueError(f"traces for case ids that are not in the dataset: {unknown}")
         per_case = []
         missing = [c.case_id for c in cases if c.case_id not in by_case]
         for case in cases:
@@ -311,8 +323,5 @@ class EvaluationEngine:
 
 
 def write_eval_results(run_dir: str | Path, results: dict[str, Any]) -> Path:
-    import json
-
-    path = Path(run_dir) / "eval_results.json"
-    path.write_text(json.dumps(results, indent=2), encoding="utf-8")
-    return path
+    """Write eval_results.json atomically (see tracing.storage.atomic_write_text)."""
+    return atomic_write_text(Path(run_dir) / "eval_results.json", json.dumps(results, indent=2))

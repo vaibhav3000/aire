@@ -14,8 +14,12 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from typing import Any
+
+# Written into every serialised trace. Readers ignore fields they do not
+# know, so additive changes stay readable by older code.
+TRACE_SCHEMA_VERSION = "1.1"
 
 
 def new_id(prefix: str) -> str:
@@ -71,12 +75,17 @@ class Trace:
         d = asdict(self)
         d["usage"] = asdict(self.usage)
         d["spans"] = [s.to_dict() if isinstance(s, Span) else s for s in self.spans]
+        d["schema_version"] = TRACE_SCHEMA_VERSION
         return d
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> Trace:
-        spans = [Span(**s) for s in d.get("spans", [])]
-        usage = Usage(**d.get("usage", {}))
+        span_fields = {f.name for f in fields(Span)}
+        usage_fields = {f.name for f in fields(Usage)}
+        spans = [
+            Span(**{k: v for k, v in s.items() if k in span_fields}) for s in d.get("spans", [])
+        ]
+        usage = Usage(**{k: v for k, v in d.get("usage", {}).items() if k in usage_fields})
         return cls(
             run_id=d["run_id"],
             case_id=d["case_id"],
@@ -128,4 +137,11 @@ def validate_trace_dict(d: dict[str, Any]) -> list[str]:
     u = d.get("usage", {})
     if u.get("prompt_tokens", 0) < 0 or u.get("completion_tokens", 0) < 0:
         problems.append("usage tokens must be non-negative")
+    tool_calls = d.get("tool_calls", [])
+    if not isinstance(tool_calls, list):
+        problems.append("tool_calls must be a list")
+    else:
+        for i, call in enumerate(tool_calls):
+            if not isinstance(call, dict) or not isinstance(call.get("name"), str):
+                problems.append(f"tool_calls[{i}]: must be an object with a string 'name'")
     return problems

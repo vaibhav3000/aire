@@ -16,7 +16,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from ..llm.base import SUTResult
+from ..llm.base import SUTResult, SystemUnderTest
 from .deterministic import KeywordRetriever
 from .provider import LLMResponse, OpenAICompatProvider
 
@@ -30,12 +30,14 @@ _SYSTEM_PROMPT = (
 )
 
 
-class OpenAIChatResponder:
+class OpenAIChatResponder(SystemUnderTest):
     """SystemUnderTest whose generation step is a real LLM.
 
-    deterministic = False: the runner reports this in the manifest so results
+    deterministic = False: the runner records this in the manifest so results
     are never confused with the reproducible deterministic mode.
     """
+
+    deterministic = False
 
     def __init__(
         self,
