@@ -58,7 +58,7 @@ def _case_table(per_case: list[dict[str, Any]], include_answer: bool = True) -> 
     cols = [
         "case_id",
         "keyword_recall",
-        "citation_coverage",
+        "gold_citation_recall",
         "groundedness",
         "retrieval_recall",
         "latency_ms",

@@ -13,8 +13,9 @@ Checks performed on ``demo/eval_set.jsonl``:
    - at least one supporting doc is listed and every listed doc exists
      in ``demo/corpus/``,
    - 3-5 expected keywords are given and every keyword occurs
-     (case-insensitive substring) in the concatenated text of the
-     supporting docs.
+     in the concatenated text of the supporting docs, matched the same
+     way the engine scores answers (aire.evaluator.metrics.keyword_in_text:
+     case-insensitive, on token boundaries).
 3. Abstention cases (``expect_abstention`` true)
    - ``expected_keywords`` and ``supporting_doc_ids`` are empty and
      ``must_cite`` is explicitly false, so no doc lookup applies.
@@ -34,6 +35,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from aire.evaluator.metrics import keyword_in_text
 
 DEMO_DIR = Path(__file__).resolve().parent
 CORPUS_DIR = DEMO_DIR / "corpus"
@@ -142,7 +145,7 @@ def check_answerable(case: Case, corpus: dict[str, str], errors: list[str]) -> N
     if missing:
         errors.append(f"{where}: unknown doc id(s): {', '.join(missing)}")
         return
-    haystack = "\n".join(corpus[doc_id] for doc_id in doc_ids).lower()
+    haystack = "\n".join(corpus[doc_id] for doc_id in doc_ids)
     keywords = case.data.get("expected_keywords")
     if not isinstance(keywords, list):
         return  # schema check already reported the type problem
@@ -151,7 +154,7 @@ def check_answerable(case: Case, corpus: dict[str, str], errors: list[str]) -> N
             f"{where}: expected {MIN_KEYWORDS}-{MAX_KEYWORDS} keywords, found {len(keywords)}"
         )
     for keyword in keywords:
-        if isinstance(keyword, str) and keyword.lower() not in haystack:
+        if isinstance(keyword, str) and not keyword_in_text(keyword, haystack):
             errors.append(f"{where}: keyword {keyword!r} not found in {', '.join(doc_ids)}")
 
 

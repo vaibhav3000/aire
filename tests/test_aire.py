@@ -35,11 +35,11 @@ def test_keyword_recall_counts_hits() -> None:
     assert M.keyword_recall(None, ["x"]) == 0.0
 
 
-def test_citation_parsing_and_coverage() -> None:
+def test_citation_parsing_and_gold_citation_recall() -> None:
     ans = "Rate limits are 60 rpm [doc:doc_b]. Also see [doc:doc_z]."
     assert M.citation_ids(ans) == ["doc_b", "doc_z"]
-    assert M.citation_coverage(ans, ["doc_b"]) == 1.0
-    assert M.citation_coverage(ans, ["doc_b", "doc_a"]) == 0.5
+    assert M.gold_citation_recall(ans, ["doc_b"]) == 1.0
+    assert M.gold_citation_recall(ans, ["doc_b", "doc_a"]) == 0.5
 
 
 def test_groundedness_supported_vs_unsupported() -> None:
@@ -248,7 +248,7 @@ def test_engine_aggregates_and_failures(tmp_path: Path) -> None:
     agg = results["aggregates"]
     assert agg["n_cases"] == 2
     assert agg["n_success"] == 2
-    assert agg["mean_citation_coverage"] == 1.0
+    assert agg["mean_gold_citation_recall"] == 1.0
     assert agg["failure_counts"] == {}
 
 
@@ -364,7 +364,7 @@ def test_compare_runs_detects_grounding_regression(tmp_path: Path) -> None:
     verdicts = {m["metric"]: m["verdict"] for m in report["metrics"]}
     # The fluent style drops citations: grounding must regress...
     assert verdicts.get("groundedness") == "regressed"
-    assert verdicts.get("citation_coverage") == "regressed"
+    assert verdicts.get("gold_citation_recall") == "regressed"
     assert report["summary"]["verdict"] == "regressions detected"
 
 

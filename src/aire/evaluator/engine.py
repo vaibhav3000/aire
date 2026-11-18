@@ -101,8 +101,8 @@ class EvaluationEngine:
 
         # --- grounding / citations ---
         if self.corpus and case.must_cite and not case.expect_abstention:
-            result["citation_coverage"] = round(
-                M.citation_coverage(answer, case.supporting_doc_ids), 4
+            result["gold_citation_recall"] = round(
+                M.gold_citation_recall(answer, case.supporting_doc_ids), 4
             )
             gr = M.groundedness(answer, self.corpus)
             result["groundedness"] = round(gr, 4) if gr is not None else None
