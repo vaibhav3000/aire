@@ -16,22 +16,18 @@ sleep happens outside the timed region so latency metrics measure the system.
 from __future__ import annotations
 
 import json
-import sys
-import time
 from pathlib import Path
 
+from aire.evaluator.engine import EvaluationEngine, write_eval_results
+from aire.llm.openai_compat import OpenAIChatResponder
+from aire.llm.provider import OpenAICompatProvider
+from aire.regression import RegressionThresholds, compare_runs, write_regression_report
+from aire.report import render_comparison_report
+from aire.runner import ExperimentRunner, RunnerConfig
+from aire.runner.dataset import load_eval_dataset
+from aire.tracing.storage import load_run_traces
+
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-
-from aire.evaluator.engine import EvaluationEngine, write_eval_results  # noqa: E402
-from aire.llm.openai_compat import OpenAIChatResponder  # noqa: E402
-from aire.llm.provider import OpenAICompatProvider  # noqa: E402
-from aire.regression import RegressionThresholds, compare_runs, write_regression_report  # noqa: E402
-from aire.report import render_comparison_report  # noqa: E402
-from aire.runner import ExperimentRunner, RunnerConfig  # noqa: E402
-from aire.runner.dataset import load_eval_dataset  # noqa: E402
-from aire.tracing.storage import load_run_traces  # noqa: E402
-
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 
 

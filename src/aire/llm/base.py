@@ -9,7 +9,9 @@ the OpenAI-compatible adapter exists for real LLMs and is opt-in.
 from __future__ import annotations
 
 import abc
+from collections.abc import Mapping
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import Any
 
 from ..schema import Trace
@@ -33,7 +35,8 @@ class SystemUnderTest(abc.ABC):
     declare nondeterminism via `deterministic = False`."""
 
     name: str = "sut"
-    config: dict[str, Any] = {}
+    # Read-only shared default; implementations assign their own dict per instance.
+    config: Mapping[str, Any] = MappingProxyType({})
     deterministic: bool = True
 
     @abc.abstractmethod

@@ -90,7 +90,7 @@ class OpenAIChatResponder:
         user = f"Context documents:\n{context}\n\nQuestion: {case_input}"
         try:
             resp: LLMResponse = self.provider.chat(_SYSTEM_PROMPT, user)
-        except Exception as exc:  # noqa: BLE001 - recorded as trace error
+        except Exception as exc:  # recorded as the trace error
             return SUTResult(
                 answer=None,
                 retrieved_doc_ids=doc_ids,

@@ -30,10 +30,9 @@ class GroundednessJudge(Judge):
 
     def score(self, trace: Trace, context: dict[str, Any]) -> dict[str, Any]:
         value = lexical_groundedness(trace.final_answer, self.corpus)
-        detail = {
-            None: "not measurable (empty or abstained answer)",
-        }.get(value)
-        if detail is None:
+        if value is None:
+            detail = "not measurable (empty or abstained answer)"
+        else:
             detail = "lexical citation-overlap proxy; deterministic"
         return {"score": value, "detail": detail}
 

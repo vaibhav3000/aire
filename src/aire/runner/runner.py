@@ -22,8 +22,8 @@ from typing import Any
 
 from ..llm.base import SystemUnderTest
 from ..schema import Span, Timer, Trace, Usage, estimate_tokens, new_id
-from .dataset import EvalCase, load_eval_dataset
 from ..tracing.storage import RunStore
+from .dataset import EvalCase, load_eval_dataset
 
 
 class InvocationTimeout(Exception):
@@ -41,7 +41,7 @@ def _invoke_with_timeout(sut: SystemUnderTest, case_input: str, timeout_s: float
     def worker() -> None:
         try:
             result["value"] = sut.invoke(case_input)
-        except Exception as exc:  # noqa: BLE001 - recorded as trace error
+        except Exception as exc:  # any SUT failure is recorded as a trace error
             result["error"] = f"{type(exc).__name__}: {exc}"
 
     thread = threading.Thread(target=worker, daemon=True)
@@ -83,7 +83,7 @@ class ExperimentRunner:
         store = RunStore(runs_root, run_id, name)
         store.write_manifest(
             created_at=time.time(),
-            system_config=self.sut.config,
+            system_config=dict(self.sut.config),
             dataset_path=dataset_path,
             n_cases=len(cases),
         )
@@ -98,7 +98,7 @@ class ExperimentRunner:
         trace = Trace(
             run_id=run_id,
             case_id=case.case_id,
-            system_config=self.sut.config,
+            system_config=dict(self.sut.config),
             started_at=time.time(),
         )
         attempts = self.config.max_retries + 1
@@ -146,7 +146,7 @@ class ExperimentRunner:
                     )
                 last_error = None
                 break
-            except Exception as exc:  # noqa: BLE001 - recorded, retried, classified
+            except Exception as exc:  # recorded, retried, then classified
                 last_error = f"{type(exc).__name__}: {exc}"
                 if attempt < attempts - 1:
                     time.sleep(self.config.retry_backoff_s * (attempt + 1))

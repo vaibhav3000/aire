@@ -5,16 +5,16 @@ retrieval and holds everything else; v3 drops citations (the seeded regression).
 """
 
 import json
-import sys
+import shutil
+import subprocess
+import sysconfig
 from pathlib import Path
 
 import pytest
 
+from aire.regression.gate import EXIT_PASS, EXIT_REGRESSED, EXIT_USAGE, run_gate
+
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-
-from aire.regression.gate import EXIT_PASS, EXIT_REGRESSED, EXIT_USAGE, run_gate  # noqa: E402
-
 V1 = str(ROOT / "results" / "v1_baseline")
 V2 = str(ROOT / "results" / "v2_improved")
 V3 = str(ROOT / "results" / "v3_fluent_regression")
@@ -55,3 +55,18 @@ def test_malformed_override_is_rejected() -> None:
     with pytest.raises(SystemExit) as exc:
         run_gate([V1, V2, "--override", "latency_ms"])
     assert exc.value.code == EXIT_USAGE
+
+
+def test_installed_console_script_gates_the_committed_runs() -> None:
+    """The aire-gate entry point (not just run_gate) must be installed and work."""
+    exe = shutil.which("aire-gate", path=sysconfig.get_path("scripts"))
+    assert exe is not None, "aire-gate is not installed; run pip install -e ."
+    passed = subprocess.run(
+        [exe, V1, V2, "--ignore", "latency_ms"], capture_output=True, text=True, check=False
+    )
+    assert passed.returncode == EXIT_PASS, passed.stdout + passed.stderr
+    blocked = subprocess.run(
+        [exe, V1, V3, "--ignore", "latency_ms"], capture_output=True, text=True, check=False
+    )
+    assert blocked.returncode == EXIT_REGRESSED, blocked.stdout + blocked.stderr
+    assert "GATE FAILED" in blocked.stdout

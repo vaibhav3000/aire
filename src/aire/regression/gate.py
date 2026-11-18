@@ -17,8 +17,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from .compare import RegressionThresholds, compare_runs, write_regression_report
 

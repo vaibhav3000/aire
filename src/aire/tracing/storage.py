@@ -93,7 +93,7 @@ def load_run_traces(run_dir: str | Path) -> list[Trace]:
     """Read traces.jsonl back as Trace objects."""
     path = Path(run_dir) / "traces.jsonl"
     traces: list[Trace] = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:

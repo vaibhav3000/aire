@@ -74,7 +74,7 @@ class Trace:
         return d
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Trace":
+    def from_dict(cls, d: dict[str, Any]) -> Trace:
         spans = [Span(**s) for s in d.get("spans", [])]
         usage = Usage(**d.get("usage", {}))
         return cls(
@@ -104,7 +104,7 @@ class Timer:
         self.start: float = 0.0
         self.latency_ms: float = 0.0
 
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Timer:
         self.start = time.perf_counter()
         return self
 

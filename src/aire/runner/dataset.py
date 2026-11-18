@@ -8,7 +8,7 @@ declarative so the same dataset works for any system version.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
@@ -31,15 +31,15 @@ class EvalCase:
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "EvalCase":
-        known = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
+    def from_dict(cls, d: dict[str, Any]) -> EvalCase:
+        known = {f.name for f in fields(cls)}
         return cls(**{k: v for k, v in d.items() if k in known})
 
 
 def load_eval_dataset(path: str | Path) -> list[EvalCase]:
     """Load a JSONL evaluation set. One case per line."""
     cases: list[EvalCase] = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line_no, line in enumerate(f, 1):
             line = line.strip()
             if not line or line.startswith("#"):

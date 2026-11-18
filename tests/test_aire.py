@@ -1,26 +1,23 @@
 """AIRE test suite: metrics, judges, tracing, runner, engine, regression, report."""
 
 import json
-import sys
 import time
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from aire.evaluator import metrics as M  # noqa: E402
-from aire.evaluator import retrieval_metrics as R  # noqa: E402
-from aire.evaluator import tool_metrics as T  # noqa: E402
-from aire.evaluator.engine import EngineConfig, EvaluationEngine, classify_failure  # noqa: E402
-from aire.llm.base import SUTResult, SystemUnderTest  # noqa: E402
-from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever  # noqa: E402
-from aire.regression import RegressionThresholds, compare_runs  # noqa: E402
-from aire.runner.dataset import EvalCase, load_eval_dataset  # noqa: E402
-from aire.runner.runner import ExperimentRunner, RunnerConfig  # noqa: E402
-from aire.schema import Span, Trace, Usage, validate_trace_dict  # noqa: E402
-from aire.tracing.recorder import TraceRecorder  # noqa: E402
-from aire.tracing.storage import RunStore, load_run_traces  # noqa: E402
+from aire.evaluator import metrics as M
+from aire.evaluator import retrieval_metrics as R
+from aire.evaluator import tool_metrics as T
+from aire.evaluator.engine import EngineConfig, EvaluationEngine, classify_failure
+from aire.llm.base import SUTResult, SystemUnderTest
+from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever
+from aire.regression import RegressionThresholds, compare_runs
+from aire.runner.dataset import EvalCase, load_eval_dataset
+from aire.runner.runner import ExperimentRunner, RunnerConfig
+from aire.schema import Span, Trace, Usage, validate_trace_dict
+from aire.tracing.recorder import TraceRecorder
+from aire.tracing.storage import RunStore, load_run_traces
 
 CORPUS = {
     "doc_a": "The refund window is 30 days for annual plans. Credits are issued to the account.",
@@ -138,6 +135,7 @@ def test_keyword_retriever_ranks_by_overlap() -> None:
 def test_extractive_rag_faithful_cites() -> None:
     sut = ExtractiveRAG("t", CORPUS, top_k=1, min_score=0.05)
     out = sut.invoke("What is the refund window for annual plans?")
+    assert out.answer is not None
     assert "[doc:doc_a]" in out.answer
     assert out.retrieved_doc_ids == ["doc_a"]
 
@@ -145,6 +143,7 @@ def test_extractive_rag_faithful_cites() -> None:
 def test_extractive_rag_fluent_drops_citations() -> None:
     sut = ExtractiveRAG("t", CORPUS, top_k=1, min_score=0.05, style="fluent")
     out = sut.invoke("What is the refund window for annual plans?")
+    assert out.answer is not None
     assert "[doc:" not in out.answer and out.answer.strip()
 
 
@@ -398,9 +397,9 @@ class _FlakySUT(SystemUnderTest):
     """Fails the first N invocations, then answers."""
 
     name = "flaky"
-    config = {"kind": "flaky"}
 
     def __init__(self, fail_times: int) -> None:
+        self.config = {"kind": "flaky"}
         self.fail_times = fail_times
         self.calls = 0
 
@@ -420,7 +419,6 @@ def _one_case_ds(tmp_path: Path) -> Path:
 def test_runner_timeout_becomes_invocation_error(tmp_path):
     class _SlowSUT(SystemUnderTest):
         name = "slow"
-        config = {}
 
         def invoke(self, case_input: str, case_context=None) -> SUTResult:
             time.sleep(1.0)
