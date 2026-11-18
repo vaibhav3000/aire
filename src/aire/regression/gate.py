@@ -10,12 +10,15 @@ and the job fails when any gated metric regressed beyond its threshold.
 Exit codes:
     0  no gated metric regressed
     1  at least one gated metric regressed (fail the build)
-    2  usage error, or a run directory without eval_results.json
+    2  usage error: a missing or malformed run directory, or two runs that
+       did not evaluate the same dataset. Never 1, so a crash can not be
+       mistaken for a blocked regression.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -57,7 +60,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--threshold",
         type=float,
         default=0.02,
-        help="default relative threshold per metric (default: 0.02, i.e. 2%%)",
+        help=(
+            "default tolerance per metric (default: 0.02): an absolute difference "
+            "for scores in [0, 1], a relative change for latency, tokens and cost"
+        ),
     )
     parser.add_argument(
         "--override",
@@ -65,7 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="METRIC=THRESHOLD",
-        help="per-metric relative threshold, e.g. latency_ms=0.5 (repeatable)",
+        help="per-metric tolerance, e.g. latency_ms=0.5 (repeatable)",
     )
     parser.add_argument(
         "--ignore",
@@ -83,47 +89,58 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _format_row(row: dict[str, Any], ignored: set[str]) -> str:
-    base, cand = row["baseline"], row["candidate"]
-    # A relative change is meaningless against a zero baseline; show the absolute delta.
-    rel = f"{row['rel_delta']:+.1%}" if abs(base) > 1e-9 else "n/a"
+def _num(value: Any, spec: str) -> str:
+    return "-" if value is None else format(value, spec)
+
+
+def _format_row(row: dict[str, Any]) -> str:
+    rel = "n/a" if row.get("rel_delta") is None else f"{row['rel_delta']:+.1%}"
     verdict = row["verdict"]
-    if verdict == "regressed" and row["metric"] in ignored:
+    if not row.get("gated", True):
         verdict += " (ignored)"
-    return f"  {row['metric']:<20} {base:>10.4g} {cand:>10.4g} {row['delta']:>+10.4g} {rel:>8}  {verdict}"
+    if row.get("n_mismatch"):
+        verdict += f" [n {row.get('n_baseline')} vs {row.get('n_candidate')}]"
+    return (
+        f"  {row['metric']:<24} {_num(row['baseline'], '>10.4g')} "
+        f"{_num(row['candidate'], '>10.4g')} {_num(row['delta'], '>+10.4g')} {rel:>8}  {verdict}"
+    )
 
 
 def run_gate(argv: Sequence[str] | None = None) -> int:
     """Run the gate and return its exit code (see module docstring)."""
     args = build_parser().parse_args(argv)
     thresholds = RegressionThresholds(default=args.threshold, overrides=dict(args.override))
+    ignored = set(args.ignore)
     try:
         comparison = compare_runs(
             args.baseline,
             args.candidate,
             thresholds=thresholds,
             labels=(str(args.baseline), str(args.candidate)),
+            ignore=ignored,
         )
-    except FileNotFoundError as exc:
-        print(f"aire-gate: {exc}", file=sys.stderr)
+    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
+        # Any of these means the inputs are unusable; exit 2, never 1.
+        print(f"aire-gate: cannot compare runs: {type(exc).__name__}: {exc}", file=sys.stderr)
         return EXIT_USAGE
 
     if args.report is not None:
         write_regression_report(comparison, args.report)
 
-    ignored = set(args.ignore)
     rows = comparison["metrics"]
-    blocking = [r for r in rows if r["verdict"] == "regressed" and r["metric"] not in ignored]
+    blocking = [r for r in rows if r["verdict"] == "regressed" and r["gated"]]
 
     print(f"aire-gate: {args.baseline} -> {args.candidate}")
-    print(f"  {'metric':<20} {'baseline':>10} {'candidate':>10} {'delta':>10} {'rel':>8}  verdict")
+    print(f"  {'metric':<24} {'baseline':>10} {'candidate':>10} {'delta':>10} {'rel':>8}  verdict")
     for row in rows:
-        print(_format_row(row, ignored))
+        print(_format_row(row))
+    for warning in comparison.get("warnings", []):
+        print(f"  warning: {warning}")
 
     for row in blocking:
         cases = row.get("attribution", [])
         if cases:
-            worst = ", ".join(f"{c['case_id']} ({c['delta']:+.3g})" for c in cases[:5])
+            worst = ", ".join(f"{c['case_id']} ({_num(c['delta'], '+.3g')})" for c in cases[:5])
             more = f" and {len(cases) - 5} more" if len(cases) > 5 else ""
             print(f"  {row['metric']}: {len(cases)} case(s) regressed, worst: {worst}{more}")
 

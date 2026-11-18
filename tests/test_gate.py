@@ -12,7 +12,10 @@ from pathlib import Path
 
 import pytest
 
+from aire.evaluator.engine import EvaluationEngine
 from aire.regression.gate import EXIT_PASS, EXIT_REGRESSED, EXIT_USAGE, run_gate
+from aire.runner.dataset import EvalCase
+from aire.schema import Trace
 
 ROOT = Path(__file__).resolve().parents[1]
 V1 = str(ROOT / "results" / "v1_baseline")
@@ -70,3 +73,66 @@ def test_installed_console_script_gates_the_committed_runs() -> None:
     )
     assert blocked.returncode == EXIT_REGRESSED, blocked.stdout + blocked.stderr
     assert "GATE FAILED" in blocked.stdout
+
+
+def _write_results(run_dir: Path, results: str, sha: str = "a" * 64) -> str:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "eval_results.json").write_text(results, encoding="utf-8")
+    (run_dir / "manifest.json").write_text(json.dumps({"dataset_sha256": sha}), encoding="utf-8")
+    return str(run_dir)
+
+
+_GOOD = json.dumps({"per_case": [{"case_id": "c1"}], "aggregates": {"mean_keyword_recall": 1.0}})
+
+
+def test_malformed_results_are_a_usage_error_not_a_regression(tmp_path: Path) -> None:
+    base = _write_results(tmp_path / "base", _GOOD)
+    cand = _write_results(tmp_path / "cand", '{"per_case": [')
+    assert run_gate([base, cand]) == EXIT_USAGE
+
+
+def test_results_without_case_ids_are_a_usage_error(tmp_path: Path) -> None:
+    base = _write_results(tmp_path / "base", _GOOD)
+    cand = _write_results(tmp_path / "cand", json.dumps({"per_case": [{}], "aggregates": {}}))
+    assert run_gate([base, cand]) == EXIT_USAGE
+
+
+def test_runs_on_different_datasets_are_a_usage_error(tmp_path: Path) -> None:
+    base = _write_results(tmp_path / "base", _GOOD)
+    cand = _write_results(tmp_path / "cand", _GOOD, sha="b" * 64)
+    assert run_gate([base, cand]) == EXIT_USAGE
+
+
+def test_candidate_whose_unanswerable_cases_crash_is_blocked(tmp_path: Path) -> None:
+    corpus = {"doc_a": "The refund window is 30 days for annual plans."}
+    cases = [
+        EvalCase(
+            case_id="refund",
+            input="How long is the refund window?",
+            expected_keywords=["30 days"],
+            supporting_doc_ids=["doc_a"],
+        ),
+        EvalCase(case_id="ipv6", input="IPv6?", expect_abstention=True, must_cite=False),
+    ]
+    answer = "The refund window is 30 days for annual plans [doc:doc_a]."
+    refund = Trace(
+        run_id="r",
+        case_id="refund",
+        system_config={},
+        final_answer=answer,
+        retrieved_doc_ids=["doc_a"],
+    )
+    abstains = Trace(run_id="r", case_id="ipv6", system_config={}, final_answer="I don't know.")
+    crashes = Trace(run_id="r", case_id="ipv6", system_config={}, error="ProviderError: HTTP 429")
+    engine = EvaluationEngine(corpus=corpus)
+    base = _write_results(
+        tmp_path / "base", json.dumps(engine.evaluate_run([refund, abstains], cases))
+    )
+    cand = _write_results(
+        tmp_path / "cand", json.dumps(engine.evaluate_run([refund, crashes], cases))
+    )
+    report = tmp_path / "gate.json"
+    assert run_gate([base, cand, "--report", str(report)]) == EXIT_REGRESSED
+    data = json.loads(report.read_text(encoding="utf-8"))
+    regressed = {row["metric"] for row in data["metrics"] if row["verdict"] == "regressed"}
+    assert {"abstention_correct", "errors", "success_rate"} <= regressed
