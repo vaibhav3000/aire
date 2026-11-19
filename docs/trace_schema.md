@@ -58,7 +58,7 @@ A real trace from the committed v1 baseline run (`results/v1_baseline/traces.jso
 
 ```jsonc
 {
-  "run_id": "run_0e2fe3c1",              // joins all traces of one experiment
+  "run_id": "run_f3e318af",              // joins all traces of one experiment
   "case_id": "refunds_request_window",   // joins to the EvalCase in the dataset
   "system_config": {                     // SUT fingerprint, identical for the
     "top_k": 1,                          // whole run; the regression engine and
@@ -67,7 +67,7 @@ A real trace from the committed v1 baseline run (`results/v1_baseline/traces.jso
     "weighting": "overlap",
     "allow_irrelevant": false
   },
-  "started_at": 1795046301.818149,       // unix seconds
+  "started_at": 1795103198.1158,       // unix seconds
   "final_answer": "Northwind Cloud grants a refund window of 30 days from the date of each charge. [doc:doc_refunds] To request a refund, ... [doc:doc_refunds]",
   "retrieved_doc_ids": ["doc_refunds"],  // rank order; read by recall@k and MRR@k
   "tool_calls": [],                      // empty: this system makes no tool calls
@@ -75,8 +75,8 @@ A real trace from the committed v1 baseline run (`results/v1_baseline/traces.jso
     {
       "kind": "generation",              // one span per attempt; a multi-step SUT
       "name": "v1_baseline.invoke",      // would add retrieval and tool_call spans
-      "started_at": 1795046301.8181822,
-      "latency_ms": 0.8210000087274238,  // measured with Timer (perf_counter)
+      "started_at": 1795103198.1158404,
+      "latency_ms": 1.245299999936833,  // measured with Timer (perf_counter)
       "attributes": {"attempt": 1},      // retry bookkeeping by the runner
       "error": null
     }
@@ -90,7 +90,7 @@ A real trace from the committed v1 baseline run (`results/v1_baseline/traces.jso
     "reasoning_tokens": null
   },
   "error": null,                         // non-null would classify as invocation_error
-  "trace_id": "tr_a2776795",
+  "trace_id": "tr_4966e8b6",
   "schema_version": "1.2"
 }
 ```
@@ -159,21 +159,22 @@ Written by `write_eval_results` after `EvaluationEngine.evaluate_run`:
 {
   "per_case": [ /* one row per case: metrics, errors, latency_ms, total_tokens, token_source, cost_usd, failure */ ],
   "aggregates": {
-    "mean_keyword_recall": 0.5758,       // mean over the cases where the metric applies
-    "n_keyword_recall": 22,              // how many cases that mean averages
+    "mean_keyword_recall": 0.5503,       // mean over the cases where the metric applies
+    "n_keyword_recall": 130,             // how many cases that mean averages
+    "ci95_keyword_recall": [0.472, 0.6244], // seeded 95% bootstrap interval
     "mean_groundedness": 1.0,
-    "n_groundedness": 22,
-    "mean_retrieval_recall_at_3": 0.7273,
-    "n_retrieval_recall_at_3": 22,
-    "mean_latency_ms": 0.3223,           // successful cases only, like p50 and p95
-    "p50_latency_ms": 0.285,
-    "p95_latency_ms": 0.49,
+    "n_groundedness": 130,
+    "mean_retrieval_recall_at_3": 0.7154,
+    "n_retrieval_recall_at_3": 130,
+    "mean_latency_ms": 0.4631,           // successful cases only, like p50 and p95
+    "p50_latency_ms": 0.45,
+    "p95_latency_ms": 0.5855,
     "token_sources": ["heuristic"],      // sources mixed into mean_total_tokens
-    "failure_counts": {"incomplete_answer": 3, "missed_abstention": 4, "retrieval_miss": 7},
-    "n_cases": 26,
-    "n_success": 12,
-    "success_rate": 0.4615
-    /* ... and the remaining mean_<metric> / n_<metric> pairs */
+    "failure_counts": {"incomplete_answer": 21, "missed_abstention": 20, "retrieval_miss": 45},
+    "n_cases": 150,
+    "n_success": 64,
+    "success_rate": 0.4267
+    /* ... and the remaining mean_<metric>, n_<metric> and ci95_<metric> entries */
   },
   "missing_traces": [],                  // cases with no trace, scored as invocation_error
   "engine_config": {                     // settings in force, so results are self-describing

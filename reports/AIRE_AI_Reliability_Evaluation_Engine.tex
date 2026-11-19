@@ -38,13 +38,14 @@ per case; each invocation is recorded as a validated, schema-constrained
 trace (answer, retrieved documents, one timed span per attempt, token usage
 with explicit source labeling, errors). All downstream analysis (17
 deterministic per-case metrics, a failure taxonomy checked in pipeline
-order, and a direction-aware regression gate with per-case attribution)
-operates on the stored traces and never re-runs the system. On a 26-case
+order, and a regression gate that decides with paired tests over the
+cases and attributes every regression to cases) operates on the stored
+traces and never re-runs the system. On a 150-case
 retrieval-augmented-generation (RAG) suite over a 12-document corpus with
 three deterministic SUT versions, the gate blocks an intentional ``fluent
 but uncited'' regression (lexical groundedness 1.00 to 0.00, gold citation
-recall 0.73 to 0.00, 20 cases newly ungrounded) and attributes a retrieval
-gain (recall@3 0.73 to 0.91) to retrieving three documents instead of one
+recall 0.72 to 0.00, 109 cases newly ungrounded) and attributes a retrieval
+gain (recall@3 0.72 to 0.86) to retrieving three documents instead of one
 rather than to the retriever's weighting. The paper also reports what an
 audit of the evaluator found: a citation-segmentation bug that had scored
 verbatim quotes as half grounded, failed calls counted as correct
@@ -272,8 +273,9 @@ generated artifacts.
 The benchmark consists of a 12-document corpus for a fictional cloud
 provider (covering refunds, rate limits, SLA credits, data retention,
 encryption, onboarding, billing, status, support tiers, export, regions,
-compliance) and 26 evaluation cases: 20 answerable from a single document,
-2 answerable from a pair, and 4 plausible but unanswerable questions.
+compliance) and 150 evaluation cases: 114 answerable from a single
+document (18 of them worded to avoid the document's vocabulary), 16
+answerable from a pair, and 20 plausible but unanswerable questions.
 
 Three deterministic SUT versions are evaluated: \textbf{v1} (keyword
 overlap scoring, top-1 retrieval) extracts and cites the best sentences;
@@ -285,26 +287,30 @@ it exists so that every committed number is exactly reproducible and
 evaluator bugs surface as metric changes rather than hiding in model noise.
 
 \subsection{Deterministic Results}
-Table~\ref{tab:versions} shows per-version aggregates over the 26 cases.
-v2 versus v1 passes the gate (3 metrics improved, 11 neutral, none
-regressed): recall@3 rises from 0.7273 to 0.9091, MRR@3 from 0.7727 to
-0.8333 and the success rate from 0.4615 to 0.5000, while recall@1 is
-unchanged. The ablation in Table~\ref{tab:ablation} holds the cut-off fixed
-and varies only the weighting: at $k=3$ plain overlap recalls 0.9545 of the
-supporting documents and IDF 0.9091, so the v1 to v2 gain comes from
+Table~\ref{tab:versions} shows per-version aggregates over the 150 cases.
+The gate pairs the two runs case by case and counts a change beyond the
+tolerance only when a paired test supports it (McNemar's exact test for
+metrics that are 0 or 1 per case, a seeded paired bootstrap otherwise).
+v2 versus v1 passes the gate (2 metrics improved, 10 neutral, 2
+inconclusive, none regressed): recall@3 rises from 0.7154 to 0.8615 and
+MRR@3 from 0.7769 to 0.8231, both significant, while the success rate rises
+from 0.4267 to 0.4667 without significance (McNemar p = 0.07) and recall@1
+is unchanged. The ablation in Table~\ref{tab:ablation} holds the cut-off
+fixed and varies only the weighting: at $k=3$ plain overlap recalls 0.8731
+of the supporting documents and IDF 0.8615, so the v1 to v2 gain comes from
 retrieving more documents, not from IDF.
 
 v3 versus v1 is the central demonstration: the gate blocks it because
-groundedness falls from 1.0000 to 0.0000, gold citation recall from 0.7273
-to 0.0000 and the success rate from 0.4615 to 0.0000, and citation
-precision disappears because nothing is cited. Retrieval matches v2. The
-failure taxonomy localizes the damage: 20 cases become ungrounded. Latency
-is reported but excluded from verdicts, because sub-millisecond timings of
-the offline harness are noise.
+groundedness falls from 1.0000 to 0.0000 on all 130 answerable cases, gold
+citation recall from 0.7154 to 0.0000 and the success rate from 0.4267 to
+0.0133, and citation precision disappears because nothing is cited.
+Retrieval matches v2. The failure taxonomy localizes the damage: 109 cases
+become ungrounded. Latency is reported but excluded from verdicts, because
+sub-millisecond timings of the offline harness are noise.
 
 \begin{table}[t]
 \centering
-\caption{Deterministic three-version results over the 26-case suite
+\caption{Deterministic three-version results over the 150-case suite
 (committed results, regenerated with the corrected metrics). n.m.: not
 measurable, the version cites nothing.}
 \label{tab:versions}
@@ -313,27 +319,27 @@ measurable, the version cites nothing.}
 \toprule
 Metric & v1 & v2 & v3 \\
 \midrule
-retrieval\_recall@1 & 0.7273 & 0.7273 & 0.7273 \\
-retrieval\_recall@3 & 0.7273 & 0.9091 & 0.9091 \\
-retrieval\_MRR@3 & 0.7727 & 0.8333 & 0.8333 \\
-keyword\_recall & 0.5758 & 0.5758 & 0.5758 \\
-gold\_citation\_recall & 0.7273 & 0.7273 & 0.0000 \\
+retrieval\_recall@1 & 0.7154 & 0.7154 & 0.7154 \\
+retrieval\_recall@3 & 0.7154 & 0.8615 & 0.8615 \\
+retrieval\_MRR@3 & 0.7769 & 0.8231 & 0.8231 \\
+keyword\_recall & 0.5503 & 0.5374 & 0.5374 \\
+gold\_citation\_recall & 0.7154 & 0.7154 & 0.0000 \\
 citation\_precision & 1.0000 & 1.0000 & n.m. \\
 groundedness & 1.0000 & 1.0000 & 0.0000 \\
-abstention\_correct & 0.0000 & 0.0000 & 0.0000 \\
-success\_rate & 0.4615 & 0.5000 & 0.0000 \\
+abstention\_correct & 0.0000 & 0.1000 & 0.1000 \\
+success\_rate & 0.4267 & 0.4667 & 0.0133 \\
 \midrule
-retrieval\_miss & 7 & 2 & 2 \\
-incomplete\_answer & 3 & 7 & 0 \\
-missed\_abstention & 4 & 4 & 4 \\
-ungrounded & 0 & 0 & 20 \\
+retrieval\_miss & 45 & 21 & 21 \\
+incomplete\_answer & 21 & 41 & 0 \\
+missed\_abstention & 20 & 18 & 18 \\
+ungrounded & 0 & 0 & 109 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[t]
 \centering
-\caption{Retrieval ablation: keyword retriever with top 3 over the 22
+\caption{Retrieval ablation: keyword retriever with top 3 over the 130
 answerable cases.}
 \label{tab:ablation}
 \small
@@ -341,17 +347,18 @@ answerable cases.}
 \toprule
 Weighting & recall@1 & recall@3 & MRR@3 \\
 \midrule
-overlap & 0.7273 & 0.9545 & 0.8485 \\
-IDF & 0.7273 & 0.9091 & 0.8333 \\
+overlap & 0.7154 & 0.8731 & 0.8295 \\
+IDF & 0.7154 & 0.8615 & 0.8231 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 A second finding is a genuine capability boundary: abstention correctness
-is 0.0 for every version. With IDF weighting the top retrieval scores of
-the unanswerable queries range from 0.18 to 0.46, while answerable queries
-go as low as 0.19, so any threshold that rejects every unanswerable query
-also rejects answerable ones. The limitation is documented as requiring
+is 0.0 for v1 and 0.1 for v2 and v3, which refuse 2 of the 20
+unanswerable questions. With IDF weighting the top retrieval scores of the
+unanswerable queries range from 0.006 to 0.46, while 84 of the 130
+answerable queries score no higher than 0.46, so any threshold that rejects
+every unanswerable query also rejects most answerable ones. The limitation is documented as requiring
 semantic matching rather than patched with an unprincipled cutoff.
 
 \subsection{A Historical Live LLM Run}
@@ -414,19 +421,18 @@ reliability parameters are part of the system under test.
 
 \section{Limitations}
 (1) The groundedness metric is a lexical proxy and can be fooled in both
-directions. (2) The gate is a change detector, not a statistical test: its
-default tolerance of 0.02 is small next to the sampling noise of a mean
-over 22 cases (one case moving by 0.44 shifts the mean past it), there are
-no repeated runs, confidence intervals or paired tests, and the thresholds
-were chosen on the same 26 cases they gate. That suits a deterministic
-system; gating an LLM would need tolerances above the run-to-run spread
-measured over several runs. (3) Keyword retrieval cannot decide
-answerability, and abstention rests on four cases. (4) The deterministic
+directions. (2) The gate's paired tests and bootstrap intervals treat the
+150 cases as a sample of questions; they do not measure the run-to-run
+noise of a nondeterministic system, which needs repeated runs, and rows
+with fewer than ten paired cases fall back to the plain tolerance rule.
+(3) Keyword retrieval cannot decide answerability: v2 refuses only 2 of the
+20 unanswerable questions. (4) The deterministic
 responder is a rule-based harness; it bounds what deterministic results can
 say about real LLM behavior. (5) Heuristic token counts are approximations
 by design, and the cost metric uses a zero default price. (6) The corpus
-and case count are deliberately small; the machinery (dataset and corpus
-hashing, run identity checks, attribution) is designed to scale but is not
+is deliberately small and the cases were written by one author with no
+separate development split; the machinery (dataset and corpus hashing, run
+identity checks, paired tests, attribution) is designed to scale but is not
 demonstrated at scale here.
 
 \section{Conclusion}
