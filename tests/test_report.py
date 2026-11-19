@@ -112,7 +112,7 @@ def test_the_page_is_self_contained_responsive_and_themed(tmp_path: Path) -> Non
     assert "prefers-color-scheme: dark" in html
     assert "prefers-reduced-motion" in html
     assert ":focus-visible" in html
-    assert "<script src" not in html and "<link rel=\"stylesheet\"" not in html
+    assert "<script src" not in html and '<link rel="stylesheet"' not in html
     assert 'lang="en"' in html
 
 

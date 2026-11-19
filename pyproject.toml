@@ -36,6 +36,7 @@ dev = ["pytest>=9.2", "ruff==0.17.5", "pyright==1.1.414", "aire[all]"]
 
 [project.scripts]
 aire-gate = "aire.regression.gate:main"
+aire = "aire.cli:entry_point"
 
 [tool.setuptools.packages.find]
 where = ["src"]
