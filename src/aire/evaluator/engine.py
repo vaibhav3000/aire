@@ -224,8 +224,16 @@ class EvaluationEngine:
             result["tool_args_match"] = round(am, 4)
 
         # --- cost / latency ---
-        latency = sum(s.latency_ms for s in trace.spans)
-        result["latency_ms"] = round(latency, 2)
+        # Root spans cover the whole case; child spans (model attempts,
+        # retrieval) are already inside them. A response replayed from the
+        # cache says nothing about the system's speed, so it has no latency.
+        roots = [s for s in trace.spans if s.parent_id is None]
+        cache_hit = any(s.attributes.get("cache_hit") is True for s in roots)
+        if cache_hit:
+            result["cache_hit"] = True
+            result["latency_ms"] = None
+        else:
+            result["latency_ms"] = round(sum(s.latency_ms for s in roots), 2)
         result["total_tokens"] = trace.usage.total_tokens
         result["token_source"] = trace.usage.token_source
         result["cost_usd"] = M.cost_estimate(trace.usage.total_tokens, self.config.price_per_1k)
@@ -316,6 +324,9 @@ class EvaluationEngine:
                 failures[f] = failures.get(f, 0) + 1
         n_success = sum(1 for row in per_case if not row.get("failure"))
         aggregates["failure_counts"] = dict(sorted(failures.items()))
+        n_cache_hits = sum(1 for row in per_case if row.get("cache_hit") is True)
+        if n_cache_hits:
+            aggregates["n_cache_hits"] = n_cache_hits
         aggregates["n_cases"] = len(per_case)
         aggregates["n_success"] = n_success
         aggregates["success_rate"] = round(n_success / len(per_case), 4) if per_case else 0.0

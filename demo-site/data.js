@@ -5,7 +5,7 @@ window.DATA = {
    "per_case": [
     {
      "case_id": "refunds_request_window",
-     "trace_id": "tr_a2776795",
+     "trace_id": "tr_272ae9a9",
      "answer": "Northwind Cloud grants a refund window of 30 days from the date of each charge. [doc:doc_refunds] To request a refund, open the billing console, select the invoice, and choose Request refund. [doc:doc_refunds]",
      "error": null,
      "errors": 0,
@@ -19,7 +19,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.82,
+     "latency_ms": 0.9,
      "total_tokens": 65,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -32,13 +32,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.821
+        "latency_ms": 0.902
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 52,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -58,7 +61,7 @@ window.DATA = {
     },
     {
      "case_id": "rate_limit_tiers",
-     "trace_id": "tr_074f48a8",
+     "trace_id": "tr_217a18c1",
      "answer": "The Starter tier allows 60 requests per minute, Growth allows 300 requests per minute, and Business allows 1,200 requests per minute. [doc:doc_rate_limits] Northwind Cloud enforces API rate limits per project. [doc:doc_rate_limits]",
      "error": null,
      "errors": 0,
@@ -72,7 +75,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.32,
+     "latency_ms": 0.36,
      "total_tokens": 72,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -85,13 +88,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.316
+        "latency_ms": 0.362
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -111,7 +117,7 @@ window.DATA = {
     },
     {
      "case_id": "sla_standard_uptime",
-     "trace_id": "tr_a37ce45a",
+     "trace_id": "tr_9e4624dd",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan. [doc:doc_sla] The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -125,7 +131,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.38,
      "total_tokens": 98,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -138,13 +144,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.292
+        "latency_ms": 0.38
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 85,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -164,7 +173,7 @@ window.DATA = {
     },
     {
      "case_id": "retention_log_days",
-     "trace_id": "tr_5ea08faa",
+     "trace_id": "tr_a7e242bb",
      "answer": "Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -178,7 +187,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.32,
+     "latency_ms": 0.41,
      "total_tokens": 50,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -191,13 +200,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.319
+        "latency_ms": 0.408
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 37,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -217,7 +229,7 @@ window.DATA = {
     },
     {
      "case_id": "encryption_at_rest",
-     "trace_id": "tr_9b1ed7d8",
+     "trace_id": "tr_fccf8ac7",
      "answer": "All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. [doc:doc_encryption] Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time. [doc:doc_encryption]",
      "error": null,
      "errors": 0,
@@ -231,7 +243,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.23,
+     "latency_ms": 0.31,
      "total_tokens": 86,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -244,13 +256,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.231
+        "latency_ms": 0.314
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 75,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -270,7 +285,7 @@ window.DATA = {
     },
     {
      "case_id": "onboarding_api_key",
-     "trace_id": "tr_d72f362e",
+     "trace_id": "tr_6883201e",
      "answer": "Setting up Northwind Cloud takes about ten minutes. [doc:doc_onboarding] Third, open the console and generate an API key under Settings and then Keys; the secret is displayed only once, so copy it into a secure store. [doc:doc_onboarding]",
      "error": null,
      "errors": 0,
@@ -284,7 +299,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.25,
+     "latency_ms": 0.32,
      "total_tokens": 74,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -297,13 +312,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.249
+        "latency_ms": 0.322
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 59,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -324,7 +342,7 @@ window.DATA = {
     },
     {
      "case_id": "plans_starter_price",
-     "trace_id": "tr_5dc025c0",
+     "trace_id": "tr_2d0220e1",
      "answer": "The Starter tier allows 60 requests per minute, Growth allows 300 requests per minute, and Business allows 1,200 requests per minute. [doc:doc_rate_limits] Usage is counted in rolling one-minute windows, and every response carries an X-RateLimit-Remaining header showing the remaining budget. [doc:doc_rate_limits]",
      "error": null,
      "errors": 0,
@@ -338,7 +356,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.41,
+     "latency_ms": 0.28,
      "total_tokens": 94,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -351,13 +369,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.41
+        "latency_ms": 0.277
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 78,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -377,7 +398,7 @@ window.DATA = {
     },
     {
      "case_id": "status_severities",
-     "trace_id": "tr_edfeb703",
+     "trace_id": "tr_7edc0a81",
      "answer": "The Northwind Cloud status page is published at status.northwind.cloud and shows real-time health for every region and for core services such as the API, console, and dashboard. [doc:doc_status_page] Incidents use three severity levels: severity 1 marks a full outage, severity 2 marks degraded performance, and severity 3 marks a minor issue without customer impact. [doc:doc_status_page]",
      "error": null,
      "errors": 0,
@@ -391,7 +412,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.4,
+     "latency_ms": 0.27,
      "total_tokens": 112,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -404,13 +425,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.399
+        "latency_ms": 0.272
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 97,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -431,7 +455,7 @@ window.DATA = {
     },
     {
      "case_id": "support_growth_email",
-     "trace_id": "tr_8a482c20",
+     "trace_id": "tr_a4913587",
      "answer": "Growth adds email support with a first response within 24 hours, available around the clock. [doc:doc_support_tiers] Support options depend on the plan. [doc:doc_support_tiers]",
      "error": null,
      "errors": 0,
@@ -445,7 +469,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.28,
+     "latency_ms": 0.39,
      "total_tokens": 61,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -458,13 +482,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.278
+        "latency_ms": 0.393
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 44,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -484,7 +511,7 @@ window.DATA = {
     },
     {
      "case_id": "export_processing_time",
-     "trace_id": "tr_de1149d6",
+     "trace_id": "tr_6b518b14",
      "answer": "When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule. [doc:doc_data_retention] Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -498,7 +525,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.3,
      "total_tokens": 98,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -511,13 +538,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.268
+        "latency_ms": 0.298
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 87,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -537,7 +567,7 @@ window.DATA = {
     },
     {
      "case_id": "regions_available",
-     "trace_id": "tr_068d1821",
+     "trace_id": "tr_1cef7b3d",
      "answer": "Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center. [doc:doc_compliance] The information security management system is ISO 27001 certified across all three regions. [doc:doc_compliance]",
      "error": null,
      "errors": 0,
@@ -551,7 +581,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.25,
+     "latency_ms": 0.35,
      "total_tokens": 81,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -564,13 +594,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.255
+        "latency_ms": 0.351
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 70,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -591,7 +624,7 @@ window.DATA = {
     },
     {
      "case_id": "compliance_soc2",
-     "trace_id": "tr_aaaa3537",
+     "trace_id": "tr_660df870",
      "answer": "Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center. [doc:doc_compliance]",
      "error": null,
      "errors": 0,
@@ -605,7 +638,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.38,
      "total_tokens": 53,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -618,13 +651,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.257
+        "latency_ms": 0.377
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 42,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -644,7 +680,7 @@ window.DATA = {
     },
     {
      "case_id": "rate_limit_429",
-     "trace_id": "tr_18b26109",
+     "trace_id": "tr_23e7faf8",
      "answer": "When a limit is exceeded, the API returns HTTP 429 together with a Retry-After header that states how many seconds to wait. [doc:doc_rate_limits] Northwind Cloud enforces API rate limits per project. [doc:doc_rate_limits]",
      "error": null,
      "errors": 0,
@@ -658,7 +694,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.5,
+     "latency_ms": 0.42,
      "total_tokens": 71,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -671,13 +707,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.496
+        "latency_ms": 0.419
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 55,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -697,7 +736,7 @@ window.DATA = {
     },
     {
      "case_id": "sla_credit_formula",
-     "trace_id": "tr_ffda6182",
+     "trace_id": "tr_62c8a7ff",
      "answer": "If measured uptime falls below the target, customers can claim a service credit on the next invoice. [doc:doc_sla] The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -711,7 +750,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.38,
      "total_tokens": 101,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -724,13 +763,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.289
+        "latency_ms": 0.377
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 85,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -751,7 +793,7 @@ window.DATA = {
     },
     {
      "case_id": "multi_business_uptime_support",
-     "trace_id": "tr_c27cc9aa",
+     "trace_id": "tr_836f6c51",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan. [doc:doc_sla] If measured uptime falls below the target, customers can claim a service credit on the next invoice. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -765,7 +807,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.5,
      "retrieval_recall_at_3": 0.5,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.25,
+     "latency_ms": 0.44,
      "total_tokens": 81,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -778,13 +820,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.255
+        "latency_ms": 0.444
        }
       ],
       "usage": {
        "prompt_tokens": 24,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -805,7 +850,7 @@ window.DATA = {
     },
     {
      "case_id": "multi_export_retention",
-     "trace_id": "tr_662df518",
+     "trace_id": "tr_03e3a3aa",
      "answer": "Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed. [doc:doc_data_retention] Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -819,7 +864,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.5,
      "retrieval_recall_at_3": 0.5,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.37,
+     "latency_ms": 0.4,
      "total_tokens": 92,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -832,13 +877,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.372
+        "latency_ms": 0.4
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 76,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -860,13 +908,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_phone_support_swahili",
-     "trace_id": "tr_84defbe3",
+     "trace_id": "tr_86c92a67",
      "answer": "Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible. [doc:doc_data_retention] Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.32,
      "total_tokens": 98,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -879,13 +927,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.263
+        "latency_ms": 0.321
        }
       ],
       "usage": {
        "prompt_tokens": 9,
        "completion_tokens": 89,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -899,13 +950,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_ipv6_clusters",
-     "trace_id": "tr_69e2fd66",
+     "trace_id": "tr_0c4fcac8",
      "answer": "Setting up Northwind Cloud takes about ten minutes. [doc:doc_onboarding] A sample application can then be deployed with northwind deploy, and the Starter allowance becomes available immediately after signup. [doc:doc_onboarding]",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.39,
      "total_tokens": 69,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -918,13 +969,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.267
+        "latency_ms": 0.392
        }
       ],
       "usage": {
        "prompt_tokens": 12,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -938,13 +992,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_onprem_deployment",
-     "trace_id": "tr_17989729",
+     "trace_id": "tr_392e62b0",
      "answer": "Northwind Cloud operates three regions: us-east (Virginia), eu-west (Ireland), and ap-south (Mumbai). [doc:doc_regions] Regional latency can be previewed from the dashboard before the first deployment, and the status page lists current capacity for each location. [doc:doc_regions]",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.24,
+     "latency_ms": 0.31,
      "total_tokens": 85,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -957,13 +1011,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.239
+        "latency_ms": 0.308
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 70,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -977,13 +1034,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_crypto_payments",
-     "trace_id": "tr_a2ceab93",
+     "trace_id": "tr_b0a7615d",
      "answer": "Database point-in-time recovery is available for the entire 7-day backup window on every plan. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.3,
+     "latency_ms": 0.39,
      "total_tokens": 44,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -996,13 +1053,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.302
+        "latency_ms": 0.386
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 29,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1016,7 +1076,7 @@ window.DATA = {
     },
     {
      "case_id": "refunds_exclusions",
-     "trace_id": "tr_47897138",
+     "trace_id": "tr_624a3e25",
      "answer": "The following are excluded from refunds: domain registration fees, one-time migration services, and usage overage on pay-as-you-go accounts. [doc:doc_refunds] Northwind Cloud grants a refund window of 30 days from the date of each charge. [doc:doc_refunds]",
      "error": null,
      "errors": 0,
@@ -1030,7 +1090,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.31,
+     "latency_ms": 0.37,
      "total_tokens": 76,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1043,13 +1103,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.313
+        "latency_ms": 0.367
        }
       ],
       "usage": {
        "prompt_tokens": 12,
        "completion_tokens": 64,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1069,7 +1132,7 @@ window.DATA = {
     },
     {
      "case_id": "retention_early_deletion",
-     "trace_id": "tr_12df6b86",
+     "trace_id": "tr_6fdc97f4",
      "answer": "When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule. [doc:doc_data_retention] Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -1083,7 +1146,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.34,
      "total_tokens": 94,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1096,13 +1159,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.295
+        "latency_ms": 0.336
        }
       ],
       "usage": {
        "prompt_tokens": 18,
        "completion_tokens": 76,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1122,7 +1188,7 @@ window.DATA = {
     },
     {
      "case_id": "encryption_key_rotation",
-     "trace_id": "tr_64a3b096",
+     "trace_id": "tr_38ba9ea9",
      "answer": "Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time. [doc:doc_encryption] All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. [doc:doc_encryption]",
      "error": null,
      "errors": 0,
@@ -1149,13 +1215,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.271
+        "latency_ms": 0.27
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 75,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1175,7 +1244,7 @@ window.DATA = {
     },
     {
      "case_id": "plans_overage",
-     "trace_id": "tr_76b9f451",
+     "trace_id": "tr_c98429c8",
      "answer": "You can export your data from Northwind Cloud at any time, and no plan restrictions apply. [doc:doc_export] Open the console, go to Project Settings, then Export, and pick a format: JSON or CSV. [doc:doc_export]",
      "error": null,
      "errors": 0,
@@ -1189,7 +1258,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.24,
+     "latency_ms": 0.35,
      "total_tokens": 67,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1202,13 +1271,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.244
+        "latency_ms": 0.346
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 52,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1228,7 +1300,7 @@ window.DATA = {
     },
     {
      "case_id": "status_notifications",
-     "trace_id": "tr_ff6c8543",
+     "trace_id": "tr_186f46d4",
      "answer": "All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. [doc:doc_encryption]",
      "error": null,
      "errors": 0,
@@ -1242,7 +1314,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.23,
+     "latency_ms": 0.32,
      "total_tokens": 49,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1255,13 +1327,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.234
+        "latency_ms": 0.32
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 34,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1282,7 +1357,7 @@ window.DATA = {
     },
     {
      "case_id": "support_business_priority",
-     "trace_id": "tr_822ce946",
+     "trace_id": "tr_297d5fdf",
      "answer": "Business includes priority support with a 4-hour response target during business hours, defined as 09:00 to 18:00 UTC from Monday to Friday, plus a named contact for escalations. [doc:doc_support_tiers] Starter customers use the community forum, which is monitored by Northwind engineers but carries no response-time guarantee. [doc:doc_support_tiers]",
      "error": null,
      "errors": 0,
@@ -1296,7 +1371,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.46,
+     "latency_ms": 0.32,
      "total_tokens": 104,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1309,13 +1384,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v1_baseline.invoke",
-        "latency_ms": 0.464
+        "latency_ms": 0.318
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 87,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1353,7 +1431,7 @@ window.DATA = {
     "n_groundedness": 22,
     "mean_keyword_recall": 0.5758,
     "n_keyword_recall": 22,
-    "mean_latency_ms": 0.3223,
+    "mean_latency_ms": 0.3719,
     "n_latency_ms": 26,
     "mean_retrieval_mrr_at_3": 0.7727,
     "n_retrieval_mrr_at_3": 22,
@@ -1363,8 +1441,8 @@ window.DATA = {
     "n_retrieval_recall_at_3": 22,
     "mean_total_tokens": 79.5,
     "n_total_tokens": 26,
-    "p50_latency_ms": 0.285,
-    "p95_latency_ms": 0.49,
+    "p50_latency_ms": 0.355,
+    "p95_latency_ms": 0.435,
     "token_sources": [
      "heuristic"
     ],
@@ -1394,7 +1472,7 @@ window.DATA = {
    "per_case": [
     {
      "case_id": "refunds_request_window",
-     "trace_id": "tr_8a73df06",
+     "trace_id": "tr_3e41bc8d",
      "answer": "Northwind Cloud grants a refund window of 30 days from the date of each charge. [doc:doc_refunds] To request a refund, open the billing console, select the invoice, and choose Request refund. [doc:doc_refunds]",
      "error": null,
      "errors": 0,
@@ -1408,7 +1486,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.37,
+     "latency_ms": 0.48,
      "total_tokens": 65,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1423,13 +1501,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.369
+        "latency_ms": 0.481
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 52,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1449,7 +1530,7 @@ window.DATA = {
     },
     {
      "case_id": "rate_limit_tiers",
-     "trace_id": "tr_c95c9c81",
+     "trace_id": "tr_48aa01c8",
      "answer": "The Starter tier allows 60 requests per minute, Growth allows 300 requests per minute, and Business allows 1,200 requests per minute. [doc:doc_rate_limits] Northwind Cloud enforces API rate limits per project. [doc:doc_rate_limits]",
      "error": null,
      "errors": 0,
@@ -1463,7 +1544,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.3,
+     "latency_ms": 0.39,
      "total_tokens": 72,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1478,13 +1559,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.296
+        "latency_ms": 0.391
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1504,7 +1588,7 @@ window.DATA = {
     },
     {
      "case_id": "sla_standard_uptime",
-     "trace_id": "tr_3ca13700",
+     "trace_id": "tr_779b53eb",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan. [doc:doc_sla] The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -1518,7 +1602,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.32,
      "total_tokens": 98,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1533,13 +1617,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.264
+        "latency_ms": 0.316
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 85,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1559,7 +1646,7 @@ window.DATA = {
     },
     {
      "case_id": "retention_log_days",
-     "trace_id": "tr_837a2980",
+     "trace_id": "tr_f4db7533",
      "answer": "Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -1573,7 +1660,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.31,
      "total_tokens": 50,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1588,13 +1675,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.268
+        "latency_ms": 0.307
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 37,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1614,7 +1704,7 @@ window.DATA = {
     },
     {
      "case_id": "encryption_at_rest",
-     "trace_id": "tr_a6a0837e",
+     "trace_id": "tr_694ae011",
      "answer": "All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. [doc:doc_encryption] Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time. [doc:doc_encryption]",
      "error": null,
      "errors": 0,
@@ -1628,7 +1718,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.3,
      "total_tokens": 86,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1643,13 +1733,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.286
+        "latency_ms": 0.303
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 75,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1669,7 +1762,7 @@ window.DATA = {
     },
     {
      "case_id": "onboarding_api_key",
-     "trace_id": "tr_7b5dc022",
+     "trace_id": "tr_5dacf54e",
      "answer": "Setting up Northwind Cloud takes about ten minutes. [doc:doc_onboarding] Third, open the console and generate an API key under Settings and then Keys; the secret is displayed only once, so copy it into a secure store. [doc:doc_onboarding]",
      "error": null,
      "errors": 0,
@@ -1683,7 +1776,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.31,
+     "latency_ms": 0.35,
      "total_tokens": 74,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1698,13 +1791,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.315
+        "latency_ms": 0.346
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 59,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1725,7 +1821,7 @@ window.DATA = {
     },
     {
      "case_id": "plans_starter_price",
-     "trace_id": "tr_b16aec53",
+     "trace_id": "tr_4d782d58",
      "answer": "The Starter tier allows 60 requests per minute, Growth allows 300 requests per minute, and Business allows 1,200 requests per minute. [doc:doc_rate_limits] Usage is counted in rolling one-minute windows, and every response carries an X-RateLimit-Remaining header showing the remaining budget. [doc:doc_rate_limits]",
      "error": null,
      "errors": 0,
@@ -1739,7 +1835,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.33,
      "total_tokens": 94,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1754,13 +1850,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.287
+        "latency_ms": 0.33
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 78,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1780,7 +1879,7 @@ window.DATA = {
     },
     {
      "case_id": "status_severities",
-     "trace_id": "tr_0f2cb823",
+     "trace_id": "tr_289aa272",
      "answer": "The Northwind Cloud status page is published at status.northwind.cloud and shows real-time health for every region and for core services such as the API, console, and dashboard. [doc:doc_status_page] Incidents use three severity levels: severity 1 marks a full outage, severity 2 marks degraded performance, and severity 3 marks a minor issue without customer impact. [doc:doc_status_page]",
      "error": null,
      "errors": 0,
@@ -1794,7 +1893,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.24,
+     "latency_ms": 0.27,
      "total_tokens": 112,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1809,13 +1908,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.244
+        "latency_ms": 0.273
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 97,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1836,7 +1938,7 @@ window.DATA = {
     },
     {
      "case_id": "support_growth_email",
-     "trace_id": "tr_a81bac03",
+     "trace_id": "tr_abcd59d9",
      "answer": "Growth adds email support with a first response within 24 hours, available around the clock. [doc:doc_support_tiers] Support options depend on the plan. [doc:doc_support_tiers]",
      "error": null,
      "errors": 0,
@@ -1850,7 +1952,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.29,
      "total_tokens": 61,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1865,13 +1967,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.273
+        "latency_ms": 0.287
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 44,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1891,7 +1996,7 @@ window.DATA = {
     },
     {
      "case_id": "export_processing_time",
-     "trace_id": "tr_e77a8315",
+     "trace_id": "tr_cee6a531",
      "answer": "When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule. [doc:doc_data_retention] Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -1905,7 +2010,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 0.5,
-     "latency_ms": 0.32,
+     "latency_ms": 0.28,
      "total_tokens": 98,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1920,13 +2025,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.323
+        "latency_ms": 0.28
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 87,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -1946,7 +2054,7 @@ window.DATA = {
     },
     {
      "case_id": "regions_available",
-     "trace_id": "tr_1541b57b",
+     "trace_id": "tr_ff3f9151",
      "answer": "Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center. [doc:doc_compliance] The information security management system is ISO 27001 certified across all three regions. [doc:doc_compliance]",
      "error": null,
      "errors": 0,
@@ -1960,7 +2068,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 0.5,
-     "latency_ms": 0.33,
+     "latency_ms": 0.35,
      "total_tokens": 81,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -1975,13 +2083,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.332
+        "latency_ms": 0.348
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 70,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2002,7 +2113,7 @@ window.DATA = {
     },
     {
      "case_id": "compliance_soc2",
-     "trace_id": "tr_e388266b",
+     "trace_id": "tr_3986f826",
      "answer": "Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center. [doc:doc_compliance]",
      "error": null,
      "errors": 0,
@@ -2016,7 +2127,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.31,
      "total_tokens": 53,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2031,13 +2142,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.255
+        "latency_ms": 0.31
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 42,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2057,7 +2171,7 @@ window.DATA = {
     },
     {
      "case_id": "rate_limit_429",
-     "trace_id": "tr_528a326d",
+     "trace_id": "tr_d48cae5b",
      "answer": "When a limit is exceeded, the API returns HTTP 429 together with a Retry-After header that states how many seconds to wait. [doc:doc_rate_limits] Northwind Cloud enforces API rate limits per project. [doc:doc_rate_limits]",
      "error": null,
      "errors": 0,
@@ -2071,7 +2185,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.31,
+     "latency_ms": 0.49,
      "total_tokens": 71,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2086,13 +2200,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.314
+        "latency_ms": 0.49
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 55,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2112,7 +2229,7 @@ window.DATA = {
     },
     {
      "case_id": "sla_credit_formula",
-     "trace_id": "tr_2f2f79c8",
+     "trace_id": "tr_bc5e8c3d",
      "answer": "If measured uptime falls below the target, customers can claim a service credit on the next invoice. [doc:doc_sla] The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -2126,7 +2243,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.28,
+     "latency_ms": 0.35,
      "total_tokens": 101,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2141,13 +2258,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.278
+        "latency_ms": 0.352
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 85,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2168,7 +2288,7 @@ window.DATA = {
     },
     {
      "case_id": "multi_business_uptime_support",
-     "trace_id": "tr_c1824691",
+     "trace_id": "tr_be88cd22",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan. [doc:doc_sla] If measured uptime falls below the target, customers can claim a service credit on the next invoice. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -2182,7 +2302,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.5,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.3,
      "total_tokens": 81,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2197,13 +2317,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.271
+        "latency_ms": 0.298
        }
       ],
       "usage": {
        "prompt_tokens": 24,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2224,7 +2347,7 @@ window.DATA = {
     },
     {
      "case_id": "multi_export_retention",
-     "trace_id": "tr_8851a3df",
+     "trace_id": "tr_bd4fb68d",
      "answer": "Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed. [doc:doc_data_retention] Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -2253,13 +2376,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.271
+        "latency_ms": 0.272
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 76,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2281,13 +2407,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_phone_support_swahili",
-     "trace_id": "tr_bf4e3aff",
+     "trace_id": "tr_563b1396",
      "answer": "Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible. [doc:doc_data_retention] Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.22,
+     "latency_ms": 0.29,
      "total_tokens": 98,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2302,13 +2428,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.217
+        "latency_ms": 0.292
        }
       ],
       "usage": {
        "prompt_tokens": 9,
        "completion_tokens": 89,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2322,7 +2451,7 @@ window.DATA = {
     },
     {
      "case_id": "absent_ipv6_clusters",
-     "trace_id": "tr_53e31af3",
+     "trace_id": "tr_a5d0969c",
      "answer": "Setting up Northwind Cloud takes about ten minutes. [doc:doc_onboarding] A sample application can then be deployed with northwind deploy, and the Starter allowance becomes available immediately after signup. [doc:doc_onboarding]",
      "error": null,
      "errors": 0,
@@ -2343,13 +2472,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.259
+        "latency_ms": 0.261
        }
       ],
       "usage": {
        "prompt_tokens": 12,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2363,7 +2495,7 @@ window.DATA = {
     },
     {
      "case_id": "absent_onprem_deployment",
-     "trace_id": "tr_928314e0",
+     "trace_id": "tr_eb9c87fb",
      "answer": "Northwind Cloud operates three regions: us-east (Virginia), eu-west (Ireland), and ap-south (Mumbai). [doc:doc_regions] Regional latency can be previewed from the dashboard before the first deployment, and the status page lists current capacity for each location. [doc:doc_regions]",
      "error": null,
      "errors": 0,
@@ -2384,13 +2516,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.27
+        "latency_ms": 0.271
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 70,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2404,13 +2539,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_crypto_payments",
-     "trace_id": "tr_4434021e",
+     "trace_id": "tr_624f0605",
      "answer": "The following are excluded from refunds: domain registration fees, one-time migration services, and usage overage on pay-as-you-go accounts. [doc:doc_refunds]",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.43,
+     "latency_ms": 0.27,
      "total_tokens": 54,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2425,13 +2560,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.429
+        "latency_ms": 0.266
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 39,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2445,7 +2583,7 @@ window.DATA = {
     },
     {
      "case_id": "refunds_exclusions",
-     "trace_id": "tr_b76a6c68",
+     "trace_id": "tr_00b74707",
      "answer": "The following are excluded from refunds: domain registration fees, one-time migration services, and usage overage on pay-as-you-go accounts. [doc:doc_refunds] Northwind Cloud grants a refund window of 30 days from the date of each charge. [doc:doc_refunds]",
      "error": null,
      "errors": 0,
@@ -2459,7 +2597,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.44,
+     "latency_ms": 0.26,
      "total_tokens": 76,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2472,13 +2610,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.442
+        "latency_ms": 0.258
        }
       ],
       "usage": {
        "prompt_tokens": 12,
        "completion_tokens": 64,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2498,7 +2639,7 @@ window.DATA = {
     },
     {
      "case_id": "retention_early_deletion",
-     "trace_id": "tr_0b7fd4ad",
+     "trace_id": "tr_05c9e45a",
      "answer": "When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule. [doc:doc_data_retention] Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project. [doc:doc_data_retention]",
      "error": null,
      "errors": 0,
@@ -2512,7 +2653,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.28,
+     "latency_ms": 0.34,
      "total_tokens": 94,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2527,13 +2668,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.283
+        "latency_ms": 0.338
        }
       ],
       "usage": {
        "prompt_tokens": 18,
        "completion_tokens": 76,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2553,7 +2697,7 @@ window.DATA = {
     },
     {
      "case_id": "encryption_key_rotation",
-     "trace_id": "tr_2bf2fc7a",
+     "trace_id": "tr_fdb44618",
      "answer": "Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time. [doc:doc_encryption] All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. [doc:doc_encryption]",
      "error": null,
      "errors": 0,
@@ -2567,7 +2711,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.25,
+     "latency_ms": 0.38,
      "total_tokens": 92,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2581,13 +2725,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.254
+        "latency_ms": 0.384
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 75,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2607,7 +2754,7 @@ window.DATA = {
     },
     {
      "case_id": "plans_overage",
-     "trace_id": "tr_a8a50c14",
+     "trace_id": "tr_edcea408",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan. [doc:doc_sla] If measured uptime falls below the target, customers can claim a service credit on the next invoice. [doc:doc_sla]",
      "error": null,
      "errors": 0,
@@ -2621,7 +2768,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 0.3333,
-     "latency_ms": 0.27,
+     "latency_ms": 0.34,
      "total_tokens": 72,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2636,13 +2783,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.273
+        "latency_ms": 0.339
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 57,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2662,7 +2812,7 @@ window.DATA = {
     },
     {
      "case_id": "status_notifications",
-     "trace_id": "tr_d9c133b7",
+     "trace_id": "tr_7975cc0b",
      "answer": "All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service. [doc:doc_encryption]",
      "error": null,
      "errors": 0,
@@ -2676,7 +2826,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.3,
      "total_tokens": 49,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2689,13 +2839,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.274
+        "latency_ms": 0.296
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 34,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2716,7 +2869,7 @@ window.DATA = {
     },
     {
      "case_id": "support_business_priority",
-     "trace_id": "tr_4d6e5ead",
+     "trace_id": "tr_2ca60c4e",
      "answer": "Business includes priority support with a 4-hour response target during business hours, defined as 09:00 to 18:00 UTC from Monday to Friday, plus a named contact for escalations. [doc:doc_support_tiers] Starter customers use the community forum, which is monitored by Northwind engineers but carries no response-time guarantee. [doc:doc_support_tiers]",
      "error": null,
      "errors": 0,
@@ -2730,7 +2883,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.36,
+     "latency_ms": 0.34,
      "total_tokens": 104,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2745,13 +2898,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v2_improved.invoke",
-        "latency_ms": 0.361
+        "latency_ms": 0.339
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 87,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2789,7 +2945,7 @@ window.DATA = {
     "n_groundedness": 22,
     "mean_keyword_recall": 0.5758,
     "n_keyword_recall": 22,
-    "mean_latency_ms": 0.2958,
+    "mean_latency_ms": 0.3246,
     "n_latency_ms": 26,
     "mean_retrieval_mrr_at_3": 0.8333,
     "n_retrieval_mrr_at_3": 22,
@@ -2799,8 +2955,8 @@ window.DATA = {
     "n_retrieval_recall_at_3": 22,
     "mean_total_tokens": 80.0769,
     "n_total_tokens": 26,
-    "p50_latency_ms": 0.275,
-    "p95_latency_ms": 0.415,
+    "p50_latency_ms": 0.31,
+    "p95_latency_ms": 0.4575,
     "token_sources": [
      "heuristic"
     ],
@@ -2830,7 +2986,7 @@ window.DATA = {
    "per_case": [
     {
      "case_id": "refunds_request_window",
-     "trace_id": "tr_7dacde39",
+     "trace_id": "tr_ad72726a",
      "answer": "Northwind Cloud grants a refund window of 30 days from the date of each charge; To request a refund, open the billing console, select the invoice, and choose Request refund.",
      "error": null,
      "errors": 0,
@@ -2844,7 +3000,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.39,
+     "latency_ms": 0.38,
      "total_tokens": 56,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2859,13 +3015,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.392
+        "latency_ms": 0.379
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 43,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2885,7 +3044,7 @@ window.DATA = {
     },
     {
      "case_id": "rate_limit_tiers",
-     "trace_id": "tr_7d8ff2d7",
+     "trace_id": "tr_990f4270",
      "answer": "The Starter tier allows 60 requests per minute, Growth allows 300 requests per minute, and Business allows 1,200 requests per minute; Northwind Cloud enforces API rate limits per project.",
      "error": null,
      "errors": 0,
@@ -2899,7 +3058,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.37,
      "total_tokens": 61,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2914,13 +3073,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.292
+        "latency_ms": 0.374
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 46,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2940,7 +3102,7 @@ window.DATA = {
     },
     {
      "case_id": "sla_standard_uptime",
-     "trace_id": "tr_42b7d697",
+     "trace_id": "tr_acb5ecb1",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan; The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee.",
      "error": null,
      "errors": 0,
@@ -2954,7 +3116,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.42,
      "total_tokens": 91,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -2969,13 +3131,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.261
+        "latency_ms": 0.419
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 78,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -2995,7 +3160,7 @@ window.DATA = {
     },
     {
      "case_id": "retention_log_days",
-     "trace_id": "tr_e6127ea3",
+     "trace_id": "tr_73d0dd44",
      "answer": "Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed.",
      "error": null,
      "errors": 0,
@@ -3009,7 +3174,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.35,
+     "latency_ms": 0.36,
      "total_tokens": 44,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3024,13 +3189,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.346
+        "latency_ms": 0.36
        }
       ],
       "usage": {
        "prompt_tokens": 13,
        "completion_tokens": 31,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3050,7 +3218,7 @@ window.DATA = {
     },
     {
      "case_id": "encryption_at_rest",
-     "trace_id": "tr_37db3f1f",
+     "trace_id": "tr_65183f4e",
      "answer": "All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service; Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time.",
      "error": null,
      "errors": 0,
@@ -3064,7 +3232,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.35,
      "total_tokens": 76,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3079,13 +3247,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.263
+        "latency_ms": 0.349
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 65,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3105,7 +3276,7 @@ window.DATA = {
     },
     {
      "case_id": "onboarding_api_key",
-     "trace_id": "tr_62d1f1e9",
+     "trace_id": "tr_991b7fd5",
      "answer": "Setting up Northwind Cloud takes about ten minutes; Third, open the console and generate an API key under Settings and then Keys; the secret is displayed only once, so copy it into a secure store.",
      "error": null,
      "errors": 0,
@@ -3119,7 +3290,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.37,
+     "latency_ms": 0.36,
      "total_tokens": 64,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3134,13 +3305,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.366
+        "latency_ms": 0.36
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 49,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3161,7 +3335,7 @@ window.DATA = {
     },
     {
      "case_id": "plans_starter_price",
-     "trace_id": "tr_1a2afd00",
+     "trace_id": "tr_034141f2",
      "answer": "The Starter tier allows 60 requests per minute, Growth allows 300 requests per minute, and Business allows 1,200 requests per minute; Usage is counted in rolling one-minute windows, and every response carries an X-RateLimit-Remaining header showing the remaining budget.",
      "error": null,
      "errors": 0,
@@ -3175,7 +3349,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.32,
+     "latency_ms": 0.3,
      "total_tokens": 83,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3190,13 +3364,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.323
+        "latency_ms": 0.303
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 67,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3216,7 +3393,7 @@ window.DATA = {
     },
     {
      "case_id": "status_severities",
-     "trace_id": "tr_bc653854",
+     "trace_id": "tr_5d8bf5db",
      "answer": "The Northwind Cloud status page is published at status.northwind.cloud and shows real-time health for every region and for core services such as the API, console, and dashboard; Incidents use three severity levels: severity 1 marks a full outage, severity 2 marks degraded performance, and severity 3 marks a minor issue without customer impact.",
      "error": null,
      "errors": 0,
@@ -3230,7 +3407,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.29,
      "total_tokens": 101,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3245,13 +3422,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.269
+        "latency_ms": 0.292
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 86,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3272,7 +3452,7 @@ window.DATA = {
     },
     {
      "case_id": "support_growth_email",
-     "trace_id": "tr_2b52e00d",
+     "trace_id": "tr_5f59092e",
      "answer": "Growth adds email support with a first response within 24 hours, available around the clock; Support options depend on the plan.",
      "error": null,
      "errors": 0,
@@ -3286,7 +3466,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.28,
      "total_tokens": 49,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3301,13 +3481,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.27
+        "latency_ms": 0.285
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 32,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3327,7 +3510,7 @@ window.DATA = {
     },
     {
      "case_id": "export_processing_time",
-     "trace_id": "tr_81a811d7",
+     "trace_id": "tr_5154b4c7",
      "answer": "When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule; Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible.",
      "error": null,
      "errors": 0,
@@ -3341,7 +3524,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 0.5,
-     "latency_ms": 0.26,
+     "latency_ms": 0.3,
      "total_tokens": 85,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3356,13 +3539,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.263
+        "latency_ms": 0.299
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 74,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3382,7 +3568,7 @@ window.DATA = {
     },
     {
      "case_id": "regions_available",
-     "trace_id": "tr_36804555",
+     "trace_id": "tr_e10236d7",
      "answer": "Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center; The information security management system is ISO 27001 certified across all three regions.",
      "error": null,
      "errors": 0,
@@ -3396,7 +3582,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 0.5,
-     "latency_ms": 0.25,
+     "latency_ms": 0.32,
      "total_tokens": 71,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3411,13 +3597,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.246
+        "latency_ms": 0.316
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 60,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3438,7 +3627,7 @@ window.DATA = {
     },
     {
      "case_id": "compliance_soc2",
-     "trace_id": "tr_5f5a24e4",
+     "trace_id": "tr_9ba2b2ee",
      "answer": "Northwind Cloud maintains SOC 2 Type II certification, renewed through an annual audit, and the report is available under NDA from the trust center.",
      "error": null,
      "errors": 0,
@@ -3452,7 +3641,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.24,
+     "latency_ms": 0.32,
      "total_tokens": 48,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3467,13 +3656,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.241
+        "latency_ms": 0.319
        }
       ],
       "usage": {
        "prompt_tokens": 11,
        "completion_tokens": 37,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3493,7 +3685,7 @@ window.DATA = {
     },
     {
      "case_id": "rate_limit_429",
-     "trace_id": "tr_a6a27769",
+     "trace_id": "tr_38802b1c",
      "answer": "When a limit is exceeded, the API returns HTTP 429 together with a Retry-After header that states how many seconds to wait; Northwind Cloud enforces API rate limits per project.",
      "error": null,
      "errors": 0,
@@ -3507,7 +3699,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.45,
+     "latency_ms": 0.32,
      "total_tokens": 60,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3522,13 +3714,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.449
+        "latency_ms": 0.321
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 44,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3548,7 +3743,7 @@ window.DATA = {
     },
     {
      "case_id": "sla_credit_formula",
-     "trace_id": "tr_30ec216e",
+     "trace_id": "tr_37a7581b",
      "answer": "If measured uptime falls below the target, customers can claim a service credit on the next invoice; The credit formula works as follows: 5% of the monthly fee for every 0.1% of downtime below the target, so credit percentage equals missed uptime divided by 0.1, multiplied by 5, capped at 50% of one monthly fee.",
      "error": null,
      "errors": 0,
@@ -3562,7 +3757,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.37,
+     "latency_ms": 0.42,
      "total_tokens": 94,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3577,13 +3772,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.369
+        "latency_ms": 0.422
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 78,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3604,7 +3802,7 @@ window.DATA = {
     },
     {
      "case_id": "multi_business_uptime_support",
-     "trace_id": "tr_32b45e97",
+     "trace_id": "tr_62511bfd",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan; If measured uptime falls below the target, customers can claim a service credit on the next invoice.",
      "error": null,
      "errors": 0,
@@ -3618,7 +3816,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.5,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.39,
      "total_tokens": 74,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3633,13 +3831,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.29
+        "latency_ms": 0.39
        }
       ],
       "usage": {
        "prompt_tokens": 24,
        "completion_tokens": 50,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3660,7 +3861,7 @@ window.DATA = {
     },
     {
      "case_id": "multi_export_retention",
-     "trace_id": "tr_7acd79b3",
+     "trace_id": "tr_cdcff368",
      "answer": "Northwind Cloud keeps application logs for 30 days and backup snapshots for 7 days, after which both are permanently removed; Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project.",
      "error": null,
      "errors": 0,
@@ -3674,7 +3875,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.5,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.32,
      "total_tokens": 80,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3689,13 +3890,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.257
+        "latency_ms": 0.322
        }
       ],
       "usage": {
        "prompt_tokens": 16,
        "completion_tokens": 64,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3717,13 +3921,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_phone_support_swahili",
-     "trace_id": "tr_78aeed30",
+     "trace_id": "tr_8c51d6aa",
      "answer": "Customers who need data removed sooner can request earlier deletion at any time by opening a support ticket; deletion on request finishes within 72 hours and is irreversible; Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project.",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.21,
+     "latency_ms": 0.28,
      "total_tokens": 85,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3738,13 +3942,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.215
+        "latency_ms": 0.281
        }
       ],
       "usage": {
        "prompt_tokens": 9,
        "completion_tokens": 76,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3758,13 +3965,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_ipv6_clusters",
-     "trace_id": "tr_dfc7ec8f",
+     "trace_id": "tr_21c428ce",
      "answer": "Setting up Northwind Cloud takes about ten minutes; A sample application can then be deployed with northwind deploy, and the Starter allowance becomes available immediately after signup.",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.25,
+     "latency_ms": 0.36,
      "total_tokens": 58,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3779,13 +3986,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.248
+        "latency_ms": 0.357
        }
       ],
       "usage": {
        "prompt_tokens": 12,
        "completion_tokens": 46,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3799,13 +4009,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_onprem_deployment",
-     "trace_id": "tr_74c68c1d",
+     "trace_id": "tr_22ebf893",
      "answer": "Northwind Cloud operates three regions: us-east (Virginia), eu-west (Ireland), and ap-south (Mumbai); Regional latency can be previewed from the dashboard before the first deployment, and the status page lists current capacity for each location.",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.31,
+     "latency_ms": 0.35,
      "total_tokens": 76,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3820,13 +4030,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.309
+        "latency_ms": 0.352
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 61,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3840,13 +4053,13 @@ window.DATA = {
     },
     {
      "case_id": "absent_crypto_payments",
-     "trace_id": "tr_38b6dc96",
+     "trace_id": "tr_8269eb52",
      "answer": "The following are excluded from refunds: domain registration fees, one-time migration services, and usage overage on pay-as-you-go accounts.",
      "error": null,
      "errors": 0,
      "abstention_correct": 0.0,
      "abstention_accuracy": 0.0,
-     "latency_ms": 0.26,
+     "latency_ms": 0.33,
      "total_tokens": 50,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3861,13 +4074,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.26
+        "latency_ms": 0.334
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 35,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3881,7 +4097,7 @@ window.DATA = {
     },
     {
      "case_id": "refunds_exclusions",
-     "trace_id": "tr_a516a57a",
+     "trace_id": "tr_faa15b06",
      "answer": "The following are excluded from refunds: domain registration fees, one-time migration services, and usage overage on pay-as-you-go accounts; Northwind Cloud grants a refund window of 30 days from the date of each charge.",
      "error": null,
      "errors": 0,
@@ -3895,7 +4111,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.29,
+     "latency_ms": 0.62,
      "total_tokens": 67,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3908,13 +4124,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.285
+        "latency_ms": 0.618
        }
       ],
       "usage": {
        "prompt_tokens": 12,
        "completion_tokens": 55,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3934,7 +4153,7 @@ window.DATA = {
     },
     {
      "case_id": "retention_early_deletion",
-     "trace_id": "tr_e0c66e2e",
+     "trace_id": "tr_8c9e8a9f",
      "answer": "When a project is deleted, associated data is purged within 24 hours, while backups simply expire on their normal schedule; Once the 24-hour purge completes a deleted project cannot be restored, so export anything you still need before deleting a project.",
      "error": null,
      "errors": 0,
@@ -3948,7 +4167,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.27,
+     "latency_ms": 0.42,
      "total_tokens": 81,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -3963,13 +4182,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.266
+        "latency_ms": 0.424
        }
       ],
       "usage": {
        "prompt_tokens": 18,
        "completion_tokens": 63,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -3989,7 +4211,7 @@ window.DATA = {
     },
     {
      "case_id": "encryption_key_rotation",
-     "trace_id": "tr_a526ffa3",
+     "trace_id": "tr_f81a86b2",
      "answer": "Encryption keys rotate automatically every 90 days, and Business plan customers can trigger a manual key rotation from the console at any time; All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service.",
      "error": null,
      "errors": 0,
@@ -4017,13 +4239,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.276
+        "latency_ms": 0.284
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 65,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -4043,7 +4268,7 @@ window.DATA = {
     },
     {
      "case_id": "plans_overage",
-     "trace_id": "tr_3f6fbbc6",
+     "trace_id": "tr_c6084ca1",
      "answer": "Northwind Cloud guarantees 99.9% monthly uptime on the standard tier and 99.95% on the Business plan; If measured uptime falls below the target, customers can claim a service credit on the next invoice.",
      "error": null,
      "errors": 0,
@@ -4057,7 +4282,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 0.3333,
-     "latency_ms": 0.27,
+     "latency_ms": 0.32,
      "total_tokens": 65,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -4072,13 +4297,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.269
+        "latency_ms": 0.325
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 50,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -4098,7 +4326,7 @@ window.DATA = {
     },
     {
      "case_id": "status_notifications",
-     "trace_id": "tr_1f589bc0",
+     "trace_id": "tr_2b9b697d",
      "answer": "All data stored on Northwind Cloud is encrypted at rest with AES-256, using keys managed by the platform key service.",
      "error": null,
      "errors": 0,
@@ -4112,7 +4340,7 @@ window.DATA = {
      "retrieval_recall_at_1": 0.0,
      "retrieval_recall_at_3": 0.0,
      "retrieval_mrr_at_3": 0.0,
-     "latency_ms": 0.25,
+     "latency_ms": 0.33,
      "total_tokens": 44,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -4125,13 +4353,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.251
+        "latency_ms": 0.333
        }
       ],
       "usage": {
        "prompt_tokens": 15,
        "completion_tokens": 29,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -4152,7 +4383,7 @@ window.DATA = {
     },
     {
      "case_id": "support_business_priority",
-     "trace_id": "tr_118073c9",
+     "trace_id": "tr_be679d74",
      "answer": "Business includes priority support with a 4-hour response target during business hours, defined as 09:00 to 18:00 UTC from Monday to Friday, plus a named contact for escalations; Starter customers use the community forum, which is monitored by Northwind engineers but carries no response-time guarantee.",
      "error": null,
      "errors": 0,
@@ -4166,7 +4397,7 @@ window.DATA = {
      "retrieval_recall_at_1": 1.0,
      "retrieval_recall_at_3": 1.0,
      "retrieval_mrr_at_3": 1.0,
-     "latency_ms": 0.38,
+     "latency_ms": 0.36,
      "total_tokens": 92,
      "token_source": "heuristic",
      "cost_usd": 0.0,
@@ -4181,13 +4412,16 @@ window.DATA = {
        {
         "kind": "generation",
         "name": "v3_fluent_regression.invoke",
-        "latency_ms": 0.381
+        "latency_ms": 0.355
        }
       ],
       "usage": {
        "prompt_tokens": 17,
        "completion_tokens": 75,
-       "token_source": "heuristic"
+       "token_source": "heuristic",
+       "cache_read_tokens": null,
+       "cache_write_tokens": null,
+       "reasoning_tokens": null
       },
       "error": null
      },
@@ -4223,7 +4457,7 @@ window.DATA = {
     "n_groundedness": 22,
     "mean_keyword_recall": 0.5758,
     "n_keyword_recall": 22,
-    "mean_latency_ms": 0.295,
+    "mean_latency_ms": 0.3519,
     "n_latency_ms": 26,
     "mean_retrieval_mrr_at_3": 0.8333,
     "n_retrieval_mrr_at_3": 22,
@@ -4233,8 +4467,8 @@ window.DATA = {
     "n_retrieval_recall_at_3": 22,
     "mean_total_tokens": 70.6538,
     "n_total_tokens": 26,
-    "p50_latency_ms": 0.27,
-    "p95_latency_ms": 0.3875,
+    "p50_latency_ms": 0.34,
+    "p95_latency_ms": 0.42,
     "token_sources": [
      "heuristic"
     ],
@@ -5181,10 +5415,10 @@ window.DATA = {
      "metric": "latency_ms",
      "direction": "lower",
      "tolerance": "relative",
-     "baseline": 0.3223,
-     "candidate": 0.2958,
-     "delta": -0.0265,
-     "rel_delta": -0.0822,
+     "baseline": 0.3719,
+     "candidate": 0.3246,
+     "delta": -0.0473,
+     "rel_delta": -0.1272,
      "threshold": 0.02,
      "gated": false,
      "verdict": "improved",
@@ -5787,10 +6021,10 @@ window.DATA = {
      "metric": "latency_ms",
      "direction": "lower",
      "tolerance": "relative",
-     "baseline": 0.3223,
-     "candidate": 0.295,
-     "delta": -0.0273,
-     "rel_delta": -0.0847,
+     "baseline": 0.3719,
+     "candidate": 0.3519,
+     "delta": -0.02,
+     "rel_delta": -0.0538,
      "threshold": 0.02,
      "gated": false,
      "verdict": "improved",

@@ -19,7 +19,7 @@ from typing import Any
 
 # Written into every serialised trace. Readers ignore fields they do not
 # know, so additive changes stay readable by older code.
-TRACE_SCHEMA_VERSION = "1.1"
+TRACE_SCHEMA_VERSION = "1.2"
 
 
 def new_id(prefix: str) -> str:
@@ -37,9 +37,18 @@ class Span:
     latency_ms: float
     attributes: dict[str, Any] = field(default_factory=dict)
     error: str | None = None  # non-null means the span failed
+    # A root span (parent_id None) covers one attempt at the whole case; child
+    # spans (model attempts, retrieval, tool calls) point at it. Ids are only
+    # written when set, so flat traces keep their Step 1 shape.
+    span_id: str | None = None
+    parent_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        data = asdict(self)
+        for key in ("span_id", "parent_id"):
+            if data[key] is None:
+                del data[key]
+        return data
 
 
 @dataclass
@@ -49,6 +58,12 @@ class Usage:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     token_source: str = "unknown"  # "api" | "heuristic" | "none"
+    # Breakdowns as reported by the provider (None when not reported).
+    # cache_read_tokens is part of prompt_tokens and reasoning_tokens part of
+    # completion_tokens; neither is added again to the total.
+    cache_read_tokens: int | None = None
+    cache_write_tokens: int | None = None
+    reasoning_tokens: int | None = None
 
     @property
     def total_tokens(self) -> int:

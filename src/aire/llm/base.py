@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Any
 
-from ..schema import Trace
+from ..schema import Span, Trace
 
 
 @dataclass
@@ -34,6 +34,9 @@ class SUTResult:
     wait_ms: float = 0.0
     # Extra span attributes, e.g. the number of provider attempts.
     span_attributes: dict[str, Any] = field(default_factory=dict)
+    # Finer-grained steps inside the invocation (retrieval, one span per model
+    # attempt, tool calls). The runner hangs them under the attempt's span.
+    spans: list[Span] = field(default_factory=list)
 
 
 class SystemUnderTest(abc.ABC):

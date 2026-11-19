@@ -170,23 +170,34 @@ class ExperimentRunner:
         return trace
 
     def _usage(self, result: SUTResult) -> Usage:
-        """Token usage for one completed attempt.
+        return usage_from_result(result, heuristic_tokens=self.config.heuristic_tokens)
 
-        Counts reported by the SUT are kept as given. A failed call reports
-        nothing and gets token_source "none" with zero tokens; it is never
-        filled with an estimate. Otherwise tokens are estimated from the
-        prompt and answer text and labelled "heuristic".
-        """
-        if result.usage:
-            return Usage(
-                prompt_tokens=int(result.usage.get("prompt_tokens") or 0),
-                completion_tokens=int(result.usage.get("completion_tokens") or 0),
-                token_source=str(result.usage.get("token_source", "api")),
-            )
-        if result.error or not self.config.heuristic_tokens:
-            return Usage(token_source="none")
+
+def _optional_int(value: Any) -> int | None:
+    return int(value) if isinstance(value, int | float) and not isinstance(value, bool) else None
+
+
+def usage_from_result(result: SUTResult, *, heuristic_tokens: bool) -> Usage:
+    """Token usage for one completed attempt.
+
+    Counts reported by the SUT are kept as given. A failed call reports
+    nothing and gets token_source "none" with zero tokens; it is never
+    filled with an estimate. Otherwise tokens are estimated from the
+    prompt and answer text and labelled "heuristic".
+    """
+    if result.usage:
         return Usage(
-            prompt_tokens=estimate_tokens(result.prompt_text),
-            completion_tokens=estimate_tokens(result.answer or ""),
-            token_source="heuristic",
+            prompt_tokens=int(result.usage.get("prompt_tokens") or 0),
+            completion_tokens=int(result.usage.get("completion_tokens") or 0),
+            token_source=str(result.usage.get("token_source", "api")),
+            cache_read_tokens=_optional_int(result.usage.get("cache_read_tokens")),
+            cache_write_tokens=_optional_int(result.usage.get("cache_write_tokens")),
+            reasoning_tokens=_optional_int(result.usage.get("reasoning_tokens")),
         )
+    if result.error or not heuristic_tokens:
+        return Usage(token_source="none")
+    return Usage(
+        prompt_tokens=estimate_tokens(result.prompt_text),
+        completion_tokens=estimate_tokens(result.answer or ""),
+        token_source="heuristic",
+    )

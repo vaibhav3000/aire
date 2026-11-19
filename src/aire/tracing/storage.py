@@ -151,6 +151,17 @@ class RunStore:
         self._case_ids.add(trace.case_id)
         self._traces.append(trace)
 
+    def rewrite_in_order(self, case_ids: list[str]) -> None:
+        """Rewrite traces.jsonl atomically with traces sorted by `case_ids`.
+
+        Concurrent runs append traces as cases finish (crash safety); this puts
+        the file back in dataset order so it does not depend on timing.
+        """
+        position = {case_id: i for i, case_id in enumerate(case_ids)}
+        self._traces.sort(key=lambda t: position.get(t.case_id, len(position)))
+        lines = "".join(json.dumps(t.to_dict()) + "\n" for t in self._traces)
+        atomic_write_text(self._traces_path, lines)
+
     def flush_traces(self) -> None:
         """Kept for API compatibility: append_trace already writes each trace."""
 

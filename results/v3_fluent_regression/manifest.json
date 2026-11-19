@@ -1,7 +1,7 @@
 {
-  "run_id": "run_185714ab",
+  "run_id": "run_a436faca",
   "name": "v3_fluent_regression",
-  "created_at": 1795046301.956283,
+  "created_at": 1795101494.3007724,
   "system_config": {
     "top_k": 3,
     "min_score": 0.05,

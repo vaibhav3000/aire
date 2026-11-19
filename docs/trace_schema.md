@@ -20,10 +20,10 @@ A trace is the complete, serialisable record of one system invocation for one ev
 | `final_answer` | string or null | no | The answer the system returned; null or empty means no answer was produced, which the engine scores as a failed invocation |
 | `retrieved_doc_ids` | list of string | no | Document ids returned by retrieval, in rank order |
 | `tool_calls` | list of object | no | Recorded tool calls; each is an object with a string `name`, plus `args` and a `valid` flag from schema validation |
-| `spans` | list of Span | no | Ordered, timed steps of the invocation; the runner writes one span per attempt |
+| `spans` | list of Span | no | Ordered, timed steps of the invocation; the runner writes one root span per attempt, and the async runner adds the system's own steps (retrieval, one span per model attempt) as children of that root |
 | `usage` | Usage | no | Token accounting |
 | `error` | string or null | no | Non-null means the whole invocation failed (exception, timeout or an error reported by the system) |
-| `schema_version` | string | written | Trace schema version, currently `"1.1"`; added on serialisation |
+| `schema_version` | string | written | Trace schema version, currently `"1.2"`; added on serialisation (1.2 added span ids and token breakdowns) |
 
 ### Span
 
@@ -35,6 +35,8 @@ A trace is the complete, serialisable record of one system invocation for one ev
 | `latency_ms` | float | yes | Duration in milliseconds, must not be negative. For runner spans it excludes client-side pacing (`SystemUnderTest.before_invoke`) and any wait the system reports in `SUTResult.wait_ms` |
 | `attributes` | object | no | Free-form annotations. The runner writes `attempt` and, when the system reports them, `wait_ms` and its own fields (the LLM responder adds `provider_attempts`, `model`, `finish_reason`, or `http_status` on failure) |
 | `error` | string or null | no | Non-null means this span failed. A timed-out or raising attempt gets a span with its error; `TraceRecorder` span timers set it automatically |
+| `span_id` | string | no | Written only when set (format `sp_<8 hex>`). The async runner gives every root span an id |
+| `parent_id` | string | no | Written only when set: the id of the root span this step belongs to. Latency in the engine sums root spans only, so child spans are never counted twice. A root span with `attributes.cache_hit: true` was answered from the response cache and has no latency in the results |
 
 ### Usage
 
@@ -44,7 +46,11 @@ A trace is the complete, serialisable record of one system invocation for one ev
 | `completion_tokens` | int | no | Completion token count, must not be negative |
 | `token_source` | string | no | Provenance label: `api` (reported by a real backend), `heuristic` (estimated at about 4 characters per token by `estimate_tokens`), `none` (unknown, for example a failed call; tokens are 0), or `unknown` (the dataclass default). Heuristic counters are allowed but must be labelled; failed calls are never filled with an estimate. |
 
-`total_tokens` is a derived property (`prompt_tokens + completion_tokens`) and is not stored.
+| `cache_read_tokens` | int or null | no | Prompt tokens served from the provider's prompt cache, as the provider reported them; already part of `prompt_tokens` |
+| `cache_write_tokens` | int or null | no | Prompt tokens written to the provider's prompt cache (Anthropic); already part of `prompt_tokens` |
+| `reasoning_tokens` | int or null | no | Thinking or reasoning tokens; already part of `completion_tokens` |
+
+`total_tokens` is a derived property (`prompt_tokens + completion_tokens`) and is not stored. The breakdowns are null when the provider did not report them and are never added to the total again.
 
 ## Annotated example
 
@@ -78,11 +84,14 @@ A real trace from the committed v1 baseline run (`results/v1_baseline/traces.jso
   "usage": {
     "prompt_tokens": 13,                 // heuristic estimate (~4 chars/token)
     "completion_tokens": 52,
-    "token_source": "heuristic"          // provenance label, not a real API count
+    "token_source": "heuristic",         // provenance label, not a real API count
+    "cache_read_tokens": null,           // breakdowns: null when not reported
+    "cache_write_tokens": null,
+    "reasoning_tokens": null
   },
   "error": null,                         // non-null would classify as invocation_error
   "trace_id": "tr_a2776795",
-  "schema_version": "1.1"
+  "schema_version": "1.2"
 }
 ```
 

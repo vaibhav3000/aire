@@ -91,7 +91,7 @@ def test_each_trace_line_carries_a_schema_version(tmp_path: Path) -> None:
     store = RunStore(tmp_path, "run1", "demo")
     store.append_trace(Trace(run_id="run1", case_id="c1", system_config={}))
     line = (tmp_path / "run1" / "traces.jsonl").read_text(encoding="utf-8").splitlines()[0]
-    assert json.loads(line)["schema_version"] == "1.1"
+    assert json.loads(line)["schema_version"] == "1.2"
 
 
 def test_reader_ignores_fields_it_does_not_know() -> None:

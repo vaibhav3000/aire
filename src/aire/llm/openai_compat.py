@@ -17,17 +17,11 @@ import time
 from typing import Any
 
 from ..llm.base import SUTResult, SystemUnderTest
+from ..systems.prompts import RAG_SYSTEM_PROMPT, rag_user_prompt
 from .deterministic import KeywordRetriever
 from .provider import LLMResponse, OpenAICompatProvider, ProviderError
 
-_SYSTEM_PROMPT = (
-    "You are a customer-support assistant for Northwind Cloud. Answer the "
-    "user's question using ONLY the documents provided in the context. "
-    "Rules: (1) End every factual sentence with a citation in the exact form "
-    "[doc:<document_id>] using the ids given. (2) If the documents do not "
-    "contain the answer, reply with exactly: I don't know. (3) Do not invent "
-    "policies, numbers or features. (4) Answer in at most three sentences."
-)
+_SYSTEM_PROMPT = RAG_SYSTEM_PROMPT
 
 
 class OpenAIChatResponder(SystemUnderTest):
@@ -76,18 +70,13 @@ class OpenAIChatResponder(SystemUnderTest):
                 time.sleep(remaining)
         self._last_call_start = time.monotonic()
 
-    def _build_context(self, query: str) -> tuple[str, list[str]]:
+    def _build_context(self, query: str) -> tuple[list[tuple[str, str]], list[str]]:
         retrieved = self.retriever.retrieve(query)
-        doc_ids = [r.doc_id for r in retrieved]
-        parts = []
-        for r in retrieved:
-            parts.append(f"[doc:{r.doc_id}]\n{r.text}")
-        context = "\n\n".join(parts) if parts else "(no documents found)"
-        return context, doc_ids
+        return [(r.doc_id, r.text) for r in retrieved], [r.doc_id for r in retrieved]
 
     def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult:
-        context, doc_ids = self._build_context(case_input)
-        user = f"Context documents:\n{context}\n\nQuestion: {case_input}"
+        documents, doc_ids = self._build_context(case_input)
+        user = rag_user_prompt(case_input, documents)
         try:
             resp: LLMResponse = self.provider.chat(_SYSTEM_PROMPT, user)
         except ProviderError as exc:

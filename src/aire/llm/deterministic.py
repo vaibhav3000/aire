@@ -180,27 +180,37 @@ class ExtractiveRAG(SystemUnderTest):
         ):
             return SUTResult(answer="I don't know.", retrieved_doc_ids=doc_ids)
 
-        best = retrieved[0]
-        q = content_keywords(case_input)
-        sentences = _SENTENCE_SPLIT_RE.split(_strip_headings(best.text))
-        ranked = sorted(
-            (
-                (len(q & content_keywords(s)) / max(len(q), 1), s.strip())
-                for s in sentences
-                if s.strip()
-            ),
-            key=lambda pair: pair[0],
-            reverse=True,
+        answer = extractive_answer(
+            case_input, retrieved[0].doc_id, retrieved[0].text, self.config["style"]
         )
-        top_sentences = [s for score, s in ranked[:2] if score > 0]
-        if not top_sentences:
+        if answer is None:
             return SUTResult(answer="I don't know.", retrieved_doc_ids=doc_ids)
-
-        if self.config["style"] == "fluent":
-            # Regression hazard: merge the sentences into one and drop the
-            # citations. Wording and capitalisation are kept as quoted.
-            merged = "; ".join(s.rstrip(".") for s in top_sentences) + "."
-            merged = merged[:1].upper() + merged[1:]
-            return SUTResult(answer=merged, retrieved_doc_ids=doc_ids, prompt_text=case_input)
-        answer = " ".join(f"{s} [doc:{best.doc_id}]" for s in top_sentences)
         return SUTResult(answer=answer, retrieved_doc_ids=doc_ids, prompt_text=case_input)
+
+
+def extractive_answer(question: str, doc_id: str, text: str, style: str = "faithful") -> str | None:
+    """The demo's answer from one document, or None when no sentence matches.
+
+    Picks the (at most two) sentences of the document, headings excluded, that
+    share the most content keywords with the question. "faithful" follows each
+    with [doc:<id>]; "fluent" (the deliberate regression) merges them into one
+    sentence and drops the citations, keeping the quoted wording.
+    """
+    q = content_keywords(question)
+    sentences = _SENTENCE_SPLIT_RE.split(_strip_headings(text))
+    ranked = sorted(
+        (
+            (len(q & content_keywords(s)) / max(len(q), 1), s.strip())
+            for s in sentences
+            if s.strip()
+        ),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
+    top_sentences = [s for score, s in ranked[:2] if score > 0]
+    if not top_sentences:
+        return None
+    if style == "fluent":
+        merged = "; ".join(s.rstrip(".") for s in top_sentences) + "."
+        return merged[:1].upper() + merged[1:]
+    return " ".join(f"{s} [doc:{doc_id}]" for s in top_sentences)

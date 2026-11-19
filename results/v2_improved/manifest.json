@@ -1,7 +1,7 @@
 {
-  "run_id": "run_6bd74c98",
+  "run_id": "run_98f2f1f7",
   "name": "v2_improved",
-  "created_at": 1795046301.879545,
+  "created_at": 1795101494.2436917,
   "system_config": {
     "top_k": 3,
     "min_score": 0.05,
