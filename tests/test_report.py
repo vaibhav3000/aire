@@ -41,3 +41,12 @@ def test_comparison_report_escapes_metric_rows(tmp_path: Path) -> None:
     }
     out = render_comparison_report(comparison, _results(), _results(), tmp_path / "cmp.html")
     assert MARKUP not in out.read_text(encoding="utf-8")
+
+
+def test_case_table_shows_fixed_cutoff_retrieval_recall(tmp_path: Path) -> None:
+    row = {"case_id": "c1", "retrieval_recall_at_3": 0.5, "failure": None, "answer": "x"}
+    results = {"per_case": [row], "aggregates": {"n_cases": 1}}
+    html = render_run_report(tmp_path, results, tmp_path / "run.html", title="t").read_text(
+        encoding="utf-8"
+    )
+    assert "<th>retrieval_recall_at_3</th>" in html
