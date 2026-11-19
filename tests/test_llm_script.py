@@ -57,7 +57,9 @@ def test_rescore_rebuilds_results_and_comparison_from_persisted_traces(tmp_path:
 
     summary = json.loads((results_dir / "llm_eval_results.json").read_text(encoding="utf-8"))
     assert summary["mode"] == "llm"
-    assert summary["aggregates"]["n_cases"] == 26
+    assert summary["aggregates"]["n_cases"] == len(
+        load_eval_dataset(ROOT / "demo" / "eval_set.jsonl")
+    )
     assert (run_dir / "eval_results.json").exists()
     comparison = json.loads((results_dir / "llm_vs_deterministic.json").read_text("utf-8"))
     assert comparison["summary"]["labels"]["baseline"].startswith("deterministic v2")

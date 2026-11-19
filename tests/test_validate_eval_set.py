@@ -49,3 +49,60 @@ def test_keyword_present_as_whole_tokens_is_accepted() -> None:
     case = _answerable_case(validator, ["nda", "4-hour", "5%"])
     validator.check_answerable(case, corpus, errors)
     assert errors == []
+
+
+def _case(validator: ModuleType, **data: object) -> object:
+    base: dict[str, object] = {
+        "case_id": "c1",
+        "input": "q",
+        "expected_keywords": [],
+        "supporting_doc_ids": [],
+        "tags": [],
+    }
+    base.update(data)
+    return validator.Case(line_number=1, data=base)
+
+
+def test_tags_must_match_the_kind_of_case() -> None:
+    validator = _load_validator()
+    errors: list[str] = []
+    validator.check_tags(
+        _case(validator, supporting_doc_ids=["doc_a"], tags=["unanswerable", "x"]), errors
+    )
+    validator.check_tags(_case(validator, expect_abstention=True, tags=["answerable"]), errors)
+    validator.check_tags(
+        _case(validator, supporting_doc_ids=["doc_a"], tags=["answerable", "multi-doc"]), errors
+    )
+    validator.check_tags(
+        _case(validator, supporting_doc_ids=["doc_a", "doc_b"], tags=["answerable", "x"]), errors
+    )
+    assert len(errors) == 4, errors
+
+
+def test_a_well_tagged_case_passes() -> None:
+    validator = _load_validator()
+    errors: list[str] = []
+    validator.check_tags(
+        _case(validator, supporting_doc_ids=["doc_a", "doc_b"], tags=["answerable", "multi-doc"]),
+        errors,
+    )
+    validator.check_tags(
+        _case(validator, expect_abstention=True, tags=["unanswerable", "billing"]), errors
+    )
+    assert errors == []
+
+
+def test_the_suite_must_keep_enough_unanswerable_cases() -> None:
+    validator = _load_validator()
+    cases = [
+        _case(
+            validator,
+            case_id=f"c{i}",
+            expect_abstention=True,
+            must_cite=False,
+            tags=["unanswerable"],
+        )
+        for i in range(3)
+    ]
+    errors = validator.validate(cases, {})
+    assert any("unanswerable" in e for e in errors), errors
