@@ -4,12 +4,19 @@ __pycache__/
 
 # Packaging
 *.egg-info/
+build/
 
-# Test cache
+# Test and lint caches
 .pytest_cache/
+.ruff_cache/
 
 # Virtual environments
 .venv/
+
+# Secrets: real keys live in .env, which must never be committed
+.env
+.env.*
+!.env.example
 
 # OS artifacts
 Thumbs.db
@@ -18,6 +25,15 @@ Thumbs.db
 # Raw run directories are local working artifacts; the curated, verified
 # copies live in results/ (tracked). reports/ HTML is tracked.
 runs/
+
+# LaTeX build by-products (the PDF itself is tracked)
+reports/*.aux
+reports/*.log
+reports/*.out
+reports/*.fls
+reports/*.fdb_latexmk
+reports/*.synctex.gz
+reports/*.toc
 
 # demo-site e2e
 node_modules/
