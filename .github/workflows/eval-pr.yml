@@ -1,0 +1,79 @@
+name: Eval PR
+
+# Evaluates a pull request's code and gates it against the base branch's
+# committed results. This job runs untrusted code, so it gets a read-only
+# token and no secrets. It never comments; it uploads the gate result, and
+# eval-pr-comment.yml (a separate, trusted workflow) posts it (ADR 0005).
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    name: Evaluate and gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check out the base branch's committed results
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+          persist-credentials: false
+          sparse-checkout: results
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install the pull request's aire
+        run: python -m pip install .
+      - name: Evaluate the pull request
+        run: python demo/run_demo.py
+      - name: Gate the candidate against the base branch
+        id: gate
+        run: |
+          code=0
+          aire gate base/results/v2_improved results/v2_improved \
+            --ignore latency_ms --report gate.json || code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Render the HTML diff report
+        if: always() && steps.gate.outputs.exit_code != '2'
+        run: |
+          aire report base/results/v2_improved results/v2_improved \
+            --ignore latency_ms --out report.html --title "PR #${{ github.event.pull_request.number }} against ${{ github.base_ref }}"
+      - name: Record which pull request and commit were evaluated
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          printf '%s\n' "$PR_NUMBER" > pr_number.txt
+          printf '%s\n' "$HEAD_SHA" > head_sha.txt
+      - name: Upload the gate result
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: aire-pr-gate
+          path: |
+            gate.json
+            report.html
+            pr_number.txt
+            head_sha.txt
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Fail the check when the gate failed
+        if: steps.gate.outputs.exit_code != '0'
+        run: |
+          echo "::error::aire gate exited with ${{ steps.gate.outputs.exit_code }}"
+          exit 1
