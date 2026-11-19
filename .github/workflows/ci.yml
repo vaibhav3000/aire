@@ -129,6 +129,8 @@ jobs:
               raise SystemExit(f"v3 was blocked, but not for {sorted(missing)}: {sorted(regressed)}")
           print("Seeded regression blocked for:", ", ".join(sorted(regressed)))
           PY
+      - name: Rebuild the judge calibration report (offline, deterministic)
+        run: python demo/judge_calibration/calibrate_judges.py
       - name: Rebuild the demo-site data
         run: python demo-site/build.py
       - name: Fail if generated artifacts drifted from the commit

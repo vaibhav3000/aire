@@ -25,6 +25,7 @@ from ..providers.client import ModelClient
 from ..providers.types import ChatRequest, Message
 from ..schema import Trace
 from .engine import EvaluationEngine
+from .metrics import abstained, keyword_recall
 from .metrics import groundedness as lexical_groundedness
 
 
@@ -290,6 +291,27 @@ class LexicalRubricJudge:
 
     def identity(self) -> dict[str, Any]:
         return {"judge": "rubric_lexical", "version": "lexical-v1", "threshold": 0.5}
+
+    def judge_answer(
+        self,
+        answer: str | None,
+        expected_keywords: Sequence[str],
+        expect_abstention: bool,
+        retrieved: Mapping[str, str],
+    ) -> tuple[bool, bool]:
+        """(correct, supported) for one answer, from the deterministic metrics.
+
+        `retrieved` maps the ids of the documents the system retrieved to their
+        text; groundedness is measured against those only.
+        """
+        declined = abstained(answer)
+        if expect_abstention:
+            correct = declined
+        else:
+            correct = not declined and keyword_recall(answer, list(expected_keywords)) >= 0.5
+        grounded = lexical_groundedness(answer, retrieved)
+        supported = declined or (grounded is not None and grounded >= 0.5)
+        return correct, supported
 
     def from_row(self, row: dict[str, Any], *, expect_abstention: bool) -> tuple[bool, bool]:
         if expect_abstention:

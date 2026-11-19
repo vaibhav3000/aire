@@ -150,3 +150,16 @@ def test_judge_verdicts_join_the_deterministic_metrics_and_are_gated() -> None:
     for name in ("judge_correct", "judge_supported"):
         info = metric_info(name)
         assert info is not None and info["direction"] == "higher"
+
+
+def test_lexical_judge_scores_an_answer_directly_against_retrieved_documents() -> None:
+    judge = LexicalRubricJudge()
+    corpus = {"doc_refunds": "Refunds are allowed within 30 days of a charge."}
+    cited = "Refunds are allowed within 30 days of a charge. [doc:doc_refunds]"
+    uncited = "Refunds are allowed within 30 days of a charge."
+    assert judge.judge_answer(cited, ["30 days"], False, corpus) == (True, True)
+    assert judge.judge_answer(uncited, ["30 days"], False, corpus) == (True, False)
+    # An unanswerable question: quoting a cited document is supported but not correct.
+    assert judge.judge_answer(cited, [], True, corpus) == (False, True)
+    assert judge.judge_answer("I don't know.", [], True, corpus) == (True, True)
+    assert judge.judge_answer("I don't know.", ["30 days"], False, corpus) == (False, True)

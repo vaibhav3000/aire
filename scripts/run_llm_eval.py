@@ -42,10 +42,14 @@ from typing import Any
 
 from aire.evaluator.engine import EvaluationEngine, write_eval_results
 from aire.llm.deterministic import KeywordRetriever
-from aire.providers.base import ChatModel
 from aire.providers.cache import ResponseCache, request_key
 from aire.providers.client import ModelClient, RetryPolicy
-from aire.providers.local import LocalOpenAICompatModel
+from aire.providers.factory import (
+    PROVIDERS,
+    build_chat_model,
+    provider_name,
+    sampling_temperature,
+)
 from aire.providers.ratelimit import AdaptiveRateLimiter
 from aire.providers.types import ChatRequest, Message
 from aire.regression import RegressionThresholds, compare_runs, write_regression_report
@@ -59,7 +63,6 @@ from aire.tracing.storage import atomic_write_text, load_run_traces
 ROOT = Path(__file__).resolve().parents[1]
 DATASET = ROOT / "demo" / "eval_set.jsonl"
 MODEL = "gemini-2.5-flash"  # the model of the committed historical run
-PROVIDERS = ("gemini", "openai", "anthropic", "local")
 TOP_K = 3
 MAX_OUTPUT_TOKENS = 256
 RUN_FILES = ("manifest.json", "traces.jsonl")
@@ -72,35 +75,6 @@ def load_corpus(corpus_dir: Path) -> dict[str, str]:
 def persisted_run_dir(results_dir: Path, model: str = MODEL) -> Path:
     safe = "".join(c if c.isalnum() or c in "-._" else "_" for c in model)
     return results_dir / f"llm_{safe}"
-
-
-def provider_name(provider: str) -> str:
-    """The gen_ai.provider.name each adapter reports (the cache keys on it)."""
-    return {"gemini": "gcp.gemini", "openai": "openai", "anthropic": "anthropic"}.get(
-        provider, "ollama"
-    )
-
-
-def sampling_temperature(provider: str) -> float | None:
-    """0.0 where the provider accepts it; anthropic 2.x removed the parameter."""
-    return None if provider == "anthropic" else 0.0
-
-
-def build_chat_model(provider: str, base_url: str | None) -> ChatModel:
-    """The adapter for --provider; SDK adapters import their SDK only here."""
-    if provider == "gemini":
-        from aire.providers.gemini_sdk import GeminiModel
-
-        return GeminiModel(api_key_env="GEMINI_API_KEY")
-    if provider == "openai":
-        from aire.providers.openai_sdk import OpenAIModel
-
-        return OpenAIModel(base_url=base_url)
-    if provider == "anthropic":
-        from aire.providers.anthropic_sdk import AnthropicModel
-
-        return AnthropicModel()
-    return LocalOpenAICompatModel(base_url or "http://localhost:11434/v1", provider="ollama")
 
 
 def planned_requests(corpus: dict[str, str], provider: str, model: str) -> list[ChatRequest]:
