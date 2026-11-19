@@ -3,7 +3,8 @@
 Shared by every concurrent case of a run, it puts in front of a one-attempt
 ChatModel adapter:
 
-1. the response cache (an exact-request hit never reaches the provider),
+1. the response cache (an exact-request hit never reaches the provider;
+   its file reads and writes run in a worker thread, off the event loop),
 2. single flight (identical requests in flight share one call),
 3. the adaptive rate limiter (shared RPM and TPM budget),
 4. retries for rate limits, transient errors, timeouts and connection
@@ -128,7 +129,7 @@ class ModelClient:
             )
         key = request_key(self.provider, request)
         if self.cache is not None:
-            entry = self.cache.get(key)
+            entry = await asyncio.to_thread(self.cache.get, key)
             if entry is not None:
                 self._stats["cache_hits"] += 1
                 return Completion(
@@ -220,7 +221,7 @@ class ModelClient:
                 )
                 self.limiter.on_success()
             if self.cache is not None:
-                self.cache.put(key, response, latency_ms)
+                await asyncio.to_thread(self.cache.put, key, response, latency_ms)
             return Completion(response=response, attempts=attempts, waited_s=waited)
         raise AssertionError("unreachable: the retry loop always returns or raises")
 

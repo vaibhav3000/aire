@@ -1,0 +1,137 @@
+{
+  "description": "Served stack against FakeLLMServer on 127.0.0.1: one real run of each configuration over the whole eval set. Timings depend on the machine.",
+  "recorded_at_utc": "2026-11-19T15:51Z",
+  "machine": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "python": "3.13.7",
+    "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel"
+  },
+  "dataset": "demo/eval_set.jsonl",
+  "n_cases": 150,
+  "server": {
+    "requests_per_minute": 3000.0,
+    "service_time_s": 0.1,
+    "burst_s": 0.2,
+    "retry_hint": "header"
+  },
+  "runs": [
+    {
+      "label": "sequential",
+      "concurrency": 1,
+      "client_requests_per_minute": 3000.0,
+      "cache": false,
+      "wall_time_s": 16.195,
+      "cases_per_s": 9.26,
+      "n_cases": 150,
+      "n_failed": 0,
+      "server": {
+        "requests": 150,
+        "served": 150,
+        "rate_limited": 0
+      },
+      "client": {
+        "calls": 150,
+        "cache_hits": 0,
+        "shared": 0,
+        "attempts": 150,
+        "rate_limited": 0,
+        "failures": 0
+      },
+      "limiter": {
+        "rate_fraction": 1.0,
+        "throttle_events": 0,
+        "waited_s": 0.0
+      }
+    },
+    {
+      "label": "concurrent",
+      "concurrency": 8,
+      "client_requests_per_minute": 3000.0,
+      "cache": true,
+      "wall_time_s": 3.007,
+      "cases_per_s": 49.88,
+      "n_cases": 150,
+      "n_failed": 0,
+      "server": {
+        "requests": 151,
+        "served": 150,
+        "rate_limited": 1
+      },
+      "client": {
+        "calls": 150,
+        "cache_hits": 0,
+        "shared": 0,
+        "attempts": 151,
+        "rate_limited": 1,
+        "failures": 0
+      },
+      "limiter": {
+        "rate_fraction": 1.0,
+        "throttle_events": 1,
+        "waited_s": 1.836431
+      }
+    },
+    {
+      "label": "over_eager",
+      "concurrency": 8,
+      "client_requests_per_minute": 6000.0,
+      "cache": false,
+      "wall_time_s": 2.955,
+      "cases_per_s": 50.75,
+      "n_cases": 150,
+      "n_failed": 0,
+      "server": {
+        "requests": 168,
+        "served": 150,
+        "rate_limited": 18
+      },
+      "client": {
+        "calls": 150,
+        "cache_hits": 0,
+        "shared": 0,
+        "attempts": 168,
+        "rate_limited": 18,
+        "failures": 0
+      },
+      "limiter": {
+        "rate_fraction": 0.880492,
+        "throttle_events": 18,
+        "waited_s": 1.444101
+      }
+    },
+    {
+      "label": "warm_cache",
+      "concurrency": 8,
+      "client_requests_per_minute": 3000.0,
+      "cache": true,
+      "wall_time_s": 0.299,
+      "cases_per_s": 501.61,
+      "n_cases": 150,
+      "n_failed": 0,
+      "server": {
+        "requests": 0,
+        "served": 0,
+        "rate_limited": 0
+      },
+      "client": {
+        "calls": 150,
+        "cache_hits": 150,
+        "shared": 0,
+        "attempts": 0,
+        "rate_limited": 0,
+        "failures": 0
+      },
+      "limiter": {
+        "rate_fraction": 1.0,
+        "throttle_events": 0,
+        "waited_s": 0.0
+      }
+    }
+  ],
+  "speedup_vs_sequential": {
+    "sequential": 1.0,
+    "concurrent": 5.39,
+    "over_eager": 5.48,
+    "warm_cache": 54.16
+  }
+}

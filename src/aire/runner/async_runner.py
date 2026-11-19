@@ -10,9 +10,12 @@ traces.jsonl, one validated trace per case), with three differences:
   its connections. Sync systems run in a worker thread through
   asyncio.to_thread and keep the old limitation that a hung call cannot be
   killed.
-- Traces are appended as cases finish, so an interrupted run keeps every
-  finished case, and the file is rewritten in dataset order at the end, so
-  its content does not depend on completion order.
+- Traces are appended and flushed as cases finish, so a crashed or
+  interrupted process keeps every finished case, and the file is rewritten
+  (and fsynced) in dataset order at the end, so its content does not depend
+  on completion order. Fsyncing every line as well would block the event
+  loop on each disk sync and serialise the workers; it survives power loss
+  rather than process loss, and is available as fsync_each_trace.
 
 Each attempt gets a root span (span_id set) whose latency excludes the waits
 the system reports; the system's own spans (retrieval, model attempts) are
@@ -61,6 +64,7 @@ class AsyncRunnerConfig:
     max_retries: int = 0  # whole-invocation retries; model-call retries live in ModelClient
     retry_backoff_s: float = 0.2
     heuristic_tokens: bool = True
+    fsync_each_trace: bool = False  # see the module docstring
 
 
 @dataclass(frozen=True)
@@ -112,7 +116,12 @@ class AsyncExperimentRunner:
     ) -> RunOutcome:
         cases: list[EvalCase] = load_eval_dataset(dataset_path)
         run_id = new_id("run")
-        store = RunStore(runs_root, run_id, run_name or f"{self.sut.name}_{run_id}")
+        store = RunStore(
+            runs_root,
+            run_id,
+            run_name or f"{self.sut.name}_{run_id}",
+            fsync=self.config.fsync_each_trace,
+        )
         store.write_manifest(
             created_at=time.time(),
             system_config=dict(self.sut.config),

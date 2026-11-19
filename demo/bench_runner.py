@@ -43,6 +43,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DATASET = ROOT / "demo" / "eval_set.jsonl"
 SERVER_RPM = 3000.0
 SERVICE_TIME_S = 0.1
+# Both sides allow 0.2 s of burst, so excess concurrency meets 429s quickly.
+BURST_S = 0.2
 CONCURRENCY = 8
 
 
@@ -63,9 +65,11 @@ async def measure(
     cache: ResponseCache | None,
 ) -> dict[str, Any]:
     async with FakeLLMServer(
-        requests_per_minute=SERVER_RPM, service_time_s=SERVICE_TIME_S
+        requests_per_minute=SERVER_RPM, service_time_s=SERVICE_TIME_S, burst_s=BURST_S
     ) as server:
-        limiter = AdaptiveRateLimiter(requests_per_minute=client_rpm, tokens_per_minute=None)
+        limiter = AdaptiveRateLimiter(
+            requests_per_minute=client_rpm, tokens_per_minute=None, burst_s=BURST_S
+        )
         client = ModelClient(
             LocalOpenAICompatModel(server.base_url, timeout_s=30),
             limiter=limiter,
@@ -155,6 +159,7 @@ async def main_async() -> dict[str, Any]:
         "server": {
             "requests_per_minute": SERVER_RPM,
             "service_time_s": SERVICE_TIME_S,
+            "burst_s": BURST_S,
             "retry_hint": "header",
         },
         "runs": runs,
