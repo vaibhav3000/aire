@@ -97,3 +97,15 @@ def test_retry_after_reads_milliseconds_dates_and_gemini_bodies() -> None:
     assert wait is not None and 25.0 <= wait <= 31.0
     assert retry_after_seconds({}, '{"retryDelay": "12s"}') == 12.0
     assert retry_after_seconds(None, "no hint") is None
+
+
+def test_an_exhausted_quota_names_the_quota_even_in_a_long_body() -> None:
+    body = (
+        '{"error": {"code": 429, "message": "You exceeded your current quota, please check your '
+        "plan and billing details. " + "x" * 400 + '", "details": [{"violations": [{"quotaId": '
+        '"GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}]}]}}'
+    )
+    error = classify_http_status(429, body, {})
+    assert error.kind is ErrorKind.QUOTA_EXHAUSTED
+    assert "GenerateRequestsPerDayPerProjectPerModel-FreeTier" in str(error)
+    assert "limit 20" in str(error)

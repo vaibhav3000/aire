@@ -103,6 +103,19 @@ def quota_exhausted(body: str) -> bool:
     )
 
 
+_QUOTA_ID_RE = re.compile(r'"quotaId"\s*:\s*"([^"]+)"')
+_QUOTA_VALUE_RE = re.compile(r'"quotaValue"\s*:\s*"?(\d+)')
+
+
+def _quota_detail(body: str) -> str:
+    quota = _QUOTA_ID_RE.search(body)
+    if quota is None:
+        return ""
+    value = _QUOTA_VALUE_RE.search(body)
+    limit = f", limit {value.group(1)}" if value else ""
+    return f" (quota {quota.group(1)}{limit})"
+
+
 def classify_http_status(
     status: int,
     body: str,
@@ -116,6 +129,9 @@ def classify_http_status(
     wait = retry_after_seconds(headers, body)
     if status == 429:
         kind = ErrorKind.QUOTA_EXHAUSTED if quota_exhausted(body) else ErrorKind.RATE_LIMITED
+        if kind is ErrorKind.QUOTA_EXHAUSTED:
+            # The excerpt can cut off the part that says which quota ran out.
+            message += _quota_detail(body)
     elif status == 408:
         kind = ErrorKind.TIMEOUT
     elif status >= 500:
