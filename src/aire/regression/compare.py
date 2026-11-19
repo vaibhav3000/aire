@@ -214,6 +214,9 @@ def compare_runs(
         n_key = "n_cases" if metric in _STANDALONE_METRICS else f"n_{metric}"
         nb, nc = base_agg.get(n_key), cand_agg.get(n_key)
         if nb is not None or nc is not None:
+            # A run that reports no mean for the metric averaged zero cases.
+            nb = 0 if nb is None and not _is_number(bv) else nb
+            nc = 0 if nc is None and not _is_number(cv) else nc
             row["n_baseline"], row["n_candidate"] = nb, nc
             if nb != nc:
                 row["n_mismatch"] = True

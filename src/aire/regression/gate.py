@@ -89,8 +89,9 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _num(value: Any, spec: str) -> str:
-    return "-" if value is None else format(value, spec)
+def _num(value: Any, spec: str, width: int = 0) -> str:
+    """Format a number, or '-' for a missing value, right-aligned to `width`."""
+    return ("-" if value is None else format(value, spec)).rjust(width)
 
 
 def _format_row(row: dict[str, Any]) -> str:
@@ -101,8 +102,8 @@ def _format_row(row: dict[str, Any]) -> str:
     if row.get("n_mismatch"):
         verdict += f" [n {row.get('n_baseline')} vs {row.get('n_candidate')}]"
     return (
-        f"  {row['metric']:<24} {_num(row['baseline'], '>10.4g')} "
-        f"{_num(row['candidate'], '>10.4g')} {_num(row['delta'], '>+10.4g')} {rel:>8}  {verdict}"
+        f"  {row['metric']:<24} {_num(row['baseline'], '.4g', 10)} "
+        f"{_num(row['candidate'], '.4g', 10)} {_num(row['delta'], '+.4g', 10)} {rel:>8}  {verdict}"
     )
 
 

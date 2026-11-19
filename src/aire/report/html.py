@@ -14,6 +14,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ..tracing.storage import atomic_write_text
+
 _COLOR = {
     "improved": "#0a7d33",
     "regressed": "#b3261e",
@@ -155,10 +157,7 @@ def render_run_report(
 <h2>Per-case results</h2>
 {_case_table(eval_results.get("per_case", []))}
 """
-    out = Path(out_path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(_PAGE.format(title=_esc(title), body=body), encoding="utf-8")
-    return out
+    return atomic_write_text(out_path, _PAGE.format(title=_esc(title), body=body))
 
 
 def render_comparison_report(
@@ -170,6 +169,7 @@ def render_comparison_report(
 ) -> Path:
     """Render a baseline-vs-candidate regression report page."""
     verdict = comparison["summary"]["verdict"]
+    warnings = "".join(f"<br><b>Warning</b>: {_esc(w)}" for w in comparison.get("warnings", []))
     body = f"""
 <h1>AIRE comparison: {_esc(title)}</h1>
 <div class="summary">
@@ -178,6 +178,7 @@ def render_comparison_report(
   regressed: {_fmt(comparison["summary"]["n_regressed"])} -
   neutral: {_fmt(comparison["summary"]["n_neutral"])}<br>
   <b>Failure count deltas</b>: {_esc(comparison.get("failure_count_deltas") or "none")}
+  {warnings}
 </div>
 <h2>Metric comparison</h2>
 {_metric_table(comparison.get("metrics", []))}
@@ -186,7 +187,4 @@ def render_comparison_report(
 <h2>Candidate cases</h2>
 {_case_table(eval_results_candidate.get("per_case", []), include_answer=False)}
 """
-    out = Path(out_path)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(_PAGE.format(title=_esc(title), body=body), encoding="utf-8")
-    return out
+    return atomic_write_text(out_path, _PAGE.format(title=_esc(title), body=body))
