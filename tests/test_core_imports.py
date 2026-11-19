@@ -21,6 +21,8 @@ CORE_MODULES = [
     "aire.evaluator.engine",
     "aire.regression.gate",
     "aire.report",
+    "aire.telemetry.genai",
+    "aire.telemetry.otlp_json",
 ]
 THIRD_PARTY = ["openai", "anthropic", "google", "opentelemetry", "httpx2", "httpx", "pydantic"]
 
