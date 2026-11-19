@@ -16,6 +16,15 @@ Comparison rules:
 - A mean over a different number of cases is flagged (n_mismatch).
 - Token and cost means measured from different token sources (an API count
   against a character heuristic) get the verdict "not comparable".
+
+Statistics (ADR 0004). Cases are paired by id. A change beyond the tolerance
+only counts when a paired test supports it at alpha: McNemar's exact test
+when the metric is 0 or 1 on every paired case, a seeded paired bootstrap of
+the mean difference otherwise. A change beyond tolerance without that
+support is "inconclusive". Rows with fewer than StatsConfig.min_pairs paired
+values keep the tolerance rule alone (test "point"), because resampling a
+handful of values gives no usable interval. Holm-adjusted p-values over the
+gated rows are reported next to the raw ones; the verdict uses the raw p.
 """
 
 from __future__ import annotations
@@ -24,9 +33,10 @@ import json
 from collections.abc import Collection
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, TypeGuard
+from typing import Any, Literal, TypeGuard
 
 from ..evaluator.metrics import metric_info
+from ..evaluator.stats import holm_adjust, mcnemar_exact, paired_bootstrap
 from ..tracing.storage import atomic_write_text
 
 _TOKEN_METRICS = frozenset({"total_tokens", "cost_usd"})
@@ -53,6 +63,17 @@ class RegressionThresholds:
 
     def for_metric(self, metric: str) -> float:
         return self.overrides.get(metric, self.default)
+
+
+@dataclass(frozen=True)
+class StatsConfig:
+    """How compare_runs decides significance; method "point" turns statistics off."""
+
+    method: Literal["paired", "point"] = "paired"
+    alpha: float = 0.05
+    n_resamples: int = 2000
+    seed: int = 0
+    min_pairs: int = 10
 
 
 def _load_json(path: Path) -> Any:
@@ -144,12 +165,60 @@ def _check_same_dataset(
         )
 
 
+def _case_value(row: dict[str, Any], metric: str) -> float | None:
+    if metric == "success_rate":
+        return None if "failure" not in row else float(row["failure"] is None)
+    value = row.get(metric)
+    return float(value) if _is_number(value) else None
+
+
+def _pairs(
+    metric: str,
+    base_by_case: dict[str, dict[str, Any]],
+    cand_by_case: dict[str, dict[str, Any]],
+) -> tuple[list[float], list[float]]:
+    base, cand = [], []
+    for case_id in sorted(base_by_case.keys() & cand_by_case.keys()):
+        bv = _case_value(base_by_case[case_id], metric)
+        cv = _case_value(cand_by_case[case_id], metric)
+        if bv is not None and cv is not None:
+            base.append(bv)
+            cand.append(cv)
+    return base, cand
+
+
+def _paired_test(base: list[float], cand: list[float], stats: StatsConfig) -> dict[str, Any]:
+    """Paired delta, interval, p-value and the name of the test used."""
+    bootstrap = paired_bootstrap(
+        base,
+        cand,
+        confidence=1.0 - stats.alpha,
+        n_resamples=stats.n_resamples,
+        seed=stats.seed,
+    )
+    result: dict[str, Any] = {
+        "test": "paired_bootstrap",
+        "paired_delta": round(bootstrap.delta, 6),
+        "ci_low": round(bootstrap.ci_low, 6),
+        "ci_high": round(bootstrap.ci_high, 6),
+        "p_value": round(bootstrap.p_value, 6),
+    }
+    if all(v in (0.0, 1.0) for v in base + cand):
+        only_base = sum(1 for b, c in zip(base, cand, strict=True) if b > c)
+        only_cand = sum(1 for b, c in zip(base, cand, strict=True) if c > b)
+        result["test"] = "mcnemar_exact"
+        result["p_value"] = round(mcnemar_exact(only_base, only_cand), 6)
+        result["discordant"] = {"baseline_only": only_base, "candidate_only": only_cand}
+    return result
+
+
 def compare_runs(
     baseline_dir: str | Path,
     candidate_dir: str | Path,
     thresholds: RegressionThresholds | None = None,
     labels: tuple[str, str] = ("baseline", "candidate"),
     ignore: Collection[str] = (),
+    stats: StatsConfig | None = None,
 ) -> dict[str, Any]:
     """Compare two evaluated runs; produce a regression report dict.
 
@@ -160,6 +229,7 @@ def compare_runs(
     Raises RunMismatchError when the runs are not over the same dataset.
     """
     thresholds = thresholds or RegressionThresholds()
+    stats = stats or StatsConfig()
     base = _load_eval_results(baseline_dir)
     cand = _load_eval_results(candidate_dir)
     warnings: list[str] = []
@@ -204,6 +274,7 @@ def compare_runs(
                 row["note"] = "token counts come from different sources"
             else:
                 row["verdict"] = _verdict(_change(bv, cv, bounded), direction, threshold)
+                _apply_statistics(row, metric, base_by_case, cand_by_case, direction, stats)
         elif _is_number(bv):
             row["verdict"] = "regressed"
             row["note"] = "missing in candidate"
@@ -224,11 +295,18 @@ def compare_runs(
                     f"{metric}: baseline averages {nb} case(s), candidate {nc}; "
                     "the means cover different cases"
                 )
-        if row["verdict"] == "regressed":
+        if row["verdict"] == "regressed" or row.get("direction_of_change") == "worse":
             row["attribution"] = _attribute_regressions(
                 metric, base_by_case, cand_by_case, direction, bounded, threshold
             )
         metric_rows.append(row)
+
+    tested = [row for row in metric_rows if row["gated"] and row.get("p_value") is not None]
+    for row, p_holm in zip(tested, holm_adjust([r["p_value"] for r in tested]), strict=True):
+        row["p_holm"] = round(p_holm, 6)
+    for row in metric_rows:
+        row.setdefault("p_value", None)
+        row.setdefault("p_holm", None)
 
     gated = [row["verdict"] for row in metric_rows if row["gated"]]
     summary = {
@@ -236,6 +314,7 @@ def compare_runs(
         "n_improved": gated.count("improved"),
         "n_regressed": gated.count("regressed"),
         "n_neutral": gated.count("neutral"),
+        "n_inconclusive": gated.count("inconclusive"),
         "n_not_comparable": gated.count("not comparable"),
         "n_new": gated.count("new"),
         "n_ignored": sum(1 for row in metric_rows if not row["gated"]),
@@ -252,10 +331,42 @@ def compare_runs(
     }
     return {
         "summary": summary,
+        "statistics": {
+            "method": stats.method,
+            "alpha": stats.alpha,
+            "n_resamples": stats.n_resamples,
+            "seed": stats.seed,
+            "min_pairs": stats.min_pairs,
+        },
         "metrics": metric_rows,
         "failure_count_deltas": failure_delta,
         "warnings": warnings,
     }
+
+
+def _apply_statistics(
+    row: dict[str, Any],
+    metric: str,
+    base_by_case: dict[str, dict[str, Any]],
+    cand_by_case: dict[str, dict[str, Any]],
+    direction: str,
+    stats: StatsConfig,
+) -> None:
+    """Add the paired test to a row; a change the test does not support becomes inconclusive."""
+    base, cand = _pairs(metric, base_by_case, cand_by_case)
+    row["n_pairs"] = len(base)
+    if stats.method == "point" or len(base) < stats.min_pairs:
+        row["test"] = "point"
+        return
+    row.update(_paired_test(base, cand, stats))
+    if row["verdict"] not in ("regressed", "improved"):
+        return
+    paired_better = (row["paired_delta"] > 0) == (direction == "higher")
+    agrees = row["paired_delta"] != 0 and paired_better == (row["verdict"] == "improved")
+    if row["p_value"] < stats.alpha and agrees:
+        return
+    row["direction_of_change"] = "better" if row["verdict"] == "improved" else "worse"
+    row["verdict"] = "inconclusive"
 
 
 def _attribute_regressions(

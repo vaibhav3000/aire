@@ -55,6 +55,7 @@ VOLATILE_KEYS = frozenset(
         "mean_latency_ms",
         "p50_latency_ms",
         "p95_latency_ms",
+        "ci95_latency_ms",
     }
 )
 COMPARISONS = (

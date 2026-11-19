@@ -24,7 +24,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from .compare import RegressionThresholds, compare_runs, write_regression_report
+from .compare import RegressionThresholds, StatsConfig, compare_runs, write_regression_report
 
 EXIT_PASS = 0
 EXIT_REGRESSED = 1
@@ -81,6 +81,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="report this metric but never fail on it (repeatable)",
     )
     parser.add_argument(
+        "--method",
+        choices=("paired", "point"),
+        default="paired",
+        help=(
+            "paired (default): a change beyond tolerance must also be significant in a "
+            "paired test over the cases; point: the tolerance alone (the Step 1 rule)"
+        ),
+    )
+    parser.add_argument(
+        "--alpha", type=float, default=0.05, help="significance level (default: 0.05)"
+    )
+    parser.add_argument(
+        "--fail-on-inconclusive",
+        action="store_true",
+        help="also fail when a drop beyond tolerance is not statistically significant",
+    )
+    parser.add_argument(
         "--report",
         type=Path,
         default=None,
@@ -94,6 +111,9 @@ def _num(value: Any, spec: str, width: int = 0) -> str:
     return ("-" if value is None else format(value, spec)).rjust(width)
 
 
+_TEST_LABELS = {"mcnemar_exact": "McNemar", "paired_bootstrap": "bootstrap", "point": "tolerance"}
+
+
 def _format_row(row: dict[str, Any]) -> str:
     rel = "n/a" if row.get("rel_delta") is None else f"{row['rel_delta']:+.1%}"
     verdict = row["verdict"]
@@ -101,9 +121,15 @@ def _format_row(row: dict[str, Any]) -> str:
         verdict += " (ignored)"
     if row.get("n_mismatch"):
         verdict += f" [n {row.get('n_baseline')} vs {row.get('n_candidate')}]"
+    if row.get("direction_of_change"):
+        verdict += f" ({row['direction_of_change']}, not significant)"
+    test = _TEST_LABELS.get(str(row.get("test")), "")
+    p_value = row.get("p_value")
+    evidence = f"{test} p={p_value:.3g}" if p_value is not None else test
     return (
         f"  {row['metric']:<24} {_num(row['baseline'], '.4g', 10)} "
-        f"{_num(row['candidate'], '.4g', 10)} {_num(row['delta'], '+.4g', 10)} {rel:>8}  {verdict}"
+        f"{_num(row['candidate'], '.4g', 10)} {_num(row['delta'], '+.4g', 10)} {rel:>8}  "
+        f"{evidence:<20} {verdict}"
     )
 
 
@@ -119,6 +145,7 @@ def run_gate(argv: Sequence[str] | None = None) -> int:
             thresholds=thresholds,
             labels=(str(args.baseline), str(args.candidate)),
             ignore=ignored,
+            stats=StatsConfig(method=args.method, alpha=args.alpha),
         )
     except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
         # Any of these means the inputs are unusable; exit 2, never 1.
@@ -129,10 +156,25 @@ def run_gate(argv: Sequence[str] | None = None) -> int:
         write_regression_report(comparison, args.report)
 
     rows = comparison["metrics"]
-    blocking = [r for r in rows if r["verdict"] == "regressed" and r["gated"]]
+    blocking = [
+        r
+        for r in rows
+        if r["gated"]
+        and (
+            r["verdict"] == "regressed"
+            or (
+                args.fail_on_inconclusive
+                and r["verdict"] == "inconclusive"
+                and r.get("direction_of_change") == "worse"
+            )
+        )
+    ]
 
     print(f"aire-gate: {args.baseline} -> {args.candidate}")
-    print(f"  {'metric':<24} {'baseline':>10} {'candidate':>10} {'delta':>10} {'rel':>8}  verdict")
+    print(
+        f"  {'metric':<24} {'baseline':>10} {'candidate':>10} {'delta':>10} {'rel':>8}  "
+        f"{'evidence':<20} verdict"
+    )
     for row in rows:
         print(_format_row(row))
     for warning in comparison.get("warnings", []):

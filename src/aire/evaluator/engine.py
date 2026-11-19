@@ -33,6 +33,7 @@ from . import metrics as M
 from . import retrieval_metrics as R
 from . import tool_metrics as T
 from . import trajectory as TJ
+from .stats import bootstrap_mean_ci
 
 # Pricing table (USD per 1k tokens). The demo uses heuristic tokens at $0.0/1k.
 DEFAULT_PRICES: dict[str, float] = {"default": 0.0}
@@ -125,6 +126,10 @@ class EngineConfig:
     # documents are compared at the same K.
     recall_ks: tuple[int, ...] = (1, 3)
     mrr_k: int = 3
+    # Percentile bootstrap for the 95% interval next to every mean; seeded so
+    # committed results are reproducible.
+    ci_resamples: int = 2000
+    ci_seed: int = 0
 
 
 def _is_number(value: Any) -> bool:
@@ -309,8 +314,19 @@ class EvaluationEngine:
             "engine_config": asdict(self.config),
         }
 
+    def _interval(self, values: list[float]) -> list[float]:
+        low, high = bootstrap_mean_ci(
+            values, n_resamples=self.config.ci_resamples, seed=self.config.ci_seed
+        )
+        assert low is not None and high is not None  # values is never empty here
+        return [round(low, 4), round(high, 4)]
+
+    def aggregate(self, per_case: list[dict[str, Any]]) -> dict[str, Any]:
+        """Aggregates for already scored rows (used when judges add metrics later)."""
+        return self._aggregate(per_case)
+
     def _aggregate(self, per_case: list[dict[str, Any]]) -> dict[str, Any]:
-        """Mean and n for every metric present in at least one case result."""
+        """Mean, n and a 95% bootstrap interval for every metric in at least one case."""
         keys: set[str] = set()
         for row in per_case:
             keys.update(k for k, v in row.items() if _is_number(v))
@@ -330,6 +346,7 @@ class EvaluationEngine:
                 continue
             aggregates[f"mean_{key}"] = round(statistics.fmean(values), 4)
             aggregates[f"n_{key}"] = len(values)
+            aggregates[f"ci95_{key}"] = self._interval(values)
 
         latencies = sorted(
             row["latency_ms"] for row in succeeded if _is_number(row.get("latency_ms"))
@@ -352,6 +369,10 @@ class EvaluationEngine:
         aggregates["n_cases"] = len(per_case)
         aggregates["n_success"] = n_success
         aggregates["success_rate"] = round(n_success / len(per_case), 4) if per_case else 0.0
+        if per_case:
+            aggregates["ci95_success_rate"] = self._interval(
+                [float(not row.get("failure")) for row in per_case]
+            )
         return aggregates
 
 
