@@ -138,3 +138,14 @@ def test_candidate_whose_unanswerable_cases_crash_is_blocked(tmp_path: Path) -> 
     data = json.loads(report.read_text(encoding="utf-8"))
     regressed = {row["metric"] for row in data["metrics"] if row["verdict"] == "regressed"}
     assert {"abstention_correct", "errors", "success_rate"} <= regressed
+
+
+def test_gate_blocks_the_seeded_agent_trajectory_defects(tmp_path: Path) -> None:
+    report = tmp_path / "gate.json"
+    base = str(ROOT / "results" / "agent_baseline")
+    cand = str(ROOT / "results" / "agent_regressed")
+    assert run_gate([base, cand, "--report", str(report)]) == EXIT_REGRESSED
+    data = json.loads(report.read_text(encoding="utf-8"))
+    regressed = {row["metric"] for row in data["metrics"] if row["verdict"] == "regressed"}
+    assert {"tool_args_schema_valid", "tool_selection_accuracy"} <= regressed
+    assert run_gate([base, base]) == EXIT_PASS

@@ -10,6 +10,9 @@ Produces:
     results/<cand>_vs_<base>.json      regression comparisons
     reports/<cand>_vs_<base>.html      the same comparisons as static HTML
     results/retrieval_ablation.json    overlap vs idf retrieval at K=1 and K=3
+    results/agent_baseline/            four real repo-engineer trajectories, scored
+    results/agent_regressed/           the same with one seeded defect each
+    results/agent_regressed_vs_agent_baseline.json   their comparison
 
 The committed copies under results/ are replaced only when something other
 than timing changed (ids, timestamps and latencies differ on every run), so
@@ -29,6 +32,7 @@ import statistics
 from pathlib import Path
 from typing import Any
 
+from aire.agents.ingest import load_repo_engineer_traces
 from aire.evaluator import retrieval_metrics as R
 from aire.evaluator.engine import EvaluationEngine, write_eval_results
 from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever
@@ -36,7 +40,7 @@ from aire.regression import RegressionThresholds, compare_runs, write_regression
 from aire.report import render_comparison_report
 from aire.runner import ExperimentRunner, RunnerConfig
 from aire.runner.dataset import EvalCase, load_eval_dataset
-from aire.tracing.storage import atomic_write_text, load_run_traces
+from aire.tracing.storage import RunStore, atomic_write_text, load_run_traces
 
 ROOT = Path(__file__).resolve().parents[1]
 RUN_FILES = ("manifest.json", "traces.jsonl", "eval_results.json")
@@ -156,6 +160,34 @@ def retrieval_ablation(corpus: dict[str, str], cases: list[EvalCase]) -> dict[st
     }
 
 
+AGENT_DIR = ROOT / "demo" / "agent"
+AGENT_RUNS = {"agent_baseline": AGENT_DIR / "traces", "agent_regressed": AGENT_DIR / "variants"}
+
+
+def evaluate_agent_run(name: str, source: Path, runs_root: Path) -> Path:
+    """Ingest repo-engineer trajectories into a run directory and score them."""
+    dataset = AGENT_DIR / "cases.jsonl"
+    cases = load_eval_dataset(dataset)
+    traces = load_repo_engineer_traces(source, run_id=name)
+    store = RunStore(runs_root, name, name)
+    store.write_manifest(
+        created_at=0.0,
+        system_config={
+            "source": "repo-engineer",
+            "trajectories": source.relative_to(ROOT).as_posix(),
+        },
+        dataset_path=dataset,
+        n_cases=len(cases),
+        path_root=ROOT,
+    )
+    for trace in traces:
+        store.append_trace(trace)
+    schemas = json.loads((AGENT_DIR / "tool_schemas.json").read_text(encoding="utf-8"))
+    results = EvaluationEngine(tool_schemas=schemas).evaluate_run(traces, cases)
+    write_eval_results(store.run_dir, results)
+    return store.run_dir
+
+
 def main() -> None:
     dataset = ROOT / "demo" / "eval_set.jsonl"
     corpus_dir = ROOT / "demo" / "corpus"
@@ -210,6 +242,25 @@ def main() -> None:
             f"(latency reported, not counted)",
             flush=True,
         )
+
+    for name, source in AGENT_RUNS.items():
+        replaced = publish_run(evaluate_agent_run(name, source, runs_root), results_dir / name)
+        status = "updated results/" if replaced else "unchanged apart from timing:"
+        print(f"{name}: {status} {name}", flush=True)
+    agent = compare_runs(
+        results_dir / "agent_baseline",
+        results_dir / "agent_regressed",
+        thresholds=RegressionThresholds(default=0.02),
+        labels=("agent_baseline", "agent_regressed"),
+    )
+    write_regression_report(agent, results_dir / "agent_regressed_vs_agent_baseline.json")
+    summary = agent["summary"]
+    print(
+        f"[agent_regressed_vs_agent_baseline] {summary['verdict']}: "
+        f"improved={summary['n_improved']} regressed={summary['n_regressed']} "
+        f"neutral={summary['n_neutral']}",
+        flush=True,
+    )
 
     ablation = retrieval_ablation(corpus, load_eval_dataset(dataset))
     atomic_write_text(results_dir / "retrieval_ablation.json", json.dumps(ablation, indent=2))

@@ -1,0 +1,52 @@
+{
+  "list_tree": {
+    "type": "object",
+    "properties": {"max_depth": {"type": "integer", "minimum": 1, "maximum": 6}},
+    "additionalProperties": false
+  },
+  "search": {
+    "type": "object",
+    "properties": {
+      "pattern": {"type": "string", "maxLength": 512},
+      "glob": {"type": "string"}
+    },
+    "required": ["pattern"],
+    "additionalProperties": false
+  },
+  "read_file": {
+    "type": "object",
+    "properties": {
+      "path": {"type": "string"},
+      "start_line": {"type": "integer", "minimum": 1, "maximum": 10000000},
+      "end_line": {"type": "integer", "minimum": 1, "maximum": 10000000}
+    },
+    "required": ["path"],
+    "additionalProperties": false
+  },
+  "apply_edit": {
+    "type": "object",
+    "properties": {
+      "path": {"type": "string"},
+      "old_text": {"type": "string", "maxLength": 1000000},
+      "new_text": {"type": "string", "maxLength": 1000000}
+    },
+    "required": ["path", "old_text", "new_text"],
+    "additionalProperties": false
+  },
+  "write_file": {
+    "type": "object",
+    "properties": {
+      "path": {"type": "string"},
+      "content": {"type": "string", "maxLength": 1000000}
+    },
+    "required": ["path", "content"],
+    "additionalProperties": false
+  },
+  "git_diff": {"type": "object", "properties": {}, "additionalProperties": false},
+  "run_tests": {
+    "type": "object",
+    "properties": {"cmd": {"type": "string", "maxLength": 2000}},
+    "required": ["cmd"],
+    "additionalProperties": false
+  }
+}

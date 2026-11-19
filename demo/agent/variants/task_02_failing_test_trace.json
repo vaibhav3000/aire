@@ -1,0 +1,143 @@
+{
+ "task_id": "task_02_failing_test",
+ "task_description": "tests/test_invoice.py fails: the tax rate constant is wrong. Make the suite green.",
+ "workspace": "task_02_failing_test_1",
+ "state": "COMPLETE",
+ "actions": [
+  {
+   "step": "analyze",
+   "tool": "list_tree"
+  },
+  {
+   "step": 1,
+   "tool": "run_tests",
+   "args": {
+    "cmd": "python -m pytest tests/ -q"
+   }
+  },
+  {
+   "step": 2,
+   "tool": "search",
+   "args": {
+    "pattern": "TAX_RATE"
+   }
+  },
+  {
+   "step": 2,
+   "tool": "search",
+   "args": {
+    "pattern": "TAX_RATE"
+   }
+  },
+  {
+   "step": 3,
+   "tool": "apply_edit",
+   "args": {
+    "path": "billing/invoice.py",
+    "old_text": "TAX_RATE = 0.20",
+    "new_text": "TAX_RATE = 0.25"
+   }
+  },
+  {
+   "step": 4,
+   "tool": "run_tests",
+   "args": {
+    "cmd": "python -m pytest tests/ -q"
+   }
+  },
+  {
+   "step": "verify",
+   "tool": "run_tests",
+   "args": {
+    "cmd": "python -m pytest tests/ -q"
+   }
+  }
+ ],
+ "observations": [
+  {
+   "tool": "list_tree",
+   "ok": true
+  },
+  {
+   "tool": "run_tests",
+   "ok": true,
+   "rejected": false,
+   "error": null,
+   "exit_code": 1,
+   "output_excerpt": "exit=1\nF                                                                        [100%]\n=== FAILURES ===\n___ test_total_applies_correct_tax ___\n\n    def test_total_applies_correct_tax():\n        # Business tax rate is 25%.\n>       assert total_with_tax(100.0) == 125.0\nE       assert 120.0 == 125.0\nE        +  where 120.0 = total_with_tax(100.0)\n\ntests/test_invoice.py:6: AssertionError\n=== short test summary info ===\nFAILED tests/test_invoice.py::test_total_applies_correct_tax - assert 120.0 =...\n1 failed in <duration>\n"
+  },
+  {
+   "tool": "search",
+   "ok": true,
+   "rejected": false,
+   "error": null,
+   "exit_code": null,
+   "output_excerpt": "billing/invoice.py:3:TAX_RATE = 0.20\nbilling/invoice.py:7:return round(amount * (1 + TAX_RATE), 2)"
+  },
+  {
+   "tool": "search",
+   "ok": true,
+   "rejected": false,
+   "error": null,
+   "exit_code": null,
+   "output_excerpt": "billing/invoice.py:3:TAX_RATE = 0.20\nbilling/invoice.py:7:return round(amount * (1 + TAX_RATE), 2)"
+  },
+  {
+   "tool": "apply_edit",
+   "ok": true,
+   "rejected": false,
+   "error": null,
+   "exit_code": null,
+   "output_excerpt": "edited billing/invoice.py: 1 replacement"
+  },
+  {
+   "tool": "run_tests",
+   "ok": true,
+   "rejected": false,
+   "error": null,
+   "exit_code": 0,
+   "output_excerpt": "exit=0\n.                                                                        [100%]\n1 passed in <duration>\n"
+  },
+  {
+   "tool": "run_tests",
+   "ok": true,
+   "rejected": false,
+   "error": null,
+   "exit_code": 0,
+   "output_excerpt": "exit=0\n.                                                                        [100%]\n1 passed in <duration>\n"
+  }
+ ],
+ "test_results": [
+  {
+   "passed": false,
+   "exit_ok": true,
+   "exit_code": 1
+  },
+  {
+   "passed": true,
+   "exit_ok": true,
+   "exit_code": 0
+  },
+  {
+   "verify": true,
+   "passed": true,
+   "exit_code": 0,
+   "restored": [],
+   "mutants_total": 0,
+   "mutants_killed": 0,
+   "neutral_edits_total": 0,
+   "neutral_edits_passed": 0
+  }
+ ],
+ "errors": [],
+ "hypothesis": "workspace has 6 entries",
+ "files_changed": [
+  "billing/invoice.py"
+ ],
+ "steps_used": 5,
+ "replans": 1,
+ "planner_errors": 0,
+ "verified": true,
+ "llm_usage": null,
+ "synthetic_mutation": "the same search issued twice in a row"
+}
