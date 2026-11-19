@@ -7,10 +7,18 @@
     "n_improved": 0,
     "n_regressed": 4,
     "n_neutral": 6,
+    "n_inconclusive": 0,
     "n_not_comparable": 0,
     "n_new": 0,
     "n_ignored": 0,
     "verdict": "regressions detected"
+  },
+  "statistics": {
+    "method": "paired",
+    "alpha": 0.05,
+    "n_resamples": 2000,
+    "seed": 0,
+    "min_pairs": 10
   },
   "metrics": [
     {
@@ -24,8 +32,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "errors",
@@ -38,8 +50,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "false_refusal",
@@ -52,8 +68,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "n_steps",
@@ -66,8 +86,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "step_efficiency",
@@ -80,8 +104,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "tool_args_schema_valid",
@@ -94,6 +122,8 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
       "n_candidate": 4,
       "attribution": [
@@ -109,7 +139,9 @@
           "candidate": 0.875,
           "delta": -0.125
         }
-      ]
+      ],
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "tool_args_valid",
@@ -122,8 +154,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "tool_call_precision",
@@ -136,6 +172,8 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
       "n_candidate": 4,
       "attribution": [
@@ -151,7 +189,9 @@
           "candidate": 0.8,
           "delta": -0.0333
         }
-      ]
+      ],
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "tool_selection_accuracy",
@@ -164,6 +204,8 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
       "n_candidate": 4,
       "attribution": [
@@ -173,7 +215,9 @@
           "candidate": 0.8,
           "delta": -0.2
         }
-      ]
+      ],
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "success_rate",
@@ -186,9 +230,13 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
       "n_candidate": 4,
-      "attribution": []
+      "attribution": [],
+      "p_value": null,
+      "p_holm": null
     }
   ],
   "failure_count_deltas": {

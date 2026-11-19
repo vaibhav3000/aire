@@ -4,13 +4,21 @@
       "baseline": "v1_baseline",
       "candidate": "v3_fluent_regression"
     },
-    "n_improved": 3,
+    "n_improved": 2,
     "n_regressed": 4,
     "n_neutral": 7,
+    "n_inconclusive": 1,
     "n_not_comparable": 0,
     "n_new": 0,
     "n_ignored": 1,
     "verdict": "regressions detected"
+  },
+  "statistics": {
+    "method": "paired",
+    "alpha": 0.05,
+    "n_resamples": 2000,
+    "seed": 0,
+    "min_pairs": 10
   },
   "metrics": [
     {
@@ -24,8 +32,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "abstention_correct",
@@ -38,8 +57,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "citation_precision",
@@ -189,7 +212,9 @@
           "candidate": null,
           "delta": null
         }
-      ]
+      ],
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "cost_usd",
@@ -202,8 +227,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "errors",
@@ -216,8 +252,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "false_refusal",
@@ -230,8 +277,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "gold_citation_recall",
@@ -244,6 +302,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": -0.727273,
+      "ci_low": -0.886364,
+      "ci_high": -0.545455,
+      "p_value": 0.0,
       "n_baseline": 22,
       "n_candidate": 22,
       "attribution": [
@@ -349,7 +413,8 @@
           "candidate": 0.0,
           "delta": -0.5
         }
-      ]
+      ],
+      "p_holm": 0.0
     },
     {
       "metric": "groundedness",
@@ -362,6 +427,16 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 22,
+      "test": "mcnemar_exact",
+      "paired_delta": -1.0,
+      "ci_low": -1.0,
+      "ci_high": -1.0,
+      "p_value": 0.0,
+      "discordant": {
+        "baseline_only": 22,
+        "candidate_only": 0
+      },
       "n_baseline": 22,
       "n_candidate": 22,
       "attribution": [
@@ -497,7 +572,8 @@
           "candidate": 0.0,
           "delta": -1.0
         }
-      ]
+      ],
+      "p_holm": 0.0
     },
     {
       "metric": "keyword_recall",
@@ -510,22 +586,36 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "latency_ms",
       "direction": "lower",
       "tolerance": "relative",
-      "baseline": 0.3719,
-      "candidate": 0.3519,
-      "delta": -0.02,
-      "rel_delta": -0.0538,
+      "baseline": 0.3558,
+      "candidate": 0.2835,
+      "delta": -0.0723,
+      "rel_delta": -0.2032,
       "threshold": 0.02,
       "gated": false,
       "verdict": "improved",
+      "n_pairs": 26,
+      "test": "paired_bootstrap",
+      "paired_delta": -0.072308,
+      "ci_low": -0.116154,
+      "ci_high": -0.036923,
+      "p_value": 0.0,
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": null
     },
     {
       "metric": "retrieval_mrr_at_3",
@@ -537,9 +627,17 @@
       "rel_delta": 0.0784,
       "threshold": 0.02,
       "gated": true,
-      "verdict": "improved",
+      "verdict": "inconclusive",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.060605,
+      "ci_low": 0.0,
+      "ci_high": 0.136359,
+      "p_value": 0.08,
+      "direction_of_change": "better",
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 0.56
     },
     {
       "metric": "retrieval_recall_at_1",
@@ -552,8 +650,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "retrieval_recall_at_3",
@@ -566,8 +671,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "improved",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.181818,
+      "ci_low": 0.045455,
+      "ci_high": 0.340909,
+      "p_value": 0.008,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 0.064
     },
     {
       "metric": "total_tokens",
@@ -580,8 +692,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "improved",
+      "n_pairs": 26,
+      "test": "paired_bootstrap",
+      "paired_delta": -8.846154,
+      "ci_low": -10.269231,
+      "ci_high": -7.192308,
+      "p_value": 0.0,
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 0.0
     },
     {
       "metric": "success_rate",
@@ -594,9 +713,20 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "regressed",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": -0.461538,
+      "ci_low": -0.653846,
+      "ci_high": -0.269231,
+      "p_value": 0.000488,
+      "discordant": {
+        "baseline_only": 12,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
       "n_candidate": 26,
-      "attribution": []
+      "attribution": [],
+      "p_holm": 0.004392
     }
   ],
   "failure_count_deltas": {

@@ -1,7 +1,7 @@
 {
-  "run_id": "run_7a755151",
+  "run_id": "run_19329ac2",
   "name": "v1_baseline",
-  "created_at": 1795101494.1784618,
+  "created_at": 1795103053.5883377,
   "system_config": {
     "top_k": 1,
     "min_score": 0.05,

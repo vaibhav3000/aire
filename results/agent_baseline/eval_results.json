@@ -88,27 +88,67 @@
   "aggregates": {
     "mean_abstention_accuracy": 1.0,
     "n_abstention_accuracy": 4,
+    "ci95_abstention_accuracy": [
+      1.0,
+      1.0
+    ],
     "mean_errors": 0.0,
     "n_errors": 4,
+    "ci95_errors": [
+      0.0,
+      0.0
+    ],
     "mean_false_refusal": 0.0,
     "n_false_refusal": 4,
+    "ci95_false_refusal": [
+      0.0,
+      0.0
+    ],
     "mean_n_steps": 6.5,
     "n_n_steps": 4,
+    "ci95_n_steps": [
+      6.0,
+      7.5
+    ],
     "mean_step_efficiency": 0.8854,
     "n_step_efficiency": 4,
+    "ci95_step_efficiency": [
+      0.8333,
+      0.9688
+    ],
     "mean_tool_args_schema_valid": 1.0,
     "n_tool_args_schema_valid": 4,
+    "ci95_tool_args_schema_valid": [
+      1.0,
+      1.0
+    ],
     "mean_tool_args_valid": 1.0,
     "n_tool_args_valid": 4,
+    "ci95_tool_args_valid": [
+      1.0,
+      1.0
+    ],
     "mean_tool_call_precision": 0.8854,
     "n_tool_call_precision": 4,
+    "ci95_tool_call_precision": [
+      0.8333,
+      0.9688
+    ],
     "mean_tool_selection_accuracy": 1.0,
     "n_tool_selection_accuracy": 4,
+    "ci95_tool_selection_accuracy": [
+      1.0,
+      1.0
+    ],
     "token_sources": [],
     "failure_counts": {},
     "n_cases": 4,
     "n_success": 4,
-    "success_rate": 1.0
+    "success_rate": 1.0,
+    "ci95_success_rate": [
+      1.0,
+      1.0
+    ]
   },
   "missing_traces": [],
   "engine_config": {
@@ -120,6 +160,8 @@
       1,
       3
     ],
-    "mrr_k": 3
+    "mrr_k": 3,
+    "ci_resamples": 2000,
+    "ci_seed": 0
   }
 }

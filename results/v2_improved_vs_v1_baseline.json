@@ -4,13 +4,21 @@
       "baseline": "v1_baseline",
       "candidate": "v2_improved"
     },
-    "n_improved": 3,
+    "n_improved": 1,
     "n_regressed": 0,
     "n_neutral": 11,
+    "n_inconclusive": 2,
     "n_not_comparable": 0,
     "n_new": 0,
     "n_ignored": 1,
     "verdict": "no regressions detected"
+  },
+  "statistics": {
+    "method": "paired",
+    "alpha": 0.05,
+    "n_resamples": 2000,
+    "seed": 0,
+    "min_pairs": 10
   },
   "metrics": [
     {
@@ -24,8 +32,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "abstention_correct",
@@ -38,8 +57,12 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
       "n_baseline": 4,
-      "n_candidate": 4
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
     },
     {
       "metric": "citation_precision",
@@ -52,8 +75,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "cost_usd",
@@ -66,8 +100,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "errors",
@@ -80,8 +125,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "false_refusal",
@@ -94,8 +150,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "gold_citation_recall",
@@ -108,8 +175,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "groundedness",
@@ -122,8 +196,19 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 0
+      },
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "keyword_recall",
@@ -136,22 +221,37 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "latency_ms",
       "direction": "lower",
       "tolerance": "relative",
-      "baseline": 0.3719,
-      "candidate": 0.3246,
-      "delta": -0.0473,
-      "rel_delta": -0.1272,
+      "baseline": 0.3558,
+      "candidate": 0.2954,
+      "delta": -0.0604,
+      "rel_delta": -0.1698,
       "threshold": 0.02,
       "gated": false,
-      "verdict": "improved",
+      "verdict": "inconclusive",
+      "n_pairs": 26,
+      "test": "paired_bootstrap",
+      "paired_delta": -0.060385,
+      "ci_low": -0.117692,
+      "ci_high": 0.000769,
+      "p_value": 0.052,
+      "direction_of_change": "better",
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": null
     },
     {
       "metric": "retrieval_mrr_at_3",
@@ -163,9 +263,17 @@
       "rel_delta": 0.0784,
       "threshold": 0.02,
       "gated": true,
-      "verdict": "improved",
+      "verdict": "inconclusive",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.060605,
+      "ci_low": 0.0,
+      "ci_high": 0.136359,
+      "p_value": 0.08,
+      "direction_of_change": "better",
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 0.96
     },
     {
       "metric": "retrieval_recall_at_1",
@@ -178,8 +286,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.0,
+      "ci_low": 0.0,
+      "ci_high": 0.0,
+      "p_value": 1.0,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 1.0
     },
     {
       "metric": "retrieval_recall_at_3",
@@ -192,8 +307,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "improved",
+      "n_pairs": 22,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.181818,
+      "ci_low": 0.045455,
+      "ci_high": 0.340909,
+      "p_value": 0.008,
       "n_baseline": 22,
-      "n_candidate": 22
+      "n_candidate": 22,
+      "p_holm": 0.104
     },
     {
       "metric": "total_tokens",
@@ -206,8 +328,15 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
+      "n_pairs": 26,
+      "test": "paired_bootstrap",
+      "paired_delta": 0.576923,
+      "ci_low": 0.0,
+      "ci_high": 1.538462,
+      "p_value": 0.268,
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     },
     {
       "metric": "success_rate",
@@ -219,9 +348,21 @@
       "rel_delta": 0.0834,
       "threshold": 0.02,
       "gated": true,
-      "verdict": "improved",
+      "verdict": "inconclusive",
+      "n_pairs": 26,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.038462,
+      "ci_low": 0.0,
+      "ci_high": 0.115385,
+      "p_value": 1.0,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 1
+      },
+      "direction_of_change": "better",
       "n_baseline": 26,
-      "n_candidate": 26
+      "n_candidate": 26,
+      "p_holm": 1.0
     }
   ],
   "failure_count_deltas": {
