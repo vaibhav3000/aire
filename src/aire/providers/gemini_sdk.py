@@ -4,8 +4,10 @@ Install with `pip install aire[gemini]`. Notes for this SDK version:
 
 - The client is built without retry_options, which in google-genai means one
   attempt and no SDK retries; ModelClient retries (ADR 0001).
-- 3.x defaults to the v1 API. Some features exist only on v1beta; pass
-  api_version="v1beta" to use them.
+- 3.x defaults to the v1 API, but v1 rejects system instructions (HTTP 400,
+  "Developer instruction is not enabled for api version v1", observed live on
+  2026-11-20), so this adapter defaults to v1beta; pass api_version to
+  override it.
 - Structured output asks for application/json with response_json_schema;
   the SDK's own `parsed` is None on a mismatch without saying why, so aire
   validates the text itself.
@@ -35,7 +37,7 @@ class GeminiModel:
         client: Any | None = None,
         api_key_env: str = "GEMINI_API_KEY",
         timeout_s: float = 60.0,
-        api_version: str | None = None,
+        api_version: str | None = "v1beta",
     ) -> None:
         try:
             from google import genai

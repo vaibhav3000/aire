@@ -185,7 +185,8 @@ SDK's own retries off (ADR 0001).
 Provider facts that shape the adapters (from the November 2026 SDK notes):
 Anthropic 2.x removed `temperature` from `messages.create`, so that adapter
 omits it and records "provider default sampling" in the run config; google-genai
-3.x defaults to the `v1` API and accepts an `api_version` override; every SDK
+3.x defaults to the `v1` API, which rejects system instructions (found on the
+first live call), so the adapter defaults to `v1beta`; every SDK
 now uses httpx2, which HTTP-level mocking libraries do not intercept.
 
 Structured output is validated by aire itself against the request's JSON

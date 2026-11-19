@@ -421,3 +421,12 @@ def test_an_unexpected_exception_is_not_disguised() -> None:
     client, _ = _openai_client(KeyError("bug in our code"))
     with pytest.raises(KeyError):
         asyncio.run(OpenAIModel(client=client).complete(REQUEST))
+
+
+def test_gemini_defaults_to_the_v1beta_api(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Observed live on 2026-11-20: the v1 API answers system instructions with
+    # HTTP 400 "Developer instruction is not enabled for api version v1".
+    monkeypatch.setenv("AIRE_TEST_GEMINI_KEY", "dummy")
+    model = GeminiModel(api_key_env="AIRE_TEST_GEMINI_KEY")
+    assert model.http_options.api_version == "v1beta"
+    asyncio.run(model.aclose())
