@@ -21,17 +21,15 @@ from __future__ import annotations
 import json
 import os
 import random
-import re
 import time
 import urllib.error
 import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
-from email.message import Message
+
+from ..providers.errors import quota_exhausted, retry_after_seconds
 
 RETRYABLE_STATUSES = frozenset({408, 429, 500, 502, 503, 504})
-_RETRY_DELAY_RE = re.compile(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"')
-_DAILY_QUOTA_RE = re.compile(r'"quotaId"\s*:\s*"[^"]*PerDay', re.IGNORECASE)
 
 
 @dataclass
@@ -70,23 +68,6 @@ class _Retry(Exception):
         super().__init__(str(error))
         self.error = error
         self.wait_s = wait_s
-
-
-def _retry_after_seconds(headers: Message | None, body: str) -> float | None:
-    """Wait requested by the server: Retry-After (seconds) or Gemini's retryDelay."""
-    if headers is not None:
-        value = headers.get("Retry-After")
-        if value is not None:
-            try:
-                return max(0.0, float(value))
-            except ValueError:
-                pass  # an HTTP-date; fall through to the body and our own backoff
-    match = _RETRY_DELAY_RE.search(body)
-    return float(match.group(1)) if match else None
-
-
-def _quota_exhausted(body: str) -> bool:
-    return "insufficient_quota" in body or _DAILY_QUOTA_RE.search(body) is not None
 
 
 class OpenAICompatProvider:
@@ -152,9 +133,9 @@ class OpenAICompatProvider:
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", "replace")
             error = ProviderError(f"HTTP {exc.code}: {body[:300]}", status=exc.code)
-            if exc.code not in RETRYABLE_STATUSES or (exc.code == 429 and _quota_exhausted(body)):
+            if exc.code not in RETRYABLE_STATUSES or (exc.code == 429 and quota_exhausted(body)):
                 raise error from exc
-            raise _Retry(error, _retry_after_seconds(exc.headers, body)) from exc
+            raise _Retry(error, retry_after_seconds(exc.headers, body)) from exc
         except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
             raise _Retry(ProviderError(f"{type(exc).__name__}: {exc}")) from exc
         return self._parse(raw)
