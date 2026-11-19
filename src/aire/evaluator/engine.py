@@ -21,6 +21,7 @@ import json
 import math
 import re
 import statistics
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,7 @@ from ..tracing.storage import atomic_write_text
 from . import metrics as M
 from . import retrieval_metrics as R
 from . import tool_metrics as T
+from . import trajectory as TJ
 
 # Pricing table (USD per 1k tokens). The demo uses heuristic tokens at $0.0/1k.
 DEFAULT_PRICES: dict[str, float] = {"default": 0.0}
@@ -58,7 +60,7 @@ def _deepest_recall(case_result: dict[str, Any]) -> float | None:
 def _tool_failed(case_result: dict[str, Any]) -> bool:
     if case_result.get("tool_selection_correct") == 0.0:
         return True
-    for key in ("tool_args_match", "tool_args_valid"):
+    for key in ("tool_args_match", "tool_args_valid", "tool_args_schema_valid"):
         value = case_result.get(key)
         if isinstance(value, int | float) and value < 1.0:
             return True
@@ -145,9 +147,12 @@ class EvaluationEngine:
         self,
         corpus: dict[str, str] | None = None,
         config: EngineConfig | None = None,
+        tool_schemas: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> None:
         self.corpus = corpus or {}
         self.config = config or EngineConfig()
+        # JSON Schema per tool name, for tool_args_schema_valid.
+        self.tool_schemas = dict(tool_schemas or {})
 
     def evaluate_case(self, trace: Trace, case: EvalCase) -> dict[str, Any]:
         answer = trace.final_answer
@@ -223,6 +228,21 @@ class EvaluationEngine:
         if am is not None:
             result["tool_args_match"] = round(am, 4)
 
+        # --- trajectory (agent cases with a reference tool sequence) ---
+        if case.expected_tool_sequence:
+            names = [str(c.get("name")) for c in trace.tool_calls]
+            reference = case.expected_tool_sequence
+            result["tool_selection_accuracy"] = round(
+                TJ.tool_selection_accuracy(names, reference), 4
+            )
+            result["tool_call_precision"] = round(TJ.tool_call_precision(names, reference), 4)
+            result["step_efficiency"] = round(TJ.step_efficiency(names, reference), 4)
+            result["n_steps"] = len(names)
+        if self.tool_schemas and trace.tool_calls:
+            result["tool_args_schema_valid"] = round(
+                TJ.tool_args_schema_valid(trace.tool_calls, self.tool_schemas), 4
+            )
+
         # --- cost / latency ---
         # Root spans cover the whole case; child spans (model attempts,
         # retrieval) are already inside them. A response replayed from the
@@ -232,6 +252,8 @@ class EvaluationEngine:
         if cache_hit:
             result["cache_hit"] = True
             result["latency_ms"] = None
+        elif not roots:
+            result["latency_ms"] = None  # nothing was timed (e.g. an ingested agent log)
         else:
             result["latency_ms"] = round(sum(s.latency_ms for s in roots), 2)
         result["total_tokens"] = trace.usage.total_tokens

@@ -12,7 +12,7 @@ from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
-_LIST_FIELDS = ("expected_keywords", "supporting_doc_ids", "tags")
+_LIST_FIELDS = ("expected_keywords", "supporting_doc_ids", "tags", "expected_tool_sequence")
 _BOOL_FIELDS = ("expect_abstention", "must_cite")
 _OPTIONAL_STR_FIELDS = ("expected_answer", "expected_tool")
 
@@ -27,6 +27,9 @@ class EvalCase:
     supporting_doc_ids: list[str] = field(default_factory=list)  # retrieval ground truth
     expected_tool: str | None = None
     expected_tool_args: dict[str, Any] = field(default_factory=dict)
+    # Reference trajectory for agent cases: the tool names an expert would
+    # call, in order (evaluator.trajectory).
+    expected_tool_sequence: list[str] = field(default_factory=list)
     expect_abstention: bool = False  # true for unanswerable questions
     must_cite: bool = True  # answer must reference supporting docs
     tags: list[str] = field(default_factory=list)
