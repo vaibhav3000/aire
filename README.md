@@ -119,7 +119,7 @@ Regression verdicts. The gate pairs the two runs case by case and only calls a c
 - Its mean latency of 15.3 s per case included the client's own 5 s pacing and the retry sleeps on 429 responses, which now stay out of the timer.
 - Its token mean (605 per case) mixed API counts with character estimates for the failed calls, and the comparison set it against a character estimate of question and answer for the extractive system (83), which makes no LLM call. The two are not comparable, and the gate no longer issues a token verdict across different token sources.
 
-Comparable LLM numbers need a new run with the current script.
+Comparable LLM numbers need a new run with the current script. One was started on 2026-11-19 (gemini-2.5-flash, free tier) and stopped after 20 of 150 cases when the provider's daily quota ran out; its traces and an account of what happened are in [results/llm_gemini-2.5-flash/](results/llm_gemini-2.5-flash/NOTE.md). Twenty cases in dataset order are not a sample of the suite, so no comparison is drawn from it.
 
 ## Trace model and failure taxonomy
 

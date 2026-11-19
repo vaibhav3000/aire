@@ -85,7 +85,14 @@ llm = load(RESULTS / "llm_eval_results.json")
 # run committed on 2026-09-17 predates that, so it has none and cannot be
 # re-scored; the page labels it as such.
 LLM_RUN = RESULTS / "llm_gemini-2.5-flash"
-llm_traces = load_traces(LLM_RUN)
+# Traces belong to the results only when both come from the same run; the
+# partial live run of 2026-11-19 sits in LLM_RUN next to the historical
+# results, and its traces must not be attached to them.
+_manifest = LLM_RUN / "manifest.json"
+_run_generator = (
+    load(_manifest).get("system_config", {}).get("generator") if _manifest.exists() else None
+)
+llm_traces = load_traces(LLM_RUN) if _run_generator == llm.get("generator") else {}
 for row in llm.get("per_case", []):
     row["trace"] = llm_traces.get(row.get("case_id"), {})
     row["case"] = CASES.get(row.get("case_id"), {})
