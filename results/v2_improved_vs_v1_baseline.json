@@ -1,107 +1,232 @@
 {
   "summary": {
     "labels": {
-      "baseline": "baseline",
-      "candidate": "candidate"
+      "baseline": "v1_baseline",
+      "candidate": "v2_improved"
     },
-    "n_improved": 2,
+    "n_improved": 3,
     "n_regressed": 0,
-    "n_neutral": 7,
+    "n_neutral": 11,
+    "n_not_comparable": 0,
+    "n_new": 0,
+    "n_ignored": 1,
     "verdict": "no regressions detected"
   },
   "metrics": [
     {
-      "metric": "abstention_correct",
+      "metric": "abstention_accuracy",
       "direction": "higher",
-      "baseline": 0.0,
-      "candidate": 0.0,
+      "tolerance": "absolute",
+      "baseline": 0.8462,
+      "candidate": 0.8462,
       "delta": 0.0,
       "rel_delta": 0.0,
       "threshold": 0.02,
-      "verdict": "neutral"
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 26,
+      "n_candidate": 26
     },
     {
-      "metric": "citation_coverage",
+      "metric": "abstention_correct",
       "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": null,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 4,
+      "n_candidate": 4
+    },
+    {
+      "metric": "citation_precision",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 1.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 22,
+      "n_candidate": 22
+    },
+    {
+      "metric": "cost_usd",
+      "direction": "lower",
+      "tolerance": "relative",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": null,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 26,
+      "n_candidate": 26
+    },
+    {
+      "metric": "errors",
+      "direction": "lower",
+      "tolerance": "absolute",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": null,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 26,
+      "n_candidate": 26
+    },
+    {
+      "metric": "false_refusal",
+      "direction": "lower",
+      "tolerance": "absolute",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": null,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 22,
+      "n_candidate": 22
+    },
+    {
+      "metric": "gold_citation_recall",
+      "direction": "higher",
+      "tolerance": "absolute",
       "baseline": 0.7273,
       "candidate": 0.7273,
       "delta": 0.0,
       "rel_delta": 0.0,
       "threshold": 0.02,
-      "verdict": "neutral"
-    },
-    {
-      "metric": "cost_usd",
-      "direction": "lower",
-      "baseline": 0.0,
-      "candidate": 0.0,
-      "delta": 0.0,
-      "rel_delta": 0.0,
-      "threshold": 0.02,
-      "verdict": "neutral"
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 22,
+      "n_candidate": 22
     },
     {
       "metric": "groundedness",
       "direction": "higher",
-      "baseline": 0.5682,
-      "candidate": 0.5682,
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 1.0,
       "delta": 0.0,
       "rel_delta": 0.0,
       "threshold": 0.02,
-      "verdict": "neutral"
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 22,
+      "n_candidate": 22
     },
     {
       "metric": "keyword_recall",
       "direction": "higher",
+      "tolerance": "absolute",
       "baseline": 0.5758,
       "candidate": 0.5758,
       "delta": 0.0,
       "rel_delta": 0.0,
       "threshold": 0.02,
-      "verdict": "neutral"
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 22,
+      "n_candidate": 22
     },
     {
       "metric": "latency_ms",
       "direction": "lower",
-      "baseline": 0.215,
-      "candidate": 0.2227,
-      "delta": 0.0077,
-      "rel_delta": 0.0358,
-      "threshold": 0.1,
-      "verdict": "neutral"
+      "tolerance": "relative",
+      "baseline": 0.3223,
+      "candidate": 0.2958,
+      "delta": -0.0265,
+      "rel_delta": -0.0822,
+      "threshold": 0.02,
+      "gated": false,
+      "verdict": "improved",
+      "n_baseline": 26,
+      "n_candidate": 26
     },
     {
-      "metric": "retrieval_mrr",
+      "metric": "retrieval_mrr_at_3",
       "direction": "higher",
+      "tolerance": "absolute",
       "baseline": 0.7727,
       "candidate": 0.8333,
       "delta": 0.0606,
       "rel_delta": 0.0784,
       "threshold": 0.02,
-      "verdict": "improved"
+      "gated": true,
+      "verdict": "improved",
+      "n_baseline": 22,
+      "n_candidate": 22
     },
     {
-      "metric": "retrieval_recall",
+      "metric": "retrieval_recall_at_1",
       "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 0.7273,
+      "candidate": 0.7273,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 22,
+      "n_candidate": 22
+    },
+    {
+      "metric": "retrieval_recall_at_3",
+      "direction": "higher",
+      "tolerance": "absolute",
       "baseline": 0.7273,
       "candidate": 0.9091,
       "delta": 0.1818,
       "rel_delta": 0.25,
       "threshold": 0.02,
-      "verdict": "improved"
+      "gated": true,
+      "verdict": "improved",
+      "n_baseline": 22,
+      "n_candidate": 22
     },
     {
       "metric": "total_tokens",
       "direction": "lower",
-      "baseline": 82.5385,
-      "candidate": 83.1154,
+      "tolerance": "relative",
+      "baseline": 79.5,
+      "candidate": 80.0769,
       "delta": 0.5769,
-      "rel_delta": 0.007,
+      "rel_delta": 0.0073,
       "threshold": 0.02,
-      "verdict": "neutral"
+      "gated": true,
+      "verdict": "neutral",
+      "n_baseline": 26,
+      "n_candidate": 26
+    },
+    {
+      "metric": "success_rate",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 0.4615,
+      "candidate": 0.5,
+      "delta": 0.0385,
+      "rel_delta": 0.0834,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "improved",
+      "n_baseline": 26,
+      "n_candidate": 26
     }
   ],
   "failure_count_deltas": {
-    "retrieval_miss": -1
-  }
+    "incomplete_answer": 4,
+    "retrieval_miss": -5
+  },
+  "warnings": []
 }

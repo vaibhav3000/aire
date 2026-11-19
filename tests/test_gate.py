@@ -1,7 +1,8 @@
 """Tests for the CI regression gate (python -m aire.regression.gate).
 
-The fixtures are the committed, evaluated demo runs in results/: v2 improves
-retrieval and holds everything else; v3 drops citations (the seeded regression).
+The fixtures are the committed, evaluated demo runs in results/: v2 retrieves
+three documents instead of one and holds everything else; v3 drops citations
+(the seeded regression).
 """
 
 import json
@@ -33,20 +34,21 @@ def test_gate_blocks_the_seeded_grounding_regression(tmp_path: Path) -> None:
     assert code == EXIT_REGRESSED
     data = json.loads(report.read_text(encoding="utf-8"))
     regressed = {row["metric"] for row in data["metrics"] if row["verdict"] == "regressed"}
-    assert {"groundedness", "citation_coverage"} <= regressed
+    assert {"groundedness", "gold_citation_recall"} <= regressed
 
 
 def test_ignored_metrics_never_fail_the_gate() -> None:
-    args = [
-        V1,
-        V3,
-        "--ignore",
+    # Every metric v3 regresses on, ignored: the gate must pass.
+    ignored = [
         "groundedness",
-        "--ignore",
-        "citation_coverage",
-        "--ignore",
+        "gold_citation_recall",
+        "citation_precision",
+        "success_rate",
         "latency_ms",
     ]
+    args = [V1, V3]
+    for metric in ignored:
+        args += ["--ignore", metric]
     assert run_gate(args) == EXIT_PASS
 
 

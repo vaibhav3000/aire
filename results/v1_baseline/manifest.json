@@ -1,7 +1,7 @@
 {
-  "run_id": "run_4b4f7183",
+  "run_id": "run_0e2fe3c1",
   "name": "v1_baseline",
-  "created_at": 1789573263.5693307,
+  "created_at": 1795046301.8154309,
   "system_config": {
     "top_k": 1,
     "min_score": 0.05,
@@ -9,8 +9,10 @@
     "weighting": "overlap",
     "allow_irrelevant": false
   },
-  "dataset_path": "C:\\Users\\vaibhav mahore\\Downloads\\CV Update\\aire\\demo\\eval_set.jsonl",
+  "deterministic": true,
+  "dataset_path": "demo/eval_set.jsonl",
   "dataset_sha256": "3aeffeecdc1f79d4d68bb1db28a00ae453dabf310500d17a1c76184fd769ce89",
+  "corpus_sha256": "b9d837eda89b37b00250497dd4968676b20c3115a2c7be5ca91d6ae5f631685b",
   "n_cases": 26,
-  "schema_version": "1.0"
+  "schema_version": "1.1"
 }
