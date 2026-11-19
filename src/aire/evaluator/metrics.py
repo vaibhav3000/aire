@@ -232,6 +232,8 @@ def metric_spec() -> dict[str, dict[str, Any]]:
         "step_efficiency": {"direction": "higher", "kind": "tool", "bounded": True},
         "tool_args_schema_valid": {"direction": "higher", "kind": "tool", "bounded": True},
         "n_steps": {"direction": "lower", "kind": "tool", "bounded": False},
+        "judge_correct": {"direction": "higher", "kind": "judge", "bounded": True},
+        "judge_supported": {"direction": "higher", "kind": "judge", "bounded": True},
         "latency_ms": {"direction": "lower", "kind": "cost", "bounded": False},
         "cost_usd": {"direction": "lower", "kind": "cost", "bounded": False},
         "total_tokens": {"direction": "lower", "kind": "cost", "bounded": False},
