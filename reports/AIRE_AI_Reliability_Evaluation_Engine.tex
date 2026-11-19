@@ -1,6 +1,5 @@
 \documentclass[conference]{IEEEtran}
 \usepackage{amsmath,amssymb}
-\usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{url}
@@ -9,8 +8,14 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
 \usepackage{balance}
+\usepackage{etoolbox}
 
-\graphicspath{{figures/}}
+% IEEEtran separates the Abstract and Index Terms headings from their text
+% with an em dash; use a colon instead.
+\makeatletter
+\patchcmd{\abstract}{\textit{\abstractname}---}{\textit{\abstractname}:\ }{}{\errmessage{abstract heading patch failed}}
+\patchcmd{\IEEEkeywords}{\textit{\IEEEkeywordsname}---}{\textit{\IEEEkeywordsname}:\ }{}{\errmessage{keywords heading patch failed}}
+\makeatother
 
 \begin{document}
 
@@ -18,9 +23,7 @@
 \large Replayable Trace-Based Evaluation and Regression Testing for LLM and RAG Systems}
 
 \author{\IEEEauthorblockN{Vaibhav Mahore}
-\IEEEauthorblo\IEEEauthorblockA{\textit{Department: UG (Branch: Mathematics and Computing), Indian Institute of Science (IISc), Bengaluru}\\ckA{\textit{Department of Mathematics and Computing}\\
-\textit{Indian Institute of Science, Bangalore, India}\\
-mvaibhav@iisc.ac.in}}
+\IEEEauthorblockA{\textit{Undergraduate Programme, Mathematics and Computing}\\ \textit{Indian Institute of Science (IISc), Bengaluru, India}\\ mvaibhav@iisc.ac.in}}
 
 \maketitle
 
@@ -32,24 +35,25 @@ and model behavior drifts under the provider's control. This paper presents
 AIRE (AI Reliability \& Evaluation Engine), a system that separates system
 execution from system evaluation. A system under test (SUT) is invoked once
 per case; each invocation is recorded as a validated, schema-constrained
-trace (answer, retrieved documents, timed spans, token usage with explicit
-source labeling, errors). All downstream analysis (13 deterministic
-metrics, a first-match failure taxonomy, and a direction-aware regression
-engine with relative thresholds and per-case attribution) operates on the
-stored traces and never re-runs the system. We demonstrate the engine on a
-26-case retrieval-augmented-generation (RAG) suite over a 12-document
-corpus with three deterministic SUT versions, in which the engine catches an
-intentional ``fluent but uncited'' regression (lexical groundedness
-0.57 to 0.00, ungrounded failure count +22) while confirming retrieval
-improvements (recall 0.73 to 0.91), and on a live Gemini 2.5 Flash run of
-the same suite, which improves abstention (0.0 to 1.0) and groundedness (0.57
-to 1.0) at 15.3\,s per case and roughly 605 tokens per case. The live run
-also illustrates the engine's operational value: six provider rate-limit
-failures are recorded and classified rather than silently absorbed. AIRE's
+trace (answer, retrieved documents, one timed span per attempt, token usage
+with explicit source labeling, errors). All downstream analysis (17
+deterministic per-case metrics, a failure taxonomy checked in pipeline
+order, and a direction-aware regression gate with per-case attribution)
+operates on the stored traces and never re-runs the system. On a 26-case
+retrieval-augmented-generation (RAG) suite over a 12-document corpus with
+three deterministic SUT versions, the gate blocks an intentional ``fluent
+but uncited'' regression (lexical groundedness 1.00 to 0.00, gold citation
+recall 0.73 to 0.00, 20 cases newly ungrounded) and attributes a retrieval
+gain (recall@3 0.73 to 0.91) to retrieving three documents instead of one
+rather than to the retriever's weighting. The paper also reports what an
+audit of the evaluator found: a citation-segmentation bug that had scored
+verbatim quotes as half grounded, failed calls counted as correct
+abstentions, and a gate that ignored metrics missing from the candidate.
+These defects had shaped the headline numbers of an earlier live-LLM run,
+which is therefore reported as historical and not replayable. AIRE's
 groundedness metric is a lexical citation-overlap proxy, not semantic
 entailment, and its deterministic responder is a reproducible harness rather
-than a language model; both distinctions are stated and their consequences
-analyzed.
+than a language model.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -77,27 +81,27 @@ auditable (every score is traceable to a recorded answer and its evidence),
 and safe from silent re-execution, which would inject nondeterminism into
 the comparison itself.
 
-This paper's contributions are: (1) a trace schema and storage format with
-write-time validation (Section~III); (2) a metric suite of 13 deterministic
-measures spanning answer quality, citation behavior, retrieval, tool use,
-and operational cost (Section~IV); (3) a first-match failure taxonomy and a
-direction-aware regression engine with scale-free relative thresholds and
-per-case attribution (Section~V); (4) a controlled three-version RAG
-demonstration including an intentional quality regression that the engine
-detects, and a live evaluation of the same suite with a frontier LLM
-(Section~VI); and (5) an explicit account of the evaluator's own limits and
-of two reliability bugs the harness surfaced during development
-(Section~VII).
+This paper's contributions are: (1) a trace schema and crash-safe storage
+format with write-time validation (Section~III); (2) a suite of 17
+deterministic per-case metrics spanning answer quality, citation behavior,
+abstention, retrieval at fixed cut-offs, tool use, cost and reliability
+(Section~IV); (3) a failure taxonomy ordered by pipeline stage and a
+direction-aware regression gate that refuses incomparable runs and treats a
+vanished metric as a regression (Section~V); (4) a controlled three-version
+RAG demonstration with an intentional quality regression and a retrieval
+ablation (Section~VI); and (5) an account of the evaluator's own defects,
+how they distorted earlier results, and how they were fixed (Section~VII).
 
 \section{System Overview}
 AIRE's pipeline separates execution from evaluation (Fig.~\ref{fig:pipe}).
 The upper path runs once: an evaluation dataset (JSONL, one case per line)
 drives a SUT; each invocation is wrapped into a \emph{Trace} by the runner,
-which adds timeout enforcement and bounded retries. The lower path is pure
-computation over stored records: the evaluation engine computes per-case
-metrics and aggregate statistics, the failure classifier assigns each case
-at most one category, and the regression engine compares two evaluated runs.
-Reports are static, self-contained HTML files.
+which adds timeout enforcement, bounded retries and untimed client-side
+pacing. The lower path is pure computation over stored records: the
+evaluation engine computes per-case metrics and aggregate statistics, the
+failure classifier assigns each case at most one category, and the
+regression engine compares two evaluated runs. Reports are static,
+self-contained HTML files.
 
 \begin{figure}[t]
 \centering
@@ -134,104 +138,133 @@ A trace is the complete record of one invocation: \texttt{run\_id},
 \texttt{case\_id}, the SUT configuration fingerprint, the final answer, the
 list of retrieved document identifiers, tool calls, an ordered list of timed
 spans (kind, name, latency, attributes, error), token usage, an error field,
-and a unique trace identifier. Three design rules govern it.
+a unique trace identifier and a schema version. Four design rules govern it.
 
 \textbf{Write-time validation.} Every trace is checked against the schema
 at append time (required identifiers present, non-negative span latencies
-and token counts); invalid traces fail loudly rather than corrupting a run,
-so all downstream components may trust stored data.
+and token counts, tool calls as named objects, one trace per case);
+invalid traces fail loudly rather than corrupting a run, so all downstream
+components may trust stored data. The dataset loader is equally strict:
+unknown fields and non-boolean flags are errors, not silently dropped.
 
-\textbf{Honest usage accounting.} Token counts carry a
+\textbf{Honest timing and usage.} The runner records one span per attempt,
+failed attempts included. Client-side pacing runs before the timer, and
+waits the system reports (rate-limit backoff between provider retries) are
+recorded on the span and subtracted from its latency. Token counts carry a
 \texttt{token\_source} label: \texttt{heuristic} (a length-based estimate)
-for local systems or \texttt{api} when the provider reports real counts.
-The label makes estimate-driven and measured numbers non-interchangeable by
-construction.
+for local systems, \texttt{api} when the provider reports real counts, and
+\texttt{none} for failed calls, which are never filled with an estimate.
 
-\textbf{Immutability.} Runs are stored as manifest (including a dataset
-SHA-256) plus a JSONL trace file; evaluation writes a separate
-\texttt{eval\_results.json}. Comparisons never mutate runs, and re-running
-an evaluation means creating a new run identifier, never overwriting.
+\textbf{Crash safety.} Each trace is appended and synced to disk as soon as
+its case finishes, so an interrupted run keeps every completed case;
+manifests and results are written through a temporary file and an atomic
+rename. Stored traces are never rewritten.
+
+\textbf{Run identity.} The manifest pins the dataset (SHA-256 and a path
+relative to the repository), a corpus hash, the SUT configuration and
+whether the SUT declares itself deterministic. The regression engine
+refuses to compare runs over different datasets or case sets.
 
 \section{Metric Suite}
 Table~\ref{tab:metrics} summarizes the implemented metrics. Each is a pure
 function of the trace and the case's declarative expectations, so all are
-deterministic and unit-tested (20 tests).
+deterministic and unit-tested; the test suite runs in continuous
+integration on Python 3.11, 3.13 and 3.14. A failed invocation (an error,
+a timeout or no answer) scores 0 on every answer-quality metric the case
+declares, and every reported mean carries the number of cases it averages.
 
 \begin{table}[t]
 \centering
-\caption{Metric suite. Each metric reports the aspect named; metrics absent
-from a case (no expectations declared) are excluded from its aggregates.}
+\caption{Metric suite. Metrics a case does not declare are excluded from
+its aggregates; each mean is reported with its case count.}
 \label{tab:metrics}
 \small
-\begin{tabular}{@{}p{0.30\columnwidth}p{0.60\columnwidth}@{}}
+\begin{tabular}{@{}p{0.34\columnwidth}p{0.58\columnwidth}@{}}
 \toprule
 Metric & Definition \\
 \midrule
 exact\_match & normalized string equality with a declared answer \\
-keyword\_recall & fraction of expected keywords present in the answer \\
-citation\_coverage & fraction of supporting documents cited via
-\texttt{[doc:id]} markers \\
-groundedness & fraction of cited answer segments whose content keywords
-appear ($\ge 50\%$) in the cited document; uncited factual segments count
-as unsupported \\
-abstention\_correct & abstention phrase present exactly when the case is
-unanswerable \\
-retrieval\_recall@k & fraction of relevant documents retrieved in top $k$ \\
-retrieval\_MRR & reciprocal rank of the first relevant document \\
-tool\_selection / args & expected tool called; fraction of schema-valid
-calls; expected argument match \\
-latency / tokens / cost & summed span latency; prompt + completion tokens
-(source-labeled); price-table estimate \\
+keyword\_recall & share of expected keywords present, matched on token
+boundaries \\
+gold\_citation\_recall & share of supporting documents cited \\
+citation\_precision & share of cited documents that are supporting or
+retrieved \\
+groundedness & share of claims supported by a cited, retrieved document
+(lexical overlap $\ge 0.5$ by default) \\
+abstention\_correct & refusal on an unanswerable case \\
+abstention\_accuracy, false\_refusal & right answer-or-refuse decision over
+all cases; refusals of answerable cases \\
+retrieval\_recall@1, @3, MRR@3 & relevant documents in the top $k$;
+reciprocal rank of the first within the top 3 \\
+tool\_selection / args\_valid / args\_match & expected tool called;
+schema-valid calls; expected arguments \\
+latency, tokens, cost & span latency; source-labeled tokens; price-table
+estimate (successful calls only) \\
+errors, success\_rate & failed invocations; cases without a failure \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Lexical Groundedness: Definition and Limits}
-Groundedness splits the answer into segments, merges citation-only segments
-(for example a trailing ``\texttt{[doc:x]}'') into the preceding claim,
-counts segments with no citation as unsupported, and scores a cited segment
-as supported when at least half of its content keywords appear in the cited
-document. The score is supported-cited segments over checked segments;
-empty or abstained answers return no value.
+Groundedness splits the answer into claims at sentence terminators and line
+breaks. Citations written directly after a terminator belong to the
+sentence before them (``S1.\ [doc:x] S2.'' cites S1), following the
+convention that a citation follows the claim it supports. A claim is
+supported when at least half of its content keywords appear in a document
+it cites \emph{that the system retrieved}; citing a document outside the
+retrieved context cannot ground a claim. Uncited claims count as
+unsupported. The score is supported claims over claims with content;
+abstentions return no value.
 
 This is deliberately a \emph{lexical proxy}, not semantic entailment. A
 false positive is possible: an invented sentence that reuses the source
-document's vocabulary can pass. A false negative is possible: a correct
+document's vocabulary can pass, and at the default threshold a sentence
+that is half invented passes. A false negative is possible: a correct
 paraphrase with non-overlapping vocabulary scores zero. The proxy's value
 is that it is deterministic, cheap, auditable, and enforces citation
-discipline (any uncited factual sentence scores zero); replacing it with an
-entailment model is a documented extension, and the metric's contract is
-that its number is never presented as truthfulness.
+discipline; replacing it with an entailment model is a documented
+extension, and the metric's contract is that its number is never presented
+as truthfulness.
 
 \subsection{Failure Taxonomy}
-Each non-success case receives exactly one category, first match wins:
-\emph{invocation\_error} (the trace records an error; quality metrics are
-meaningless in this state), \emph{missed\_abstention} or
-\emph{wrong\_abstention} (answering an unanswerable case or abstaining on an
-answerable one), \emph{ungrounded} (groundedness below 0.5),
-\emph{incomplete\_answer} (keyword recall below 0.5), and
-\emph{retrieval\_miss}. The order encodes diagnostic priority: invocation
-failures invalidate downstream quality signals, safety failures
-(abstention) precede quality failures, and retrieval is diagnosed last.
+Each non-success case receives exactly one category, checked in pipeline
+order so a failure is blamed on its earliest cause:
+\emph{invocation\_error} (the call failed or produced no answer),
+\emph{missed\_abstention} (answered an unanswerable case),
+\emph{retrieval\_miss} (a supporting document is missing from the top 3),
+\emph{tool\_error}, \emph{wrong\_abstention} (refused although the
+supporting documents were retrieved), \emph{ungrounded} (groundedness below
+0.5), \emph{incomplete\_answer} (keyword recall below 0.5), and
+\emph{answer\_mismatch}. Checking retrieval before answer quality matters:
+under the earlier order, which checked retrieval last, five of the nine
+incomplete answers of the baseline were in fact retrieval misses.
 
 \section{Regression Engine}
-Comparing runs A (baseline) and B (candidate) proceeds per metric $m$ with a
-direction drawn from a registry (latency, tokens, and cost are lower-is-
-better; the remaining metrics higher-is-better). The scale-free statistic is
+Comparing runs A (baseline) and B (candidate) first checks that they
+evaluated the same dataset and case set. Each mean metric $m$ and the
+success rate are then compared with a direction from a metric registry
+(latency, tokens, cost, errors and false refusals are lower-is-better).
+With $b_m$ and $c_m$ the baseline and candidate means, the change is
+absolute for scores in $[0,1]$ and relative for unbounded metrics, falling
+back to absolute at a zero baseline:
 \begin{equation}
-\mathrm{rel\_delta}_m = \frac{cand_m - base_m}{\max(|base_m|, 10^{-9})},
-\label{eq:rel}
+\Delta_m = \begin{cases}
+c_m - b_m & \text{if } m \text{ is bounded or } b_m = 0,\\
+(c_m - b_m)/|b_m| & \text{otherwise,}
+\end{cases}
+\label{eq:delta}
 \end{equation}
-and a metric is labeled \emph{regressed} or \emph{improved} when
-$\mathrm{rel\_delta}$ crosses a threshold $\tau$ against its direction.
-Relative rather than absolute thresholds matter: a 0.57 drop in groundedness
-and a 0.6 increase in token count are the same absolute delta but opposite
-severity, and \eqref{eq:rel} separates them ($-1.0$ versus $+0.007$).
-Thresholds are per-metric overridable, which lets a team encode judgment:
-the demo uses $\tau = 0.10$ for latency because sub-millisecond differences
-are noise. Every regressed metric carries per-case attribution: the
-individual cases whose scores moved, sorted by delta, turning ``what broke''
-into ``where it broke.''
+and $m$ is \emph{regressed} or \emph{improved} when $\Delta_m$ crosses a
+tolerance $\tau$ (default 0.02) against its direction. A metric present in
+the baseline but absent from the candidate is a regression, so a broken
+candidate cannot pass by producing fewer metrics; a mean over a different
+number of cases is flagged; and token means from different token sources
+receive no verdict. Every regressed metric carries per-case attribution
+under the same rule as \eqref{eq:delta}. The command-line gate exits 1 on a
+regression and 2 on unusable inputs, so a crash is never mistaken for a
+blocked regression. In continuous integration the gate compares freshly
+generated runs against the committed results and fails on any drift of the
+generated artifacts.
 
 \section{Experiments}
 
@@ -240,137 +273,173 @@ The benchmark consists of a 12-document corpus for a fictional cloud
 provider (covering refunds, rate limits, SLA credits, data retention,
 encryption, onboarding, billing, status, support tiers, export, regions,
 compliance) and 26 evaluation cases: 20 answerable from a single document,
-2 answerable from a pair, and 4 plausible but unanswerable questions. All
-retrieval uses the same transparent IDF-weighted keyword retriever.
+2 answerable from a pair, and 4 plausible but unanswerable questions.
 
-Three deterministic SUT versions are evaluated:
-\textbf{v1} (top-1 retrieval, plain overlap scoring) extracts and cites the
-best sentences; \textbf{v2} (top-3, IDF weighting) improves retrieval;
-\textbf{v3} mimics v2 but replaces the cited extraction with a ``fluent''
-merged sentence with citations removed, an intentional regression in
-grounding dressed as a readability improvement. The deterministic responder
-is a harness, not a language model: it exists so that every committed
-number is exactly reproducible and evaluator bugs surface as metric changes
-rather than hiding in model noise.
+Three deterministic SUT versions are evaluated: \textbf{v1} (keyword
+overlap scoring, top-1 retrieval) extracts and cites the best sentences;
+\textbf{v2} switches to IDF-weighted scoring and retrieves the top 3
+documents; \textbf{v3} keeps v2's retrieval but merges the extracted
+sentences into one and drops the citations, an intentional regression in
+grounding. The deterministic responder is a harness, not a language model:
+it exists so that every committed number is exactly reproducible and
+evaluator bugs surface as metric changes rather than hiding in model noise.
 
 \subsection{Deterministic Results}
-Fig.~\ref{fig:versions} shows per-version aggregates over the 26 cases.
-v2 versus v1 is a clean improvement: retrieval recall 0.7273 to 0.9091 and
-MRR 0.7727 to 0.8333, with no regressions (answer extraction is unchanged,
-so citation metrics are stable). v3 versus v1 is the paper's central
-demonstration: the engine flags \emph{groundedness} 0.5682 to 0.0000 and
-\emph{citation\_coverage} 0.7273 to 0.0000 as regressions while retrieval
-quality and latency improve. The failure taxonomy localizes the damage:
-ungrounded cases increase by 22 and incomplete answers decrease by 9,
-because merged sentences drop both citations and keywords. Without an
-evaluator, v3 reads as a strictly better system.
+Table~\ref{tab:versions} shows per-version aggregates over the 26 cases.
+v2 versus v1 passes the gate (3 metrics improved, 11 neutral, none
+regressed): recall@3 rises from 0.7273 to 0.9091, MRR@3 from 0.7727 to
+0.8333 and the success rate from 0.4615 to 0.5000, while recall@1 is
+unchanged. The ablation in Table~\ref{tab:ablation} holds the cut-off fixed
+and varies only the weighting: at $k=3$ plain overlap recalls 0.9545 of the
+supporting documents and IDF 0.9091, so the v1 to v2 gain comes from
+retrieving more documents, not from IDF.
 
-A second finding is a genuine capability boundary: abstention correctness
-is 0.0 for both v1 and v2. The IDF score distributions of answerable
-(0.19--0.26 minimum) and unanswerable (0.18--0.46) queries overlap, so no
-threshold on lexical retrieval can separate them. This limitation is
-documented as requiring semantic matching rather than patched with an
-unprincipled cutoff.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{aire_versions.pdf}
-\caption{Deterministic three-version comparison over the 26-case suite.
-The fluent-but-uncited version (v3) improves retrieval but destroys citation
-coverage and groundedness, which the regression engine flags.}
-\label{fig:versions}
-\end{figure}
-
-\subsection{Live LLM Results}
-The same suite is then run with a real generator: an OpenAI-compatible
-client calling Gemini 2.5 Flash (temperature 0) over the same local
-retriever, under a prompt contract requiring per-sentence
-\texttt{[doc:id]} citations and abstention when the context does not answer
-the question. Calls are rate-limited by a pacing sleep that runs outside
-the timed region, so latency metrics measure the system rather than the
-limiter; token usage is recorded from API responses
-(\texttt{token\_source} = \texttt{api}).
-
-Against deterministic v2 (Table~\ref{tab:live},
-Fig.~\ref{fig:live}), the LLM abstains correctly on all four unanswerable
-cases (0.0 to 1.0) and its cited answers are fully supported by the lexical
-judge (groundedness 1.0), while citation coverage slips slightly
-(0.7273 to 0.6818) and operational cost grows by four orders of magnitude
-in latency (0.30\,ms to 15{,}319.83\,ms per case) and seven-fold in tokens
-(83 to 605 per case). Seventeen of 26 cases complete cleanly; six are
-provider rate-limit failures (HTTP 429 surviving retries), recorded as
-invocation errors. The comparison is a single run of a nondeterministic
-system: it demonstrates the evaluator's behavior on a frontier model and
-exposes the quality-versus-cost trade-off, but is not a statistical
-benchmark.
+v3 versus v1 is the central demonstration: the gate blocks it because
+groundedness falls from 1.0000 to 0.0000, gold citation recall from 0.7273
+to 0.0000 and the success rate from 0.4615 to 0.0000, and citation
+precision disappears because nothing is cited. Retrieval matches v2. The
+failure taxonomy localizes the damage: 20 cases become ungrounded. Latency
+is reported but excluded from verdicts, because sub-millisecond timings of
+the offline harness are noise.
 
 \begin{table}[t]
 \centering
-\caption{Live Gemini 2.5 Flash versus deterministic v2 on the same 26-case
-suite (regression-engine verdicts). One run; nondeterministic system.}
-\label{tab:live}
+\caption{Deterministic three-version results over the 26-case suite
+(committed results, regenerated with the corrected metrics). n.m.: not
+measurable, the version cites nothing.}
+\label{tab:versions}
 \small
-\begin{tabular}{@{}lrrl@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-Metric & v2 (det.) & Gemini & Verdict \\
+Metric & v1 & v2 & v3 \\
 \midrule
-abstention\_correct & 0.0000 & \textbf{1.0000} & improved \\
-groundedness & 0.5682 & \textbf{1.0000} & improved \\
-citation\_coverage & 0.7273 & 0.6818 & regressed \\
-latency (ms/case) & 0.30 & 15{,}319.83 & regressed \\
-tokens (per case) & 83 & 605 & regressed \\
+retrieval\_recall@1 & 0.7273 & 0.7273 & 0.7273 \\
+retrieval\_recall@3 & 0.7273 & 0.9091 & 0.9091 \\
+retrieval\_MRR@3 & 0.7727 & 0.8333 & 0.8333 \\
+keyword\_recall & 0.5758 & 0.5758 & 0.5758 \\
+gold\_citation\_recall & 0.7273 & 0.7273 & 0.0000 \\
+citation\_precision & 1.0000 & 1.0000 & n.m. \\
+groundedness & 1.0000 & 1.0000 & 0.0000 \\
+abstention\_correct & 0.0000 & 0.0000 & 0.0000 \\
+success\_rate & 0.4615 & 0.5000 & 0.0000 \\
+\midrule
+retrieval\_miss & 7 & 2 & 2 \\
+incomplete\_answer & 3 & 7 & 0 \\
+missed\_abstention & 4 & 4 & 4 \\
+ungrounded & 0 & 0 & 20 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
+\begin{table}[t]
 \centering
-\includegraphics[width=\columnwidth]{aire_live.pdf}
-\caption{Live LLM versus deterministic v2: quality gains (left) against
-operational cost (right, log scale). The evaluator prices the trade-off
-rather than issuing a single-number verdict.}
-\label{fig:live}
-\end{figure}
+\caption{Retrieval ablation: keyword retriever with top 3 over the 22
+answerable cases.}
+\label{tab:ablation}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Weighting & recall@1 & recall@3 & MRR@3 \\
+\midrule
+overlap & 0.7273 & 0.9545 & 0.8485 \\
+IDF & 0.7273 & 0.9091 & 0.8333 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A second finding is a genuine capability boundary: abstention correctness
+is 0.0 for every version. With IDF weighting the top retrieval scores of
+the unanswerable queries range from 0.18 to 0.46, while answerable queries
+go as low as 0.19, so any threshold that rejects every unanswerable query
+also rejects answerable ones. The limitation is documented as requiring
+semantic matching rather than patched with an unprincipled cutoff.
+
+\subsection{A Historical Live LLM Run}
+An earlier version of the system ran the same suite once with a real
+generator (Gemini 2.5 Flash at temperature 0 over the same retriever).
+That run was scored with the metric code before the fixes in
+Section~VII, and its traces were not kept, so it cannot be re-scored; its
+committed numbers are shown in Table~\ref{tab:live} only as a record of
+what was reported. Seventeen of 26 cases completed cleanly, six failed with
+HTTP 429 quota errors and one answerable case was refused. The model
+answered ``I don't know.'' on all four unanswerable cases. The other
+headline differences do not survive scrutiny: the groundedness of 1.0
+averaged only the 15 cases that produced a claim, against a baseline the
+segmentation bug had pushed down to 0.5682; the 15.3\,s mean latency
+included the client's own pacing and retry sleeps; and the token comparison
+set API counts (with heuristic estimates for the failed calls) against a
+character estimate for a system that makes no LLM call. The current script
+persists traces and supports re-scoring, so a new run will be replayable.
+
+\begin{table}[t]
+\centering
+\caption{Historical live run versus a deterministic v2 run, as committed
+on 2026-09-17: pre-fix metric code, an uncommitted baseline run, not
+replayable. Not comparable with Table~\ref{tab:versions}.}
+\label{tab:live}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Metric (pre-fix) & v2 (det.) & Gemini \\
+\midrule
+abstention\_correct (4 cases) & 0.0000 & 1.0000 \\
+groundedness (22 vs 15 cases) & 0.5682 & 1.0000 \\
+citation coverage & 0.7273 & 0.6818 \\
+latency (ms/case) & 0.30 & 15{,}319.83 \\
+tokens (per case, different sources) & 83 & 605 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Engineering Lessons}
-Two reliability defects surfaced during development, both caught by the
-deterministic harness and both fixed in the runner. First, provider errors
-returned by the SUT as structured results were silently dropped: empty
-answers from failed calls were classified as \emph{wrong abstentions}
-instead of \emph{invocation errors}. The fix propagates the SUT's error
-into the trace error field; the lesson is that error propagation must be
-tested end to end. Second, the default 30-second invocation watchdog killed
-14 of 26 live cases because thinking-mode generations run 30--90\,s; the
-timeout became configuration, and the episode illustrates that reliability
-parameters are part of the system under test. A third issue, a segmentation
-bug that treated a trailing citation as its own unsupported sentence,
-existed only in the evaluator and was invisible until the deterministic
-harness made metric changes reproducible.
+Several defects surfaced in the evaluator itself, and an adversarial audit
+found more; each is now fixed and covered by a test or a CI check. (1) Citation segmentation split
+answers after every period, so a citation written after the period moved
+to the next sentence and verbatim quotes scored 0.5; an earlier write-up of
+this project described the bug as fixed when only the trailing case was.
+(2) A failed or empty invocation counted as a correct abstention on
+unanswerable cases and dropped out of groundedness, so a candidate whose
+calls crashed could look better. (3) The gate silently skipped metrics
+missing from either run, compared relative changes on bounded scores, and
+treated a crash (exit 1) like a blocked regression. (4) Continuous
+integration regenerated baseline and candidate from the same commit, so a
+change that moved every version equally passed. (5) Measured LLM latency
+included the client's pacing and backoff, and the provider retried
+non-retryable client errors. (6) Unordered set iteration made committed
+aggregates change with the interpreter's hash seed. Two operational lessons
+from the live run remain: provider errors must propagate into the trace's
+error field rather than appear as empty answers, and a 30-second invocation
+watchdog that cut off 14 of 26 thinking-mode generations showed that
+reliability parameters are part of the system under test.
 
 \section{Limitations}
 (1) The groundedness metric is a lexical proxy and can be fooled in both
-directions. (2) Keyword retrieval cannot decide answerability; the abstention
-score distributions overlap measurably. (3) The deterministic responder is a
-rule-based harness; it bounds what deterministic results can say about real
-LLM behavior. (4) The live evaluation is a single run of 26 cases.
-(5) Heuristic token counts are approximations by design. (6) The cost metric
-uses a zero default price; real deployments must supply a price table.
-(7) The corpus and case count are deliberately small; the machinery
-(schema hashing, run isolation, attribution) is designed to scale but is
-not demonstrated at scale here.
+directions. (2) The gate is a change detector, not a statistical test: its
+default tolerance of 0.02 is small next to the sampling noise of a mean
+over 22 cases (one case moving by 0.44 shifts the mean past it), there are
+no repeated runs, confidence intervals or paired tests, and the thresholds
+were chosen on the same 26 cases they gate. That suits a deterministic
+system; gating an LLM would need tolerances above the run-to-run spread
+measured over several runs. (3) Keyword retrieval cannot decide
+answerability, and abstention rests on four cases. (4) The deterministic
+responder is a rule-based harness; it bounds what deterministic results can
+say about real LLM behavior. (5) Heuristic token counts are approximations
+by design, and the cost metric uses a zero default price. (6) The corpus
+and case count are deliberately small; the machinery (dataset and corpus
+hashing, run identity checks, attribution) is designed to scale but is not
+demonstrated at scale here.
 
 \section{Conclusion}
 AIRE treats AI-system evaluation as a data problem: record validated traces
-once, compute deterministic metrics, classify failures, and compare runs
-with scale-free, direction-aware thresholds and per-case attribution. The
-three-version demonstration shows the engine catching a regression
-(groundedness 0.57 to 0.00) that reads as an improvement, and the live
-evaluation shows it pricing a real trade-off: a frontier LLM fixes
-abstention and grounding at four orders of magnitude higher latency. The
-system's own boundaries (lexical grounding, lexical answerability, single-
-run live results) are stated as part of the design. Code, committed result
-files, and reports are available in the accompanying
-repository.\footnote{\url{https://github.com/vaibhav3000/aire}}
+once, compute deterministic metrics, classify failures in pipeline order,
+and compare runs with direction-aware tolerances, run identity checks and
+per-case attribution. The three-version demonstration shows the gate
+blocking a regression (groundedness 1.00 to 0.00) that keeps retrieval
+intact, and the retrieval ablation shows the same machinery assigning an
+apparent improvement to its real cause. The evaluator's own defects, and
+the misleading live-LLM numbers they produced, are reported as part of the
+result. Code, committed result files, and reports are available in the
+accompanying repository.\footnote{\url{https://github.com/vaibhav3000/aire}}
 
 \begin{thebibliography}{5}
 
