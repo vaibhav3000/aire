@@ -56,6 +56,37 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+  core-only:
+    name: Core install without extras
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      # No extras: the gate, the engine and the stdlib provider path must
+      # work with zero third-party packages (ADR 0002).
+      - name: Install the core only
+        run: python -m pip install .
+      - name: No third-party package is installed or imported
+        run: |
+          python - <<'PY'
+          import importlib, importlib.metadata as md, sys
+          extra = sorted(d.metadata["Name"] for d in md.distributions()
+                         if d.metadata["Name"].lower() not in {"aire", "pip", "setuptools", "wheel"})
+          if extra:
+              raise SystemExit(f"unexpected packages installed: {extra}")
+          for name in ("aire.providers.client", "aire.providers.local", "aire.runner.async_runner",
+                       "aire.systems.rag", "aire.evaluator.engine", "aire.regression.gate"):
+              importlib.import_module(name)
+          print("core imports fine with no third-party packages")
+          PY
+      - name: Gate the committed runs with the core install
+        run: |
+          aire-gate results/v1_baseline results/v2_improved --ignore latency_ms
+          code=0; aire-gate results/v1_baseline results/v3_fluent_regression --ignore latency_ms || code=$?
+          test "$code" -eq 1
+
   eval-gate:
     name: Evaluation regression gate
     needs: test

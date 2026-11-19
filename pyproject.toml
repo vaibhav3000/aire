@@ -23,7 +23,16 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=9.2", "ruff==0.17.5", "pyright==1.1.414"]
+# The core has no runtime dependency. Each provider SDK and the OpenTelemetry
+# SDK bridge is an optional extra, imported only when its adapter is built.
+gemini = ["google-genai>=3.4,<4"]
+openai = ["openai>=3.54,<4"]
+anthropic = ["anthropic>=2.10,<3"]
+otel = ["opentelemetry-sdk>=1.45,<2", "opentelemetry-exporter-otlp-proto-http>=1.45,<2"]
+all = ["aire[gemini,openai,anthropic,otel]"]
+# Development installs every extra so the adapters are type checked and their
+# contract tests run against the real SDK classes.
+dev = ["pytest>=9.2", "ruff==0.17.5", "pyright==1.1.414", "aire[all]"]
 
 [project.scripts]
 aire-gate = "aire.regression.gate:main"

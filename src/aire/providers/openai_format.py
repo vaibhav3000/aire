@@ -10,12 +10,16 @@ from .structured import parse_structured
 from .types import ChatRequest, ChatResponse, TokenUsage
 
 
-def chat_payload(request: ChatRequest) -> dict[str, Any]:
-    """Keyword arguments (and JSON body) for chat.completions.create."""
+def chat_payload(request: ChatRequest, *, max_tokens_field: str = "max_tokens") -> dict[str, Any]:
+    """Keyword arguments (and JSON body) for chat.completions.create.
+
+    OpenAI's own API wants max_completion_tokens (reasoning models reject
+    max_tokens); local OpenAI-compatible servers still read max_tokens.
+    """
     payload: dict[str, Any] = {
         "model": request.model,
         "messages": [{"role": m.role, "content": m.content} for m in request.messages],
-        "max_tokens": request.max_output_tokens,
+        max_tokens_field: request.max_output_tokens,
     }
     if request.temperature is not None:
         payload["temperature"] = request.temperature
