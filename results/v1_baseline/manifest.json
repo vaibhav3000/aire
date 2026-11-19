@@ -1,7 +1,7 @@
 {
-  "run_id": "run_19329ac2",
+  "run_id": "run_f3e318af",
   "name": "v1_baseline",
-  "created_at": 1795103053.5883377,
+  "created_at": 1795103198.1126552,
   "system_config": {
     "top_k": 1,
     "min_score": 0.05,
@@ -11,8 +11,8 @@
   },
   "deterministic": true,
   "dataset_path": "demo/eval_set.jsonl",
-  "dataset_sha256": "3aeffeecdc1f79d4d68bb1db28a00ae453dabf310500d17a1c76184fd769ce89",
+  "dataset_sha256": "16f9054e58058547939d69a18f41f2e24ada3836fc2b2cbbd177b37467ef4e93",
   "corpus_sha256": "b9d837eda89b37b00250497dd4968676b20c3115a2c7be5ca91d6ae5f631685b",
-  "n_cases": 26,
+  "n_cases": 150,
   "schema_version": "1.1"
 }

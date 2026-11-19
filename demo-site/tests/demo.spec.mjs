@@ -13,7 +13,7 @@ test("page loads with runs, comparisons, and committed data", async ({ page }) =
   await page.goto(URL);
   await expect(page).toHaveTitle(/AIRE Trace Explorer/);
   await expect(page.locator("#tabs button")).toHaveCount(4);
-  await expect(page.locator("#case-list details")).toHaveCount(26);
+  await expect(page.locator("#case-list details")).toHaveCount(150);
   const ok = await page.evaluate(() => ({
     versions: Object.keys(window.DATA.versions).length,
     comparisons: Object.keys(window.DATA.comparisons).length,
@@ -33,13 +33,13 @@ test("version transition steps forward and backward", async ({ page }) => {
   await page.locator("#vt-step").click();
   await expect(page.locator("#val-ground")).toHaveText("v2 improved: 1");
   await expect(page.locator("#vdeltas-wrap")).toBeVisible();
-  await expect(page.locator("#vdeltas")).toContainText("improved 3");
+  await expect(page.locator("#vdeltas")).toContainText("improved 2");
   await expect(page.locator("#vdeltas")).toContainText("regressed 0");
-  // forward to v3: groundedness collapses to 0 with +20 ungrounded
+  // forward to v3: groundedness collapses to 0 with +109 ungrounded
   await page.locator("#vt-step").click();
   await expect(page.locator("#bar-ground")).toHaveClass(/bad/);
   await expect(page.locator("#val-ground")).toHaveText("v3 fluent (planted regression): 0");
-  await expect(page.locator("#vdeltas")).toContainText("+20");
+  await expect(page.locator("#vdeltas")).toContainText("+109");
   await expect(page.locator("#vdeltas")).toContainText("ungrounded");
   // backward: v2 again, then v1
   await page.locator("#vt-back").click();
@@ -57,9 +57,9 @@ test("failure category filter shows exactly the committed cases", async ({ page 
   const errors = watchErrors(page);
   await page.goto(URL);
   await page.locator("#fail-chips .chip[data-f='ungrounded']").click();
-  await expect(page.locator("#case-list details")).toHaveCount(20);
+  await expect(page.locator("#case-list details")).toHaveCount(109);
   await page.locator("#fail-chips .chip[data-f='all']").click();
-  await expect(page.locator("#case-list details")).toHaveCount(26);
+  await expect(page.locator("#case-list details")).toHaveCount(150);
   expect(errors).toEqual([]);
 });
 
@@ -112,9 +112,9 @@ test("keyboard: arrows drive the active player", async ({ page }) => {
 test("retrieval ablation and the live-LLM caveat come from committed data", async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto(URL);
-  // overlap at top 3 recalls 0.9545 of gold docs, idf 0.9091 (results/retrieval_ablation.json)
-  await expect(page.locator("#ablation-note")).toContainText("recall@3 0.9545");
-  await expect(page.locator("#ablation-note")).toContainText("recall@3 0.9091");
+  // overlap at top 3 recalls 0.8731 of gold docs, idf 0.8615 (results/retrieval_ablation.json)
+  await expect(page.locator("#ablation-note")).toContainText("recall@3 0.8731");
+  await expect(page.locator("#ablation-note")).toContainText("recall@3 0.8615");
   await expect(page.locator("#catch-text")).toContainText("groundedness 1");
   await page.locator("#tabs button").nth(3).click();
   await expect(page.locator("#run-panel")).toContainText("cannot be re-scored");

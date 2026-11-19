@@ -4,9 +4,9 @@
       "baseline": "v1_baseline",
       "candidate": "v2_improved"
     },
-    "n_improved": 1,
+    "n_improved": 2,
     "n_regressed": 0,
-    "n_neutral": 11,
+    "n_neutral": 10,
     "n_inconclusive": 2,
     "n_not_comparable": 0,
     "n_new": 0,
@@ -25,25 +25,25 @@
       "metric": "abstention_accuracy",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.8462,
-      "candidate": 0.8462,
-      "delta": 0.0,
-      "rel_delta": 0.0,
+      "baseline": 0.8667,
+      "candidate": 0.88,
+      "delta": 0.0133,
+      "rel_delta": 0.0153,
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 26,
+      "n_pairs": 150,
       "test": "mcnemar_exact",
-      "paired_delta": 0.0,
+      "paired_delta": 0.013333,
       "ci_low": 0.0,
-      "ci_high": 0.0,
-      "p_value": 1.0,
+      "ci_high": 0.033333,
+      "p_value": 0.5,
       "discordant": {
         "baseline_only": 0,
-        "candidate_only": 0
+        "candidate_only": 2
       },
-      "n_baseline": 26,
-      "n_candidate": 26,
+      "n_baseline": 150,
+      "n_candidate": 150,
       "p_holm": 1.0
     },
     {
@@ -51,18 +51,26 @@
       "direction": "higher",
       "tolerance": "absolute",
       "baseline": 0.0,
-      "candidate": 0.0,
-      "delta": 0.0,
+      "candidate": 0.1,
+      "delta": 0.1,
       "rel_delta": null,
       "threshold": 0.02,
       "gated": true,
-      "verdict": "neutral",
-      "n_pairs": 4,
-      "test": "point",
-      "n_baseline": 4,
-      "n_candidate": 4,
-      "p_value": null,
-      "p_holm": null
+      "verdict": "inconclusive",
+      "n_pairs": 20,
+      "test": "mcnemar_exact",
+      "paired_delta": 0.1,
+      "ci_low": 0.0,
+      "ci_high": 0.25,
+      "p_value": 0.5,
+      "discordant": {
+        "baseline_only": 0,
+        "candidate_only": 2
+      },
+      "direction_of_change": "better",
+      "n_baseline": 20,
+      "n_candidate": 20,
+      "p_holm": 1.0
     },
     {
       "metric": "citation_precision",
@@ -75,7 +83,7 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "mcnemar_exact",
       "paired_delta": 0.0,
       "ci_low": 0.0,
@@ -85,8 +93,8 @@
         "baseline_only": 0,
         "candidate_only": 0
       },
-      "n_baseline": 22,
-      "n_candidate": 22,
+      "n_baseline": 130,
+      "n_candidate": 130,
       "p_holm": 1.0
     },
     {
@@ -100,7 +108,7 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 26,
+      "n_pairs": 150,
       "test": "mcnemar_exact",
       "paired_delta": 0.0,
       "ci_low": 0.0,
@@ -110,8 +118,8 @@
         "baseline_only": 0,
         "candidate_only": 0
       },
-      "n_baseline": 26,
-      "n_candidate": 26,
+      "n_baseline": 150,
+      "n_candidate": 150,
       "p_holm": 1.0
     },
     {
@@ -125,7 +133,7 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 26,
+      "n_pairs": 150,
       "test": "mcnemar_exact",
       "paired_delta": 0.0,
       "ci_low": 0.0,
@@ -135,8 +143,8 @@
         "baseline_only": 0,
         "candidate_only": 0
       },
-      "n_baseline": 26,
-      "n_candidate": 26,
+      "n_baseline": 150,
+      "n_candidate": 150,
       "p_holm": 1.0
     },
     {
@@ -150,7 +158,7 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "mcnemar_exact",
       "paired_delta": 0.0,
       "ci_low": 0.0,
@@ -160,29 +168,29 @@
         "baseline_only": 0,
         "candidate_only": 0
       },
-      "n_baseline": 22,
-      "n_candidate": 22,
+      "n_baseline": 130,
+      "n_candidate": 130,
       "p_holm": 1.0
     },
     {
       "metric": "gold_citation_recall",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.7273,
-      "candidate": 0.7273,
+      "baseline": 0.7154,
+      "candidate": 0.7154,
       "delta": 0.0,
       "rel_delta": 0.0,
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "paired_bootstrap",
       "paired_delta": 0.0,
-      "ci_low": 0.0,
-      "ci_high": 0.0,
+      "ci_low": -0.030769,
+      "ci_high": 0.030769,
       "p_value": 1.0,
-      "n_baseline": 22,
-      "n_candidate": 22,
+      "n_baseline": 130,
+      "n_candidate": 130,
       "p_holm": 1.0
     },
     {
@@ -196,7 +204,7 @@
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "mcnemar_exact",
       "paired_delta": 0.0,
       "ci_low": 0.0,
@@ -206,168 +214,691 @@
         "baseline_only": 0,
         "candidate_only": 0
       },
-      "n_baseline": 22,
-      "n_candidate": 22,
+      "n_baseline": 130,
+      "n_candidate": 130,
       "p_holm": 1.0
     },
     {
       "metric": "keyword_recall",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.5758,
-      "candidate": 0.5758,
-      "delta": 0.0,
-      "rel_delta": 0.0,
+      "baseline": 0.5503,
+      "candidate": 0.5374,
+      "delta": -0.0129,
+      "rel_delta": -0.0234,
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "paired_bootstrap",
-      "paired_delta": 0.0,
-      "ci_low": 0.0,
+      "paired_delta": -0.01282,
+      "ci_low": -0.030769,
       "ci_high": 0.0,
-      "p_value": 1.0,
-      "n_baseline": 22,
-      "n_candidate": 22,
+      "p_value": 0.096,
+      "n_baseline": 130,
+      "n_candidate": 130,
       "p_holm": 1.0
     },
     {
       "metric": "latency_ms",
       "direction": "lower",
       "tolerance": "relative",
-      "baseline": 0.3558,
-      "candidate": 0.2954,
-      "delta": -0.0604,
-      "rel_delta": -0.1698,
+      "baseline": 0.4631,
+      "candidate": 0.5086,
+      "delta": 0.0455,
+      "rel_delta": 0.0983,
       "threshold": 0.02,
       "gated": false,
-      "verdict": "inconclusive",
-      "n_pairs": 26,
+      "verdict": "regressed",
+      "n_pairs": 150,
       "test": "paired_bootstrap",
-      "paired_delta": -0.060385,
-      "ci_low": -0.117692,
-      "ci_high": 0.000769,
-      "p_value": 0.052,
-      "direction_of_change": "better",
-      "n_baseline": 26,
-      "n_candidate": 26,
+      "paired_delta": 0.045533,
+      "ci_low": 0.012667,
+      "ci_high": 0.082133,
+      "p_value": 0.007,
+      "n_baseline": 150,
+      "n_candidate": 150,
+      "attribution": [
+        {
+          "case_id": "retention_audit_early_deletion",
+          "baseline": 0.39,
+          "candidate": 2.2,
+          "delta": 1.81
+        },
+        {
+          "case_id": "absent_crypto_payments",
+          "baseline": 0.43,
+          "candidate": 0.89,
+          "delta": 0.46
+        },
+        {
+          "case_id": "encryption_in_transit",
+          "baseline": 0.47,
+          "candidate": 0.91,
+          "delta": 0.44
+        },
+        {
+          "case_id": "regions_capacity_check",
+          "baseline": 0.46,
+          "candidate": 0.87,
+          "delta": 0.41
+        },
+        {
+          "case_id": "encryption_storage_scope",
+          "baseline": 0.36,
+          "candidate": 0.75,
+          "delta": 0.39
+        },
+        {
+          "case_id": "regions_pricing_hardware",
+          "baseline": 0.44,
+          "candidate": 0.83,
+          "delta": 0.39
+        },
+        {
+          "case_id": "support_business_priority",
+          "baseline": 0.49,
+          "candidate": 0.85,
+          "delta": 0.36
+        },
+        {
+          "case_id": "retention_deleted_project_backups",
+          "baseline": 0.38,
+          "candidate": 0.74,
+          "delta": 0.36
+        },
+        {
+          "case_id": "regions_inter_region_latency",
+          "baseline": 0.44,
+          "candidate": 0.75,
+          "delta": 0.31
+        },
+        {
+          "case_id": "encryption_legacy_tls12",
+          "baseline": 0.45,
+          "candidate": 0.75,
+          "delta": 0.3
+        },
+        {
+          "case_id": "onboarding_api_key",
+          "baseline": 0.46,
+          "candidate": 0.74,
+          "delta": 0.28
+        },
+        {
+          "case_id": "billing_midmonth_step_up",
+          "baseline": 0.5,
+          "candidate": 0.74,
+          "delta": 0.24
+        },
+        {
+          "case_id": "rate_limit_raise_ceiling",
+          "baseline": 0.4,
+          "candidate": 0.64,
+          "delta": 0.24
+        },
+        {
+          "case_id": "absent_static_ip",
+          "baseline": 0.43,
+          "candidate": 0.67,
+          "delta": 0.24
+        },
+        {
+          "case_id": "support_business_friday_calc",
+          "baseline": 0.39,
+          "candidate": 0.62,
+          "delta": 0.23
+        },
+        {
+          "case_id": "status_severities",
+          "baseline": 0.42,
+          "candidate": 0.64,
+          "delta": 0.22
+        },
+        {
+          "case_id": "retention_project_purge",
+          "baseline": 0.34,
+          "candidate": 0.55,
+          "delta": 0.21
+        },
+        {
+          "case_id": "billing_starter_overage_calc",
+          "baseline": 0.35,
+          "candidate": 0.55,
+          "delta": 0.2
+        },
+        {
+          "case_id": "multi_region_capacity_health",
+          "baseline": 0.45,
+          "candidate": 0.65,
+          "delta": 0.2
+        },
+        {
+          "case_id": "status_sev3_update_cadence",
+          "baseline": 0.35,
+          "candidate": 0.54,
+          "delta": 0.19
+        },
+        {
+          "case_id": "support_critical_ticket_updates",
+          "baseline": 0.51,
+          "candidate": 0.7,
+          "delta": 0.19
+        },
+        {
+          "case_id": "refunds_exclusions",
+          "baseline": 0.42,
+          "candidate": 0.6,
+          "delta": 0.18
+        },
+        {
+          "case_id": "absent_terraform_provider",
+          "baseline": 0.37,
+          "candidate": 0.55,
+          "delta": 0.18
+        },
+        {
+          "case_id": "billing_starter_storage_seats",
+          "baseline": 0.39,
+          "candidate": 0.56,
+          "delta": 0.17
+        },
+        {
+          "case_id": "encryption_per_project_key",
+          "baseline": 0.47,
+          "candidate": 0.64,
+          "delta": 0.17
+        },
+        {
+          "case_id": "billing_downgrade_timing",
+          "baseline": 0.37,
+          "candidate": 0.52,
+          "delta": 0.15
+        },
+        {
+          "case_id": "retention_snapshot_ten_days",
+          "baseline": 0.43,
+          "candidate": 0.58,
+          "delta": 0.15
+        },
+        {
+          "case_id": "retention_restore_deleted_project",
+          "baseline": 0.46,
+          "candidate": 0.61,
+          "delta": 0.15
+        },
+        {
+          "case_id": "status_services_covered",
+          "baseline": 0.35,
+          "candidate": 0.5,
+          "delta": 0.15
+        },
+        {
+          "case_id": "absent_onprem_deployment",
+          "baseline": 0.43,
+          "candidate": 0.57,
+          "delta": 0.14
+        },
+        {
+          "case_id": "billing_business_plan_allowances",
+          "baseline": 0.41,
+          "candidate": 0.55,
+          "delta": 0.14
+        },
+        {
+          "case_id": "billing_annual_savings",
+          "baseline": 0.45,
+          "candidate": 0.59,
+          "delta": 0.14
+        },
+        {
+          "case_id": "export_no_slowdown",
+          "baseline": 0.41,
+          "candidate": 0.55,
+          "delta": 0.14
+        },
+        {
+          "case_id": "support_critical_incident_routing",
+          "baseline": 0.33,
+          "candidate": 0.46,
+          "delta": 0.13
+        },
+        {
+          "case_id": "plans_starter_price",
+          "baseline": 0.47,
+          "candidate": 0.58,
+          "delta": 0.11
+        },
+        {
+          "case_id": "regions_backup_location",
+          "baseline": 0.48,
+          "candidate": 0.59,
+          "delta": 0.11
+        },
+        {
+          "case_id": "support_named_contact",
+          "baseline": 0.35,
+          "candidate": 0.46,
+          "delta": 0.11
+        },
+        {
+          "case_id": "retention_auditor_eight_months",
+          "baseline": 0.39,
+          "candidate": 0.5,
+          "delta": 0.11
+        },
+        {
+          "case_id": "multi_manual_rotation_plan_price",
+          "baseline": 0.4,
+          "candidate": 0.51,
+          "delta": 0.11
+        },
+        {
+          "case_id": "rate_limit_remaining_budget",
+          "baseline": 0.38,
+          "candidate": 0.48,
+          "delta": 0.1
+        },
+        {
+          "case_id": "multi_cancel_growth_refund",
+          "baseline": 0.42,
+          "candidate": 0.52,
+          "delta": 0.1
+        },
+        {
+          "case_id": "multi_first_project_region",
+          "baseline": 0.4,
+          "candidate": 0.5,
+          "delta": 0.1
+        },
+        {
+          "case_id": "rate_limit_retry_policy",
+          "baseline": 0.45,
+          "candidate": 0.54,
+          "delta": 0.09
+        },
+        {
+          "case_id": "export_where_and_formats",
+          "baseline": 0.44,
+          "candidate": 0.52,
+          "delta": 0.08
+        },
+        {
+          "case_id": "compliance_attestation_copy",
+          "baseline": 0.45,
+          "candidate": 0.53,
+          "delta": 0.08
+        },
+        {
+          "case_id": "onboarding_time_budget",
+          "baseline": 0.39,
+          "candidate": 0.47,
+          "delta": 0.08
+        },
+        {
+          "case_id": "billing_cancel_midcycle",
+          "baseline": 0.46,
+          "candidate": 0.53,
+          "delta": 0.07
+        },
+        {
+          "case_id": "rate_limit_business_vs_growth",
+          "baseline": 0.38,
+          "candidate": 0.45,
+          "delta": 0.07
+        },
+        {
+          "case_id": "status_region_rss",
+          "baseline": 0.42,
+          "candidate": 0.49,
+          "delta": 0.07
+        },
+        {
+          "case_id": "export_plan_restrictions",
+          "baseline": 0.42,
+          "candidate": 0.49,
+          "delta": 0.07
+        },
+        {
+          "case_id": "multi_maintenance_sla_status",
+          "baseline": 0.38,
+          "candidate": 0.45,
+          "delta": 0.07
+        },
+        {
+          "case_id": "rate_limit_immediate_retry",
+          "baseline": 0.43,
+          "candidate": 0.49,
+          "delta": 0.06
+        },
+        {
+          "case_id": "regions_latency_preview",
+          "baseline": 0.45,
+          "candidate": 0.51,
+          "delta": 0.06
+        },
+        {
+          "case_id": "support_tickets_every_plan",
+          "baseline": 0.46,
+          "candidate": 0.52,
+          "delta": 0.06
+        },
+        {
+          "case_id": "status_bookmark_health_site",
+          "baseline": 0.45,
+          "candidate": 0.51,
+          "delta": 0.06
+        },
+        {
+          "case_id": "export_link_ten_days_later",
+          "baseline": 0.45,
+          "candidate": 0.51,
+          "delta": 0.06
+        },
+        {
+          "case_id": "absent_managed_kubernetes",
+          "baseline": 0.38,
+          "candidate": 0.44,
+          "delta": 0.06
+        },
+        {
+          "case_id": "multi_export_retention",
+          "baseline": 0.49,
+          "candidate": 0.54,
+          "delta": 0.05
+        },
+        {
+          "case_id": "retention_early_deletion",
+          "baseline": 0.42,
+          "candidate": 0.47,
+          "delta": 0.05
+        },
+        {
+          "case_id": "retention_pitr_plans",
+          "baseline": 0.36,
+          "candidate": 0.41,
+          "delta": 0.05
+        },
+        {
+          "case_id": "export_logs_metrics_separate",
+          "baseline": 0.4,
+          "candidate": 0.45,
+          "delta": 0.05
+        },
+        {
+          "case_id": "onboarding_allowance_wait",
+          "baseline": 0.48,
+          "candidate": 0.53,
+          "delta": 0.05
+        },
+        {
+          "case_id": "multi_export_before_delete",
+          "baseline": 0.46,
+          "candidate": 0.51,
+          "delta": 0.05
+        },
+        {
+          "case_id": "absent_ddos_protection",
+          "baseline": 0.4,
+          "candidate": 0.45,
+          "delta": 0.05
+        },
+        {
+          "case_id": "regions_available",
+          "baseline": 0.47,
+          "candidate": 0.51,
+          "delta": 0.04
+        },
+        {
+          "case_id": "absent_phone_support_swahili",
+          "baseline": 0.48,
+          "candidate": 0.52,
+          "delta": 0.04
+        },
+        {
+          "case_id": "status_incident_history",
+          "baseline": 0.49,
+          "candidate": 0.53,
+          "delta": 0.04
+        },
+        {
+          "case_id": "onboarding_project_region",
+          "baseline": 0.44,
+          "candidate": 0.48,
+          "delta": 0.04
+        },
+        {
+          "case_id": "billing_team_of_five_logins",
+          "baseline": 0.48,
+          "candidate": 0.52,
+          "delta": 0.04
+        },
+        {
+          "case_id": "multi_gdpr_audit_dpa",
+          "baseline": 0.49,
+          "candidate": 0.53,
+          "delta": 0.04
+        },
+        {
+          "case_id": "absent_ipv6_clusters",
+          "baseline": 0.49,
+          "candidate": 0.52,
+          "delta": 0.03
+        },
+        {
+          "case_id": "compliance_customer_data_use",
+          "baseline": 0.42,
+          "candidate": 0.45,
+          "delta": 0.03
+        },
+        {
+          "case_id": "support_starter_response_guarantee",
+          "baseline": 0.31,
+          "candidate": 0.34,
+          "delta": 0.03
+        },
+        {
+          "case_id": "onboarding_cli_login",
+          "baseline": 0.43,
+          "candidate": 0.46,
+          "delta": 0.03
+        },
+        {
+          "case_id": "multi_growth_price_rate_limit",
+          "baseline": 0.49,
+          "candidate": 0.52,
+          "delta": 0.03
+        },
+        {
+          "case_id": "multi_business_claim_support",
+          "baseline": 0.45,
+          "candidate": 0.48,
+          "delta": 0.03
+        },
+        {
+          "case_id": "absent_vat_number",
+          "baseline": 0.42,
+          "candidate": 0.45,
+          "delta": 0.03
+        },
+        {
+          "case_id": "absent_console_japanese",
+          "baseline": 0.36,
+          "candidate": 0.39,
+          "delta": 0.03
+        },
+        {
+          "case_id": "rate_limit_webhook_cap",
+          "baseline": 0.47,
+          "candidate": 0.49,
+          "delta": 0.02
+        },
+        {
+          "case_id": "sla_credit_calc_99_7",
+          "baseline": 0.42,
+          "candidate": 0.44,
+          "delta": 0.02
+        },
+        {
+          "case_id": "status_maintenance_lead_time",
+          "baseline": 0.45,
+          "candidate": 0.47,
+          "delta": 0.02
+        },
+        {
+          "case_id": "onboarding_deploy_sample",
+          "baseline": 0.44,
+          "candidate": 0.46,
+          "delta": 0.02
+        },
+        {
+          "case_id": "multi_starter_key_rate_limit",
+          "baseline": 0.45,
+          "candidate": 0.47,
+          "delta": 0.02
+        },
+        {
+          "case_id": "refunds_outside_window",
+          "baseline": 0.45,
+          "candidate": 0.46,
+          "delta": 0.01
+        },
+        {
+          "case_id": "export_database_dumps",
+          "baseline": 0.45,
+          "candidate": 0.46,
+          "delta": 0.01
+        },
+        {
+          "case_id": "retention_rewind_after_bad_release",
+          "baseline": 0.47,
+          "candidate": 0.48,
+          "delta": 0.01
+        },
+        {
+          "case_id": "rate_limit_reset_on_the_minute",
+          "baseline": 0.49,
+          "candidate": 0.5,
+          "delta": 0.01
+        }
+      ],
       "p_holm": null
     },
     {
       "metric": "retrieval_mrr_at_3",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.7727,
-      "candidate": 0.8333,
-      "delta": 0.0606,
-      "rel_delta": 0.0784,
+      "baseline": 0.7769,
+      "candidate": 0.8231,
+      "delta": 0.0462,
+      "rel_delta": 0.0595,
       "threshold": 0.02,
       "gated": true,
-      "verdict": "inconclusive",
-      "n_pairs": 22,
+      "verdict": "improved",
+      "n_pairs": 130,
       "test": "paired_bootstrap",
-      "paired_delta": 0.060605,
-      "ci_low": 0.0,
-      "ci_high": 0.136359,
-      "p_value": 0.08,
-      "direction_of_change": "better",
-      "n_baseline": 22,
-      "n_candidate": 22,
-      "p_holm": 0.96
+      "paired_delta": 0.046152,
+      "ci_low": 0.014102,
+      "ci_high": 0.079486,
+      "p_value": 0.005,
+      "n_baseline": 130,
+      "n_candidate": 130,
+      "p_holm": 0.065
     },
     {
       "metric": "retrieval_recall_at_1",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.7273,
-      "candidate": 0.7273,
+      "baseline": 0.7154,
+      "candidate": 0.7154,
       "delta": 0.0,
       "rel_delta": 0.0,
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "paired_bootstrap",
       "paired_delta": 0.0,
-      "ci_low": 0.0,
-      "ci_high": 0.0,
+      "ci_low": -0.030769,
+      "ci_high": 0.030769,
       "p_value": 1.0,
-      "n_baseline": 22,
-      "n_candidate": 22,
+      "n_baseline": 130,
+      "n_candidate": 130,
       "p_holm": 1.0
     },
     {
       "metric": "retrieval_recall_at_3",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.7273,
-      "candidate": 0.9091,
-      "delta": 0.1818,
-      "rel_delta": 0.25,
+      "baseline": 0.7154,
+      "candidate": 0.8615,
+      "delta": 0.1461,
+      "rel_delta": 0.2042,
       "threshold": 0.02,
       "gated": true,
       "verdict": "improved",
-      "n_pairs": 22,
+      "n_pairs": 130,
       "test": "paired_bootstrap",
-      "paired_delta": 0.181818,
-      "ci_low": 0.045455,
-      "ci_high": 0.340909,
-      "p_value": 0.008,
-      "n_baseline": 22,
-      "n_candidate": 22,
-      "p_holm": 0.104
+      "paired_delta": 0.146154,
+      "ci_low": 0.092308,
+      "ci_high": 0.203846,
+      "p_value": 0.0,
+      "n_baseline": 130,
+      "n_candidate": 130,
+      "p_holm": 0.0
     },
     {
       "metric": "total_tokens",
       "direction": "lower",
       "tolerance": "relative",
-      "baseline": 79.5,
-      "candidate": 80.0769,
-      "delta": 0.5769,
-      "rel_delta": 0.0073,
+      "baseline": 80.86,
+      "candidate": 80.4067,
+      "delta": -0.4533,
+      "rel_delta": -0.0056,
       "threshold": 0.02,
       "gated": true,
       "verdict": "neutral",
-      "n_pairs": 26,
+      "n_pairs": 150,
       "test": "paired_bootstrap",
-      "paired_delta": 0.576923,
-      "ci_low": 0.0,
-      "ci_high": 1.538462,
-      "p_value": 0.268,
-      "n_baseline": 26,
-      "n_candidate": 26,
+      "paired_delta": -0.453333,
+      "ci_low": -1.5,
+      "ci_high": 0.633333,
+      "p_value": 0.389,
+      "n_baseline": 150,
+      "n_candidate": 150,
       "p_holm": 1.0
     },
     {
       "metric": "success_rate",
       "direction": "higher",
       "tolerance": "absolute",
-      "baseline": 0.4615,
-      "candidate": 0.5,
-      "delta": 0.0385,
-      "rel_delta": 0.0834,
+      "baseline": 0.4267,
+      "candidate": 0.4667,
+      "delta": 0.04,
+      "rel_delta": 0.0937,
       "threshold": 0.02,
       "gated": true,
       "verdict": "inconclusive",
-      "n_pairs": 26,
+      "n_pairs": 150,
       "test": "mcnemar_exact",
-      "paired_delta": 0.038462,
-      "ci_low": 0.0,
-      "ci_high": 0.115385,
-      "p_value": 1.0,
+      "paired_delta": 0.04,
+      "ci_low": 0.006667,
+      "ci_high": 0.08,
+      "p_value": 0.070312,
       "discordant": {
-        "baseline_only": 0,
-        "candidate_only": 1
+        "baseline_only": 1,
+        "candidate_only": 7
       },
       "direction_of_change": "better",
-      "n_baseline": 26,
-      "n_candidate": 26,
-      "p_holm": 1.0
+      "n_baseline": 150,
+      "n_candidate": 150,
+      "p_holm": 0.843744
     }
   ],
   "failure_count_deltas": {
-    "incomplete_answer": 4,
-    "retrieval_miss": -5
+    "incomplete_answer": 20,
+    "missed_abstention": -2,
+    "retrieval_miss": -24
   },
   "warnings": []
 }
