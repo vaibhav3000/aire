@@ -109,6 +109,8 @@ def _dataset_facts(facts: dict[str, Any]) -> None:
     facts["ds.n_unanswerable"] = len(unanswerable)
     facts["ds.n_answerable"] = len(cases) - len(unanswerable)
     facts["ds.n_two_doc"] = sum(len(c.get("supporting_doc_ids", [])) >= 2 for c in cases)
+    facts["ds.n_single_doc"] = sum(len(c.get("supporting_doc_ids", [])) == 1 for c in cases)
+    facts["ds.n_paraphrase"] = sum("paraphrase" in c.get("tags", []) for c in cases)
     facts["ds.n_docs"] = sum(1 for p in (ROOT / "demo" / "corpus").iterdir() if p.is_file())
 
 
@@ -200,6 +202,8 @@ def _number_word(value: Any, capital: bool) -> str:
 FORMATS: dict[str, Callable[[Any], str]] = {
     "word": lambda v: _number_word(v, capital=False),
     "Word": lambda v: _number_word(v, capital=True),
+    # A count in prose, where zero reads "none".
+    "count": lambda v: "none" if v == 0 else _number_word(v, capital=False),
     "signed": lambda v: f"{v:+d}",
     # LaTeX thousands separator without the extra space after the comma.
     "tex2": lambda v: f"{v:,.2f}".replace(",", "{,}"),

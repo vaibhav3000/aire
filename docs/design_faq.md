@@ -48,7 +48,9 @@ Reproducibility of committed results. Every number in the README, the JSON repor
 
 ### Q9. How do the retrieval metrics work, and what is the ground truth?
 
+<!-- aire:begin faq-retrieval -->
 `retrieval_recall_at_k` is the fraction of relevant documents found within the first k retrieved; `retrieval_mrr` is the reciprocal rank of the first relevant document within the first k, 0 if none. The engine reports them at fixed cut-offs (`EngineConfig.recall_ks`, default 1 and 3, and `mrr_k`, default 3) as `retrieval_recall_at_1`, `retrieval_recall_at_3` and `retrieval_mrr_at_3`. A fixed K matters: an un-cut recall compares a system that retrieves one document with one that retrieves three, which is how the old report credited idf weighting with a gain that came from K. Repeated ids count once, and a case with an empty retrieval scores 0 instead of dropping out of the mean. Ground truth is declarative: each `EvalCase` lists `supporting_doc_ids`, the documents that should be retrieved for that input. `retrieval_metrics.py` is short on purpose. The honest difficulty in retrieval evaluation is constructing reliable ground truth for real corpora, and the module docstring says the project does not pretend to have solved that. For the demo, the 12-document corpus makes hand-labelling feasible.
+<!-- aire:end faq-retrieval -->
 
 ### Q10. How are tool calls evaluated?
 
@@ -98,7 +100,9 @@ The evaluator is the project. AIRE's substance is the trace schema, the metric d
 
 ### Q20. What does the abstention finding show about the value of an evaluator?
 
-The demo's `abstention_correct` is 0.0 for every version: the system never refuses an unanswerable question. The measurement behind that failure is in the README: with idf weighting, unanswerable queries produce top retrieval scores between 0.18 and 0.46, while answerable queries go as low as 0.19, so any `min_score` that rejects every unanswerable query also rejects answerable ones; fixing it requires semantic matching, not threshold tuning. The point is what the evaluator did: it converted a vague worry ("does the system hallucinate on out-of-domain questions?") into a measured capability gap with the score distributions to prove it, and the regression reports carried that gap across versions instead of burying it under averages that looked acceptable. The metric rests on four cases, which is enough to show the gap but not to measure a small improvement; `abstention_accuracy` and `false_refusal` cover the answerable side.
+<!-- aire:begin faq-abstention -->
+The demo's `abstention_correct` is 0.0 for v1 and 0.1 for v2 and v3: of the 20 unanswerable questions, v1 refuses none and v2 two. The measurement behind that failure is in the README: with idf weighting, unanswerable queries produce top retrieval scores between 0.0056 and 0.4596, while 84 of the 130 answerable queries score no higher than that, so any `min_score` that rejects every unanswerable query also rejects most answerable ones; fixing it requires semantic matching, not threshold tuning. The point is what the evaluator did: it converted a vague worry ("does the system hallucinate on out-of-domain questions?") into a measured capability gap with the score distributions to prove it, and the regression reports carried that gap across versions instead of burying it under averages that looked acceptable. The metric rests on 20 cases, which is enough to show the gap but not to measure a small improvement; `abstention_accuracy` and `false_refusal` cover the answerable side.
+<!-- aire:end faq-abstention -->
 
 ### Q21. What do the v2 and v3 demo comparisons demonstrate?
 

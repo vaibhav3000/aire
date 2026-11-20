@@ -272,12 +272,14 @@ generated artifacts.
 \section{Experiments}
 
 \subsection{Setup}
+% aire:begin report-dataset
 The benchmark consists of a 12-document corpus for a fictional cloud
 provider (covering refunds, rate limits, SLA credits, data retention,
 encryption, onboarding, billing, status, support tiers, export, regions,
 compliance) and 150 evaluation cases: 114 answerable from a single
 document (18 of them worded to avoid the document's vocabulary), 16
 answerable from a pair, and 20 plausible but unanswerable questions.
+% aire:end report-dataset
 
 Three deterministic SUT versions are evaluated: \textbf{v1} (keyword
 overlap scoring, top-1 retrieval) extracts and cites the best sentences;
