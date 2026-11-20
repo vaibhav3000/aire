@@ -6,6 +6,7 @@ region no longer matches what the committed results say.
 """
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -106,3 +107,82 @@ def test_an_unknown_fact_is_an_error() -> None:
 )
 def test_formats(value: object, fmt: str | None, expected: str) -> None:
     assert sync_docs.format_value(value, fmt) == expected
+
+
+# A measured-looking number: a decimal, a signed integer, "N of M", or a count
+# of cases, documents, questions and similar.
+_NUMBER = re.compile(
+    r"(?<![\w.:/@-])("
+    r"\d+\.\d+(?:\.\d+)*"
+    r"|\d+ of (?:the )?\d+"
+    r"|[+-]\d+(?:\.\d+)?"
+    r"|\d+(?:,\d{3})*[- ](?:case|cases|document|documents|questions|answerable|unanswerable"
+    r"|calls|requests|tokens|items|labels|traces|metrics)\b"
+    r")(?![\w/])"
+)
+
+# Numbers allowed outside generated regions, and why. Anything else must come
+# from a template so that it is rendered from committed results.
+ALLOWED = {
+    "3.11": "supported Python version",
+    "3.13": "supported Python version",
+    "3.14": "supported Python version",
+    "0.02": "default gate tolerance, checked against RegressionThresholds below",
+    "0.5": "default thresholds, checked against EngineConfig below",
+    "0.0": "the demo's zero token price",
+    "0.10": "illustrative arithmetic in the tolerance answer of the FAQ",
+    "0.085": "illustrative arithmetic in the tolerance answer of the FAQ",
+    "-15": "illustrative arithmetic in the tolerance answer of the FAQ",
+    "1.5": "illustrative arithmetic in the tolerance answer of the FAQ",
+    "0.34": "LaTeX column width",
+    "0.58": "LaTeX column width",
+    "2.5": "the model name Gemini 2.5 Flash",
+    "14 of 26": "historical watchdog incident; no committed run records it",
+    "26 cases": "historical watchdog incident; no committed run records it",
+}
+
+
+def _numbers_outside_regions(path: Path) -> list[str]:
+    found: list[str] = []
+    inside = fenced = False
+    for number, line in enumerate(path.read_text(encoding="utf-8").split("\n"), start=1):
+        marker = sync_docs._MARKER.match(line)
+        if marker:
+            inside = (marker.group("md") or marker.group("tex")) == "begin"
+            continue
+        if line.startswith("```"):
+            fenced = not fenced
+            continue
+        if inside or fenced or line.lstrip().startswith("%"):
+            continue
+        line = re.sub(r"https?://\S+", "", line)
+        for token in _NUMBER.findall(line):
+            if token not in ALLOWED:
+                found.append(f"{path.name}:{number}: {token}")
+    return found
+
+
+@pytest.mark.parametrize("path", sync_docs.DOCUMENTS, ids=lambda p: p.name)
+def test_no_measured_number_is_typed_outside_a_region(path: Path) -> None:
+    assert _numbers_outside_regions(path) == []
+
+
+def test_allowed_constants_match_the_code() -> None:
+    from aire.evaluator.engine import EngineConfig
+    from aire.regression.compare import RegressionThresholds
+
+    assert RegressionThresholds().default == float("0.02")
+    config = EngineConfig()
+    assert config.groundedness_threshold == config.keyword_threshold == float("0.5")
+
+
+def test_the_scanner_flags_a_typed_number(tmp_path: Path) -> None:
+    doc = tmp_path / "doc.md"
+    doc.write_text(
+        "recall rose to 0.8615 on 130 cases, 2 of 20 refused, ungrounded +109\n"
+        "<!-- aire:begin x -->\n0.9999 is fine here\n<!-- aire:end x -->\n"
+        "```\naire gate --threshold 0.3\n```\n",
+        encoding="utf-8",
+    )
+    found = [entry.split(": ", 1)[1] for entry in _numbers_outside_regions(doc)]
+    assert found == ["0.8615", "130 cases", "2 of 20", "+109"]
