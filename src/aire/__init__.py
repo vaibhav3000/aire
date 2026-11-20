@@ -1,4 +1,4 @@
-"""AIRE — AI Reliability & Evaluation Engine.
+"""AIRE: AI Reliability & Evaluation Engine.
 
 Evaluates AI systems (LLM apps, RAG pipelines, tool-using agents) from
 recorded traces: deterministic metrics, judges, failure classification,

@@ -1,0 +1,169 @@
+{
+  "per_case": [
+    {
+      "case_id": "task_01_fix_off_by_one",
+      "trace_id": "tr_task_01_fix_off_by_one",
+      "answer": "COMPLETE: changed shop/cart.py",
+      "error": null,
+      "errors": 0,
+      "abstention_correct": null,
+      "abstention_accuracy": 1.0,
+      "false_refusal": 0.0,
+      "tool_args_valid": 1.0,
+      "tool_selection_accuracy": 1.0,
+      "tool_call_precision": 0.8333,
+      "step_efficiency": 0.8333,
+      "n_steps": 6,
+      "tool_args_schema_valid": 0.8333,
+      "latency_ms": null,
+      "total_tokens": 0,
+      "token_source": "none",
+      "cost_usd": 0.0,
+      "failure": "tool_error"
+    },
+    {
+      "case_id": "task_02_failing_test",
+      "trace_id": "tr_task_02_failing_test",
+      "answer": "COMPLETE: changed billing/invoice.py",
+      "error": null,
+      "errors": 0,
+      "abstention_correct": null,
+      "abstention_accuracy": 1.0,
+      "false_refusal": 0.0,
+      "tool_args_valid": 1.0,
+      "tool_selection_accuracy": 1.0,
+      "tool_call_precision": 0.8571,
+      "step_efficiency": 0.8571,
+      "n_steps": 7,
+      "tool_args_schema_valid": 1.0,
+      "latency_ms": null,
+      "total_tokens": 0,
+      "token_source": "none",
+      "cost_usd": 0.0,
+      "failure": null
+    },
+    {
+      "case_id": "task_03_add_missing_test",
+      "trace_id": "tr_task_03_add_missing_test",
+      "answer": "COMPLETE: changed tests/test_slug.py",
+      "error": null,
+      "errors": 0,
+      "abstention_correct": null,
+      "abstention_accuracy": 1.0,
+      "false_refusal": 0.0,
+      "tool_args_valid": 1.0,
+      "tool_selection_accuracy": 0.8,
+      "tool_call_precision": 0.8,
+      "step_efficiency": 1.0,
+      "n_steps": 5,
+      "tool_args_schema_valid": 1.0,
+      "latency_ms": null,
+      "total_tokens": 0,
+      "token_source": "none",
+      "cost_usd": 0.0,
+      "failure": null
+    },
+    {
+      "case_id": "task_04_constrained_refactor",
+      "trace_id": "tr_task_04_constrained_refactor",
+      "answer": "COMPLETE: changed orders/pricing.py, orders/service.py",
+      "error": null,
+      "errors": 0,
+      "abstention_correct": null,
+      "abstention_accuracy": 1.0,
+      "false_refusal": 0.0,
+      "tool_args_valid": 1.0,
+      "tool_selection_accuracy": 1.0,
+      "tool_call_precision": 0.875,
+      "step_efficiency": 0.875,
+      "n_steps": 8,
+      "tool_args_schema_valid": 0.875,
+      "latency_ms": null,
+      "total_tokens": 0,
+      "token_source": "none",
+      "cost_usd": 0.0,
+      "failure": "tool_error"
+    }
+  ],
+  "aggregates": {
+    "mean_abstention_accuracy": 1.0,
+    "n_abstention_accuracy": 4,
+    "ci95_abstention_accuracy": [
+      1.0,
+      1.0
+    ],
+    "mean_errors": 0.0,
+    "n_errors": 4,
+    "ci95_errors": [
+      0.0,
+      0.0
+    ],
+    "mean_false_refusal": 0.0,
+    "n_false_refusal": 4,
+    "ci95_false_refusal": [
+      0.0,
+      0.0
+    ],
+    "mean_n_steps": 6.5,
+    "n_n_steps": 4,
+    "ci95_n_steps": [
+      5.5,
+      7.5
+    ],
+    "mean_step_efficiency": 0.8913,
+    "n_step_efficiency": 4,
+    "ci95_step_efficiency": [
+      0.8437,
+      0.9643
+    ],
+    "mean_tool_args_schema_valid": 0.9271,
+    "n_tool_args_schema_valid": 4,
+    "ci95_tool_args_schema_valid": [
+      0.8541,
+      1.0
+    ],
+    "mean_tool_args_valid": 1.0,
+    "n_tool_args_valid": 4,
+    "ci95_tool_args_valid": [
+      1.0,
+      1.0
+    ],
+    "mean_tool_call_precision": 0.8414,
+    "n_tool_call_precision": 4,
+    "ci95_tool_call_precision": [
+      0.8143,
+      0.866
+    ],
+    "mean_tool_selection_accuracy": 0.95,
+    "n_tool_selection_accuracy": 4,
+    "ci95_tool_selection_accuracy": [
+      0.85,
+      1.0
+    ],
+    "token_sources": [],
+    "failure_counts": {
+      "tool_error": 2
+    },
+    "n_cases": 4,
+    "n_success": 2,
+    "success_rate": 0.5,
+    "ci95_success_rate": [
+      0.0,
+      1.0
+    ]
+  },
+  "missing_traces": [],
+  "engine_config": {
+    "groundedness_threshold": 0.5,
+    "keyword_threshold": 0.5,
+    "price_per_1k": 0.0,
+    "groundedness_min_overlap": 0.5,
+    "recall_ks": [
+      1,
+      3
+    ],
+    "mrr_k": 3,
+    "ci_resamples": 2000,
+    "ci_seed": 0
+  }
+}

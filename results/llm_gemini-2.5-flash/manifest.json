@@ -1,0 +1,18 @@
+{
+  "run_id": "run_9950afcf",
+  "name": "llm_rag_gemini-2.5-flash",
+  "created_at": 1795122320.8471708,
+  "system_config": {
+    "top_k": 3,
+    "weighting": "idf",
+    "generator": "gcp.gemini:gemini-2.5-flash",
+    "temperature": 0.0,
+    "max_output_tokens": 256
+  },
+  "deterministic": false,
+  "dataset_path": "demo/eval_set.jsonl",
+  "dataset_sha256": "16f9054e58058547939d69a18f41f2e24ada3836fc2b2cbbd177b37467ef4e93",
+  "corpus_sha256": "b9d837eda89b37b00250497dd4968676b20c3115a2c7be5ca91d6ae5f631685b",
+  "n_cases": 150,
+  "schema_version": "1.1"
+}

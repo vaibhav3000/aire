@@ -137,15 +137,11 @@
   <div class="hero">
     <h1>Record, evaluate, compare - and catch what a pass/fail number hides</h1>
     <p class="lead">AIRE is a <span class="term" tabindex="0" data-tip="Everything a system did in one invocation: answer, retrieved documents, spans with latencies, token usage, error. Stored once, never re-run.">trace-based</span> evaluation framework for LLM/RAG systems. Every invocation is recorded as a
-      validated trace; deterministic metrics and a <span class="term" tabindex="0" data-tip="Mutually exclusive failure categories: invocation_error, wrong_abstention, missed_abstention, ungrounded, incomplete_answer, retrieval_miss.">failure taxonomy</span> score the records; a regression engine compares
+      validated trace; deterministic metrics and a <span class="term" tabindex="0" data-tip="One category per failed case, checked in pipeline order so a failure is blamed on the earliest stage: invocation_error, missed_abstention, retrieval_miss, tool_error, wrong_abstention, ungrounded, incomplete_answer, answer_mismatch.">failure taxonomy</span> score the records; a regression engine compares
       versions metric-by-metric with per-case attribution. This explorer renders the committed evaluation of a small
       RAG system - three deterministic versions plus one recorded live-LLM run.</p>
     <div class="callout" id="catch-callout">
-      <b>What the evaluator caught in 60 seconds:</b> version 3 reads better and retrieves better
-      (recall 0.73 &rarr; 0.91) but silently drops every citation - <b>groundedness 0.57 &rarr; 0.00</b> across
-      22 ungrounded cases, flagged automatically as a regression. The live-LLM run then fixes abstention
-      (0.0 &rarr; 1.0) and grounding (1.0) at the price of 15&nbsp;s/case and ~605 tokens/case. No single number
-      tells this story; the metric set does.
+      <b>What the evaluator caught:</b> <span id="catch-text"></span>
       <div style="margin-top:8px"><button id="story-open" type="button" class="chip" style="cursor:pointer">&#9654; Walk me through it</button></div>
     </div>
   </div>
@@ -159,8 +155,9 @@
 
   <section id="transition" aria-labelledby="trans-h">
     <h2 id="trans-h">Watch v1 become v2 become v3</h2>
-    <p class="sub">The committed metrics, animated between the three deterministic versions. Watch retrieval climb while
-      groundedness holds - then collapses the moment the fluent style lands. <span class="badge badge-measured">measured result</span></p>
+    <p class="sub">The committed metrics, animated between the three deterministic versions. Recall@3 rises when v2
+      retrieves three documents instead of one while groundedness holds, then groundedness collapses the moment the
+      fluent style lands. <span class="badge badge-measured">measured result</span></p>
     <div class="card" style="border:1px solid var(--line);border-radius:10px;padding:14px 16px">
       <div class="ctl">
         <button id="vt-play" type="button" class="primary">Play v1 &rarr; v2 &rarr; v3</button>
@@ -172,7 +169,7 @@
       </div>
       <div id="vtransition">
         <div>
-          <h4 style="margin:0 0 6px;font-size:.85rem;color:var(--muted)">Retrieval recall (higher is better)</h4>
+          <h4 style="margin:0 0 6px;font-size:.85rem;color:var(--muted)">Retrieval recall@3 (higher is better)</h4>
           <div class="gbar" id="bar-recall"></div>
           <p class="mono" id="val-recall" style="margin:6px 0 0;font-size:.9rem"></p>
         </div>
@@ -183,6 +180,7 @@
         </div>
       </div>
       <div id="vstory" aria-live="polite"></div>
+      <p class="sub" id="ablation-note" style="margin:10px 0 0"></p>
       <div id="vdeltas-wrap" hidden>
         <h4 style="margin:12px 0 6px;font-size:.85rem;color:var(--muted)">Failure-count deltas <span class="mono" id="vdelta-src" style="font-weight:400"></span> <span class="badge badge-measured">measured</span></h4>
         <div id="vdeltas" class="chips" style="margin:0"></div>
@@ -221,8 +219,10 @@
 
   <section id="compare" aria-labelledby="cmp-h">
     <h2 id="cmp-h">Regression comparisons</h2>
-    <p class="sub">Direction-aware relative thresholds (higher-better vs lower-better), with every regression
-      attributed to the cases that moved. Verdicts come from the committed comparison reports. <span class="badge badge-measured">measured result</span></p>
+    <p class="sub">Direction-aware tolerances (absolute for 0-1 scores, relative for latency and tokens), with every
+      regression attributed to the cases that moved. A metric that disappears from the candidate counts as a regression.
+      Latency is shown but not counted: sub-millisecond timings of the offline demo are noise. Verdicts come from the
+      committed comparison reports. <span class="badge badge-measured">measured result</span></p>
     <div id="cmp-panel"></div>
   </section>
 
@@ -230,8 +230,8 @@
     <div>Data: committed evaluations from <span class="mono">results/</span> in
       <a href="https://github.com/vaibhav3000/aire">github.com/vaibhav3000/aire</a>, rendered by
       <span class="mono">demo-site/build.py</span>. Deterministic runs are offline and exactly reproducible
-      (<span class="mono">python demo/run_demo.py</span>); the live-LLM run is recorded separately and is
-      nondeterministic by declaration. <span class="term" tabindex="0" data-tip="Lexical citation-overlap proxy - it measures citation hygiene, not semantic faithfulness (see the README's Limitations).">Groundedness</span> is a lexical citation-overlap proxy.
+      (<span class="mono">python demo/run_demo.py</span>); the live-LLM run is recorded separately, is
+      nondeterministic by declaration, and its committed numbers come from the metric code before the fixes shown here. <span class="term" tabindex="0" data-tip="Lexical citation-overlap proxy - it measures citation hygiene, not semantic faithfulness (see the README's Limitations).">Groundedness</span> is a lexical citation-overlap proxy.
       Keyboard: Space play/pause, &larr;/&rarr; step, R reset - for the active player.</div>
   </footer>
 </main>
@@ -259,27 +259,40 @@ const VERSION_META = {
   v1_baseline:          {label:"v1 baseline",  kind:"det", note:"overlap retrieval, top-1, faithful citations"},
   v2_improved:          {label:"v2 improved",  kind:"det", note:"idf retrieval, top-3"},
   v3_fluent_regression: {label:"v3 fluent (planted regression)", kind:"det", note:"same retrieval as v2; fluent style drops citations"},
-  llm:                  {label:"Live LLM (gemini-2.5-flash)", kind:"llm", note:"idf retrieval + real generation, recorded 2026-09-16"},
+  llm:                  {label:"Live LLM (gemini-2.5-flash)", kind:"llm",
+    note: DATA.llm.replayable
+      ? "idf retrieval + real generation; persisted traces, re-scored with the current metric code"
+      : "idf retrieval + real generation. Measured once (committed 2026-09-17) with the metric code from before the fixes on this page; its traces were not kept, so it cannot be re-scored and its numbers are not comparable with the deterministic runs."},
 };
-const CHIP_KEYS = ["mean_retrieval_recall","mean_retrieval_mrr","mean_citation_coverage","mean_groundedness","mean_abstention_correct","mean_latency_ms","mean_total_tokens"];
-const CHIP_LABEL = {mean_retrieval_recall:"retrieval recall",mean_retrieval_mrr:"retrieval MRR",mean_citation_coverage:"citation coverage",mean_groundedness:"groundedness",mean_abstention_correct:"abstention correct",mean_latency_ms:"latency/case",mean_total_tokens:"tokens/case"};
+const CHIP_KEYS = ["mean_retrieval_recall_at_1","mean_retrieval_recall_at_3","mean_retrieval_mrr_at_3","mean_gold_citation_recall","mean_citation_precision","mean_groundedness","mean_abstention_accuracy","success_rate","mean_latency_ms","mean_total_tokens"];
+// The committed live-LLM run predates the current metric names.
+const LEGACY_CHIP_KEYS = ["mean_retrieval_recall","mean_retrieval_mrr","mean_citation_coverage","mean_groundedness","mean_abstention_correct","mean_latency_ms","mean_total_tokens"];
+const CHIP_LABEL = {mean_retrieval_recall_at_1:"recall@1",mean_retrieval_recall_at_3:"recall@3",mean_retrieval_mrr_at_3:"MRR@3",mean_gold_citation_recall:"gold citation recall",mean_citation_precision:"citation precision",mean_groundedness:"groundedness",mean_abstention_accuracy:"abstention accuracy",success_rate:"success rate",mean_latency_ms:"latency/case",mean_total_tokens:"tokens/case",
+  mean_retrieval_recall:"retrieval recall (pre-fix)",mean_retrieval_mrr:"retrieval MRR (pre-fix)",mean_citation_coverage:"citation coverage (pre-fix)",mean_abstention_correct:"abstention correct (pre-fix)"};
 const CHIP_TIP = {
-  mean_retrieval_recall: "Fraction of the declared supporting docs that were retrieved.",
-  mean_retrieval_mrr: "Mean reciprocal rank of the first supporting doc in the retrieved list.",
-  mean_groundedness: "Lexical citation-overlap proxy: supported cited sentences / total cited (threshold 0.5).",
-  mean_citation_coverage: "Fraction of supporting docs cited in the answer.",
+  mean_retrieval_recall_at_1: "Share of the declared supporting docs found in the top 1 retrieved.",
+  mean_retrieval_recall_at_3: "Share of the declared supporting docs found in the top 3 retrieved.",
+  mean_retrieval_mrr_at_3: "Reciprocal rank of the first supporting doc within the top 3.",
+  mean_groundedness: "Lexical citation-overlap proxy over the retrieved docs: supported claims / claims (overlap threshold 0.5).",
+  mean_gold_citation_recall: "Share of the supporting docs that the answer cites.",
+  mean_citation_precision: "Share of the cited docs that are supporting or retrieved docs.",
+  mean_abstention_accuracy: "Right decision to answer or abstain, over every case.",
+  success_rate: "Share of cases with no failure category.",
+  mean_total_tokens: "Deterministic runs: a character-count estimate of question and answer, not comparable with API token counts.",
 };
-const FAILURE_LABEL = {invocation_error:"invocation_error",wrong_abstention:"wrong_abstention",missed_abstention:"missed_abstention",ungrounded:"ungrounded",incomplete_answer:"incomplete_answer",retrieval_miss:"retrieval_miss"};
 const FAILURE_WHY = {
-  invocation_error: "the system call itself failed (exception/timeout)",
-  wrong_abstention: "abstained on an answerable question",
+  invocation_error: "the call failed (exception, timeout, provider error) or returned no answer",
   missed_abstention: "answered an unanswerable question",
+  retrieval_miss: "a supporting doc is missing from the top 3 retrieved",
+  tool_error: "wrong tool, wrong arguments, or an invalid call",
+  wrong_abstention: "abstained although the supporting docs were retrieved",
   ungrounded: "groundedness below 0.5 despite answering",
   incomplete_answer: "keyword recall below 0.5",
-  retrieval_miss: "supporting docs not retrieved",
+  answer_mismatch: "the exact-match expectation was not met",
 };
+const FAILURE_LABEL = Object.fromEntries(Object.keys(FAILURE_WHY).map(k => [k, k]));
 const REDUCED = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-const CITE_RE = /\[doc:[\w.\-]+\]/g;
+const CITE_RE = /\[\s*doc\s*:[^\]]*\]/gi;
 
 function fmt(v, digits){
   if (v == null) return "-";
@@ -289,6 +302,29 @@ function fmt(v, digits){
 }
 function getAgg(id){ return id === "llm" ? DATA.llm.aggregates : DATA.versions[id].aggregates; }
 function getCases(id){ return id === "llm" ? DATA.llm.per_case : DATA.versions[id].per_case; }
+/* Headline numbers, read from the committed results so the prose cannot drift from them. */
+function storyNumbers(){
+  const v1 = getAgg("v1_baseline"), v2 = getAgg("v2_improved"), v3 = getAgg("v3_fluent_regression");
+  return {
+    r1v2: fmt(v2.mean_retrieval_recall_at_1, 2),
+    r3v1: fmt(v1.mean_retrieval_recall_at_3, 2), r3v2: fmt(v2.mean_retrieval_recall_at_3, 2), r3v3: fmt(v3.mean_retrieval_recall_at_3, 2),
+    g1: fmt(v1.mean_groundedness, 2), g3: fmt(v3.mean_groundedness, 2),
+    c1: fmt(v1.mean_gold_citation_recall, 2), c3: fmt(v3.mean_gold_citation_recall, 2),
+    ung3: (v3.failure_counts || {}).ungrounded || 0,
+  };
+}
+const SN = storyNumbers();
+function renderCatch(){
+  const llm = DATA.llm.replayable ? "" :
+    " The recorded live-LLM run is shown separately: it was measured once with the metric code from before these fixes and cannot be re-scored, so its numbers are not compared with these.";
+  document.getElementById("catch-text").innerHTML =
+    `version 3 retrieves as well as version 2 (recall@3 ${SN.r3v3}) but silently drops every citation: <b>groundedness ${SN.g1} &rarr; ${SN.g3}</b> across ${SN.ung3} ungrounded cases and gold citation recall ${SN.c1} &rarr; ${SN.c3}, flagged automatically as a regression. No single number tells this story; the metric set does.${llm}`;
+}
+function renderAblation(){
+  const a = DATA.ablation, o = a.retrievers.overlap, i = a.retrievers.idf;
+  document.getElementById("ablation-note").innerHTML =
+    `Retrieval ablation over ${a.n_cases} answerable cases, top 3: overlap recall@1 ${fmt(o.recall_at_1,4)}, recall@3 ${fmt(o.recall_at_3,4)}, MRR@3 ${fmt(o.mrr_at_3,4)}; idf recall@1 ${fmt(i.recall_at_1,4)}, recall@3 ${fmt(i.recall_at_3,4)}, MRR@3 ${fmt(i.mrr_at_3,4)}. The v1 &rarr; v2 recall gain comes from K, not from the weighting. <span class="badge badge-measured">measured</span>`;
+}
 
 /* ---------------- run tabs + failure chips ---------------- */
 const tabsBox = document.getElementById("tabs");
@@ -314,7 +350,8 @@ function selectVersion(id){
 function renderRun(){
   const agg = getAgg(current);
   const meta = VERSION_META[current];
-  const chips = CHIP_KEYS.map(k => {
+  const keys = meta.kind === "llm" && !DATA.llm.replayable ? LEGACY_CHIP_KEYS : CHIP_KEYS;
+  const chips = keys.map(k => {
     const v = agg[k];
     const shown = k === "mean_latency_ms" ? fmt(v,1)+" ms" : k === "mean_total_tokens" ? fmt(v,1) : fmt(v,3);
     const tip = CHIP_TIP[k] ? ` class="chip term" tabindex="0" data-tip="${CHIP_TIP[k]}"` : ' class="chip"';
@@ -323,7 +360,7 @@ function renderRun(){
   const fc = agg.failure_counts || {};
   const chipsFail = [`<button type="button" class="chip" data-f="all" aria-pressed="${failureFilter==="all"}">all cases (${agg.n_cases})</button>`]
     .concat(Object.keys(FAILURE_LABEL).filter(f => fc[f]).map(f =>
-      `<button type="button" class="chip term" data-f="${f}" aria-pressed="${failureFilter===f}" data-tip="${FAILURE_WHY[f]} — click to see the cases">${f} (${fc[f]})</button>`))
+      `<button type="button" class="chip term" data-f="${f}" aria-pressed="${failureFilter===f}" data-tip="${FAILURE_WHY[f]}; click to see the cases">${f} (${fc[f]})</button>`))
     .concat(`<button type="button" class="chip" data-f="success" aria-pressed="${failureFilter==="success"}">success (${agg.n_success||0})</button>`);
   const cases = getCases(current).filter(r =>
     failureFilter === "all" ? true : failureFilter === "success" ? !r.failure : r.failure === failureFilter);
@@ -357,7 +394,7 @@ function caseEl(r){
   d.innerHTML = `
     <summary>
       <span class="cid"></span>${fail}
-      <span class="metrics-line">kw ${fmt(r.keyword_recall,2)} &middot; cite ${fmt(r.citation_coverage,2)} &middot; grd ${fmt(r.groundedness,2)} &middot; ret ${fmt(r.retrieval_recall,2)} &middot; ${fmt(r.total_tokens,0)} tok &middot; ${fmt(r.latency_ms,1)} ms</span>
+      <span class="metrics-line">kw ${fmt(r.keyword_recall,2)} &middot; cite ${fmt(r.gold_citation_recall ?? r.citation_coverage,2)} &middot; grd ${fmt(r.groundedness,2)} &middot; r@3 ${fmt(r.retrieval_recall_at_3 ?? r.retrieval_recall,2)} &middot; ${fmt(r.total_tokens,0)} tok &middot; ${fmt(r.latency_ms,1)} ms</span>
     </summary>
     <div class="casebody">
       <h4>Walk this case</h4>
@@ -385,10 +422,13 @@ function caseEl(r){
   d.querySelector(".w-cites").textContent = cites.length ? cites.join(" ") : "(no [doc:...] citations found)";
   const v = [];
   v.push(`failure: ${r.failure || "none (success)"}`);
-  if (r.groundedness != null) v.push(`groundedness: ${r.groundedness} (lexical proxy, threshold 0.5)`);
-  if (r.citation_coverage != null) v.push(`citation coverage: ${r.citation_coverage}`);
+  if (r.groundedness != null) v.push(`groundedness: ${r.groundedness} (lexical proxy over the retrieved docs, threshold 0.5)`);
+  if (r.gold_citation_recall != null) v.push(`gold citation recall: ${r.gold_citation_recall}`);
+  if (r.citation_precision != null) v.push(`citation precision: ${r.citation_precision}`);
+  if (r.citation_coverage != null) v.push(`citation coverage (pre-fix metric): ${r.citation_coverage}`);
   if (r.keyword_recall != null) v.push(`keyword recall: ${r.keyword_recall}`);
-  if (r.retrieval_recall != null) v.push(`retrieval recall: ${r.retrieval_recall}`);
+  if (r.retrieval_recall_at_1 != null) v.push(`retrieval recall@1 / @3: ${r.retrieval_recall_at_1} / ${r.retrieval_recall_at_3}`);
+  if (r.retrieval_recall != null) v.push(`retrieval recall (pre-fix metric): ${r.retrieval_recall}`);
   if (r.expect_abstention || r.abstention_correct != null) v.push(`abstention correct: ${fmt(r.abstention_correct,2)}`);
   d.querySelector(".w-verdict").textContent = v.join("\n");
   d.querySelector(".w-spans").textContent =
@@ -420,7 +460,7 @@ let vtIdx = 0, vtTimer = null, vtSpeed = 1;
 function vtRender(){
   const id = VSEQ[vtIdx];
   const agg = getAgg(id);
-  const recall = agg.mean_retrieval_recall, ground = agg.mean_groundedness;
+  const recall = agg.mean_retrieval_recall_at_3, ground = agg.mean_groundedness;
   const br = document.getElementById("bar-recall"), bg = document.getElementById("bar-ground");
   br.style.width = (recall*100) + "%";
   bg.style.width = (ground*100) + "%";
@@ -428,9 +468,9 @@ function vtRender(){
   document.getElementById("val-recall").textContent = `${VERSION_META[id].label}: ${recall}`;
   document.getElementById("val-ground").textContent = `${VERSION_META[id].label}: ${ground}`;
   const stories = [
-    "v1 baseline: overlap retrieval, top-1. Recall 0.73 - the floor we improve from.",
-    "v2 improved: idf-weighted retrieval, top-3. Recall 0.73 \u2192 0.91, MRR up, everything else held. No regressions detected.",
-    "v3 fluent: same retrieval as v2 - but the fluent style drops citations. Recall holds at 0.91 while groundedness collapses 0.57 \u2192 0.00 (22 ungrounded cases) and citation coverage 0.73 \u2192 0. The regression engine flags it and attributes it per case.",
+    `overlap retrieval, top 1, faithful citations. Recall@3 ${SN.r3v1} (it only retrieves one document), groundedness ${SN.g1}: the starting point.`,
+    `idf retrieval, top 3. Recall@3 ${SN.r3v1} &rarr; ${SN.r3v2} because it retrieves three documents; recall@1 stays at ${SN.r1v2}, and at equal K idf does not beat overlap (see below). Everything else held: no regressions detected.`,
+    `same retrieval as v2, but the fluent style drops citations. Recall@3 holds at ${SN.r3v3} while groundedness collapses ${SN.g1} &rarr; ${SN.g3} (${SN.ung3} ungrounded cases) and gold citation recall ${SN.c1} &rarr; ${SN.c3}. The regression engine flags it and attributes it per case.`,
   ];
   document.getElementById("vstory").innerHTML = `<b>${VERSION_META[id].label}:</b> ${stories[vtIdx]}`;
   renderVDeltas(id);
@@ -499,8 +539,8 @@ function replayRender(){
     `<b>TRACE</b> - the invocation is recorded as one validated trace (never re-run to score).<pre>spans: ${(t.spans||[]).map(s => s.kind + " " + fmt(s.latency_ms,3) + " ms").join(", ") || "(none recorded)"}\ntokens: ${JSON.stringify((t.usage||{}))}</pre>`,
     `<b>RETRIEVAL</b> - what the system fetched vs what the case declares as ground truth.<pre>retrieved: ${docs.join(", ") || "(none)"}\nsupporting: ${support.join(", ") || "-"}</pre>`,
     `<b>ANSWER</b> - the recorded final answer.<pre>${(r.answer || "(none)").slice(0, 400)}</pre>`,
-    `<b>CITATION CHECK</b> - [doc:...] citations extracted from the answer, matched against supporting docs.<pre>citations found: ${cites.join(" ") || "(none)"}\ncitation coverage: ${fmt(r.citation_coverage,3)}  (fraction of supporting docs cited)</pre>`,
-    `<b>GROUNDEDNESS</b> - lexical proxy: does each cited sentence's content appear in the cited doc?<pre>groundedness: ${fmt(r.groundedness,3)}  (supported cited sentences / total cited; threshold 0.5)</pre>`,
+    `<b>CITATION CHECK</b> - [doc:...] citations extracted from the answer, matched against supporting docs.<pre>citations found: ${cites.join(" ") || "(none)"}\ngold citation recall: ${fmt(r.gold_citation_recall ?? r.citation_coverage,3)}  (share of supporting docs cited)\ncitation precision: ${fmt(r.citation_precision,3)}  (share of cited docs that are supporting or retrieved)</pre>`,
+    `<b>GROUNDEDNESS</b> - lexical proxy: does each claim's content appear in a cited doc the system retrieved?<pre>groundedness: ${fmt(r.groundedness,3)}  (supported claims / claims; overlap threshold 0.5)</pre>`,
     `<b>TAXONOMY</b> - first-match classification of the outcome.<pre>failure: ${r.failure || "none - success"}\n(${r.failure ? (FAILURE_WHY[r.failure] || "") : "all checked expectations passed"})</pre>`,
   ];
   stage.innerHTML = bodies[rpStep];
@@ -548,7 +588,9 @@ function renderComparisons(){
   const items = [
     ["v2 vs v1 - the improvement", DATA.comparisons.v2_vs_v1],
     ["v3 vs v1 - the planted regression", DATA.comparisons.v3_vs_v1],
-    ["live LLM vs deterministic v2", DATA.comparisons.llm_vs_v2],
+    [DATA.llm.replayable ? "live LLM vs deterministic v2"
+      : "live LLM vs deterministic v2 (recorded with the pre-fix metric code against an uncommitted v2 run; not replayable)",
+      DATA.comparisons.llm_vs_v2],
   ];
   panel.innerHTML = items.map(([title, c]) => {
     const s = c.summary;
@@ -557,7 +599,7 @@ function renderComparisons(){
         <td>${m.metric}</td><td>${m.direction}-better</td>
         <td class="num">${fmt(m.baseline,4)}</td><td class="num">${fmt(m.candidate,4)}</td>
         <td class="num">${fmt(m.delta,4)}</td>
-        <td class="v-${m.verdict==='improved'?'good':m.verdict==='regressed'?'bad':'neu'}">${m.verdict}</td>
+        <td class="v-${m.verdict==='improved'?'good':m.verdict==='regressed'?'bad':'neu'}">${m.verdict}${m.gated === false ? " (not counted)" : ""}${m.note ? " - " + m.note : ""}</td>
       </tr>`).join("");
     const deltas = Object.entries(c.failure_count_deltas || {})
       .map(([k,v]) => `${k} ${v>0?"+":""}${v}`).join(", ") || "none";
@@ -618,16 +660,16 @@ document.getElementById("tour-speed").addEventListener("change", e => { tourSpee
 const TOURS = {
   main: { steps: [
     { title: "What this page is", el: ".hero", html: "AIRE evaluates AI systems from <b>recorded traces</b>: run once, score many times, compare versions. Every number here is committed measurement from the repo's results/." },
-    { title: "The three deterministic versions", el: "#tabs", html: "v1 (overlap retrieval), v2 (idf retrieval), v3 (planted fluent regression). Click through tabs anytime; the tour will visit v3 in a moment." },
-    { title: "Watch the versions transition", el: "#transition", html: "Press 'Play v1 \u2192 v2 \u2192 v3': recall climbs 0.73 \u2192 0.91, then groundedness collapses 0.57 \u2192 0.00 - the page's key measured story." },
+    { title: "The three deterministic versions", el: "#tabs", html: "v1 (overlap retrieval, top 1), v2 (idf retrieval, top 3), v3 (planted fluent regression). Click through tabs anytime; the tour will visit v3 in a moment." },
+    { title: "Watch the versions transition", el: "#transition", html: `Press 'Play': recall@3 rises ${SN.r3v1} &rarr; ${SN.r3v2} as v2 retrieves three documents, then groundedness collapses ${SN.g1} &rarr; ${SN.g3}. That is the page's key measured story.` },
     { title: "Replay one case", el: "#replay", html: "Pick any case and step through the evaluator's decision path: run \u2192 trace \u2192 retrieval \u2192 answer \u2192 citation check \u2192 groundedness \u2192 taxonomy. This is how 'a score' becomes 'an explanation'." },
-    { title: "Failure categories are the point", el: "#fail-chips", html: "Click a failure category (e.g. ungrounded (22)) to see exactly which cases regressed and why the engine classified them so. The engine doesn't produce one score - it identifies WHY." },
-    { title: "The comparisons", el: "#compare", html: "Direction-aware thresholds with per-case attribution. v3 vs v1: regressions detected. Now explore on your own - keyboard: Space play/pause, arrows step, R resets an active player." },
+    { title: "Failure categories are the point", el: "#fail-chips", html: `Click a failure category (e.g. ungrounded (${SN.ung3})) to see exactly which cases regressed and why the engine classified them so. The engine doesn't produce one score; it identifies WHY.` },
+    { title: "The comparisons", el: "#compare", html: "Direction-aware tolerances with per-case attribution. v3 vs v1: regressions detected. Now explore on your own. Keyboard: Space play/pause, arrows step, R resets an active player." },
   ]},
   story: { steps: [
-    { title: "1. v3 sounds better", el: "#catch-callout", html: "The team ships a 'fluent' style: sentences merge, prose flows. It even retrieves better. Nothing looks broken in a chat window." },
-    { title: "2. Retrieval looks improved", el: "#transition", html: "Recall: 0.73 \u2192 0.91 (v2's idf retrieval, kept in v3). A single composite score would call v3 an upgrade. Play the transition to watch it.", onEnter: () => { vtIdx = 1; vtRender(); } },
-    { title: "3. Grounding collapses", el: "#transition", html: "The fluent style drops every citation. Groundedness: 0.57 \u2192 0.00 across 22 ungrounded cases; citation coverage 0.73 \u2192 0. Step to v3.", onEnter: () => { vtIdx = 2; vtRender(); } },
+    { title: "1. v3 looks fine", el: "#catch-callout", html: "The team ships a 'fluent' style: the quoted sentences are merged into one and the citations go. It retrieves as well as v2. Nothing looks broken in a chat window." },
+    { title: "2. Retrieval looks improved", el: "#transition", html: `Recall@3: ${SN.r3v1} &rarr; ${SN.r3v2}, kept in v3. That gain comes from retrieving three documents instead of one, not from the idf weighting. A single composite score would call v3 an upgrade. Play the transition to watch it.`, onEnter: () => { vtIdx = 1; vtRender(); } },
+    { title: "3. Grounding collapses", el: "#transition", html: `The fluent style drops every citation. Groundedness: ${SN.g1} &rarr; ${SN.g3} across ${SN.ung3} ungrounded cases; gold citation recall ${SN.c1} &rarr; ${SN.c3}. Step to v3.`, onEnter: () => { vtIdx = 2; vtRender(); } },
     { title: "4. The evaluator flags it", el: "#compare", html: "The regression engine reports 'regressions detected' for v3 vs v1 with per-case attribution - not one blurry number, but which metric moved and which cases caused it." },
     { title: "5. Case-level evidence explains why", el: () => document.querySelector("#case-list details"), html: "Open any ungrounded case: the recorded answer has no [doc:...] citations, so the lexical groundedness check scores 0 and the taxonomy says 'ungrounded'. That's the difference between seeing a score and understanding a regression." },
   ]},
@@ -674,6 +716,8 @@ document.addEventListener("keydown", (e) => {
 
 /* ---------------- init ---------------- */
 buildTabs();
+renderCatch();
+renderAblation();
 selectVersion("v3_fluent_regression");
 renderComparisons();
 replayFillCases();

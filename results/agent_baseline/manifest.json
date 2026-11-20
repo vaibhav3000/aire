@@ -1,0 +1,15 @@
+{
+  "run_id": "agent_baseline",
+  "name": "agent_baseline",
+  "created_at": 0.0,
+  "system_config": {
+    "source": "repo-engineer",
+    "trajectories": "demo/agent/traces"
+  },
+  "deterministic": true,
+  "dataset_path": "demo/agent/cases.jsonl",
+  "dataset_sha256": "7636c0ff8eed2f4b980ee21acd3b61d7dc39c4bde77b7b13cec1bd0692cc4daf",
+  "corpus_sha256": null,
+  "n_cases": 4,
+  "schema_version": "1.1"
+}

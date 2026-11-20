@@ -9,6 +9,8 @@ fail loudly at the boundary instead of corrupting stored runs.
 from __future__ import annotations
 
 import time
+from types import TracebackType
+from typing import Any
 
 from ..schema import Span, Timer, Trace, validate_trace_dict
 
@@ -16,7 +18,7 @@ from ..schema import Span, Timer, Trace, validate_trace_dict
 class TraceRecorder:
     """Collects spans for one invocation and emits a validated Trace."""
 
-    def __init__(self, run_id: str, case_id: str, system_config: dict) -> None:
+    def __init__(self, run_id: str, case_id: str, system_config: dict[str, Any]) -> None:
         self._trace = Trace(
             run_id=run_id,
             case_id=case_id,
@@ -24,7 +26,7 @@ class TraceRecorder:
             started_at=time.time(),
         )
 
-    def span(self, kind: str, name: str) -> Timer:
+    def span(self, kind: str, name: str) -> SpanTimer:
         """Context manager: with rec.span("retrieval", "qdrant.search") as t: ..."""
         return SpanTimer(self, kind, name)
 
@@ -35,7 +37,7 @@ class TraceRecorder:
         self,
         final_answer: str | None,
         retrieved_doc_ids: list[str] | None = None,
-        tool_calls: list[list | dict] | None = None,
+        tool_calls: list[dict[str, Any]] | None = None,
         error: str | None = None,
     ) -> Trace:
         self._trace.final_answer = final_answer
@@ -57,21 +59,24 @@ class SpanTimer:
 
     def __init__(self, recorder: TraceRecorder, kind: str, name: str) -> None:
         self._recorder = recorder
-        self._span = Span(
-            kind=kind, name=name, started_at=time.time(), latency_ms=0.0
-        )
+        self._span = Span(kind=kind, name=name, started_at=time.time(), latency_ms=0.0)
 
-    def __enter__(self) -> "SpanTimer":
+    def __enter__(self) -> SpanTimer:
         self._timer = Timer()
         self._timer.__enter__()
         return self
 
     @property
-    def attributes(self) -> dict:
+    def attributes(self) -> dict[str, Any]:
         """Attribute dict of the underlying span, so callers can annotate it."""
         return self._span.attributes
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> bool:
         self._timer.__exit__(exc_type, exc, tb)
         self._span.latency_ms = self._timer.latency_ms
         if exc_type is not None:

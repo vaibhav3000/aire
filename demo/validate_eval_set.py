@@ -13,11 +13,18 @@ Checks performed on ``demo/eval_set.jsonl``:
    - at least one supporting doc is listed and every listed doc exists
      in ``demo/corpus/``,
    - 3-5 expected keywords are given and every keyword occurs
-     (case-insensitive substring) in the concatenated text of the
-     supporting docs.
+     in the concatenated text of the supporting docs, matched the same
+     way the engine scores answers (aire.evaluator.metrics.keyword_in_text:
+     case-insensitive, on token boundaries).
 3. Abstention cases (``expect_abstention`` true)
    - ``expected_keywords`` and ``supporting_doc_ids`` are empty and
      ``must_cite`` is explicitly false, so no doc lookup applies.
+4. Categories (docs/eval_set.md)
+   - the first tag is ``answerable`` or ``unanswerable`` and matches
+     ``expect_abstention``,
+   - the ``multi-doc`` tag is present exactly when two supporting docs are
+     listed,
+   - the suite keeps at least ``MIN_UNANSWERABLE`` unanswerable cases.
 
 The script prints a count breakdown and exits 0 when every check passes,
 1 otherwise. Paths resolve relative to this file, so it runs from any
@@ -35,11 +42,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from aire.evaluator.metrics import keyword_in_text
+
 DEMO_DIR = Path(__file__).resolve().parent
 CORPUS_DIR = DEMO_DIR / "corpus"
 EVAL_SET_PATH = DEMO_DIR / "eval_set.jsonl"
 
-EXPECTED_CASE_COUNT = 26
+EXPECTED_CASE_COUNT = 150
+MIN_UNANSWERABLE = 20
 MIN_KEYWORDS, MAX_KEYWORDS = 3, 5
 
 REQUIRED_STRING_FIELDS = ("case_id", "input")
@@ -83,7 +93,9 @@ def load_cases(path: Path, errors: list[str]) -> list[Case]:
             errors.append(f"line {line_number}: invalid JSON ({exc})")
             continue
         if not isinstance(payload, dict):
-            errors.append(f"line {line_number}: expected a JSON object, got {type(payload).__name__}")
+            errors.append(
+                f"line {line_number}: expected a JSON object, got {type(payload).__name__}"
+            )
             continue
         cases.append(Case(line_number=line_number, data=payload))
     return cases
@@ -94,7 +106,9 @@ def load_corpus(errors: list[str]) -> dict[str, str]:
     if not CORPUS_DIR.is_dir():
         errors.append(f"missing corpus directory: {CORPUS_DIR}")
         return {}
-    corpus = {path.stem: path.read_text(encoding="utf-8") for path in sorted(CORPUS_DIR.glob("*.md"))}
+    corpus = {
+        path.stem: path.read_text(encoding="utf-8") for path in sorted(CORPUS_DIR.glob("*.md"))
+    }
     if not corpus:
         errors.append(f"no markdown documents found in {CORPUS_DIR}")
     return corpus
@@ -127,6 +141,21 @@ def check_schema(case: Case, errors: list[str]) -> None:
                 errors.append(f"{where}: keyword {keyword!r} must be lowercase")
 
 
+def check_tags(case: Case, errors: list[str]) -> None:
+    """The first tag names the kind of case; multi-doc means exactly two docs."""
+    where = f"line {case.line_number} ({case.case_id})"
+    tags = case.data.get("tags")
+    if not isinstance(tags, list):
+        return  # the schema check reports it
+    kind = "unanswerable" if case.expects_abstention else "answerable"
+    if not tags or tags[0] != kind:
+        errors.append(f"{where}: first tag must be {kind!r}, got {tags[:1]}")
+    doc_ids = case.data.get("supporting_doc_ids")
+    n_docs = len(doc_ids) if isinstance(doc_ids, list) else 0
+    if ("multi-doc" in tags) != (n_docs == 2):
+        errors.append(f"{where}: the multi-doc tag needs exactly two supporting docs ({n_docs})")
+
+
 def check_answerable(case: Case, corpus: dict[str, str], errors: list[str]) -> None:
     """Every keyword must occur in the concatenated supporting docs."""
     where = f"line {case.line_number} ({case.case_id})"
@@ -138,14 +167,16 @@ def check_answerable(case: Case, corpus: dict[str, str], errors: list[str]) -> N
     if missing:
         errors.append(f"{where}: unknown doc id(s): {', '.join(missing)}")
         return
-    haystack = "\n".join(corpus[doc_id] for doc_id in doc_ids).lower()
+    haystack = "\n".join(corpus[doc_id] for doc_id in doc_ids)
     keywords = case.data.get("expected_keywords")
     if not isinstance(keywords, list):
         return  # schema check already reported the type problem
     if not MIN_KEYWORDS <= len(keywords) <= MAX_KEYWORDS:
-        errors.append(f"{where}: expected {MIN_KEYWORDS}-{MAX_KEYWORDS} keywords, found {len(keywords)}")
+        errors.append(
+            f"{where}: expected {MIN_KEYWORDS}-{MAX_KEYWORDS} keywords, found {len(keywords)}"
+        )
     for keyword in keywords:
-        if isinstance(keyword, str) and keyword.lower() not in haystack:
+        if isinstance(keyword, str) and not keyword_in_text(keyword, haystack):
             errors.append(f"{where}: keyword {keyword!r} not found in {', '.join(doc_ids)}")
 
 
@@ -177,10 +208,16 @@ def validate(cases: list[Case], corpus: dict[str, str]) -> list[str]:
         check_schema(case, errors)
 
     for case in cases:
+        check_tags(case, errors)
         if case.expects_abstention:
             check_abstention(case, errors)
         else:
             check_answerable(case, corpus, errors)
+    n_unanswerable = sum(1 for case in cases if case.expects_abstention)
+    if n_unanswerable < MIN_UNANSWERABLE:
+        errors.append(
+            f"only {n_unanswerable} unanswerable cases; at least {MIN_UNANSWERABLE} needed"
+        )
     return errors
 
 
@@ -199,6 +236,8 @@ def print_breakdown(cases: list[Case], corpus: dict[str, str]) -> None:
     print(f"Corpus documents loaded : {len(corpus)}")
     print(f"Total cases             : {len(cases)}")
     print(f"  answerable, 1 doc     : {len(single_doc)}")
+    paraphrased = [case for case in single_doc if "paraphrase" in case.data.get("tags", [])]
+    print(f"    of which paraphrased: {len(paraphrased)}")
     print(f"  answerable, 2 docs    : {len(multi_doc)}")
     print(f"  abstention            : {len(abstentions)}")
     print(f"Distinct docs referenced: {len(referenced)}/{len(corpus)}")

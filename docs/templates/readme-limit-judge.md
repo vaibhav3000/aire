@@ -1,0 +1,1 @@
+- **Judge agreement is provisional.** The kappas above are measured against {{calib.labels.n}} draft labels written by the author and not yet reviewed, and only the offline lexical judge has been calibrated.

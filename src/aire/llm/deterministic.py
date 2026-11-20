@@ -7,12 +7,13 @@ The evaluation framework is the project; the demo application only needs to be
 committed result reproducible without API keys, while the `SystemUnderTest`
 interface accepts real LLM adapters (see openai_compat.py) unchanged.
 
-The responder answers extractively: it picks sentences from the retrieved
-documents that share the most keywords with the question and prefixes them
-with citations of the form [doc:<id>]. `style="fluent"` (the deliberate
-regression in the demo) paraphrases by stripping citations and merging
-sentences — which reads better but breaks grounding, exactly what the
-groundedness judge should catch.
+The responder answers extractively: it picks the sentences of the top
+retrieved document (markdown headings excluded) that share the most keywords
+with the question and follows each with a citation of the form [doc:<id>].
+`style="fluent"` (the deliberate regression in the demo) merges the same
+sentences into one and drops the citations. The text is still quoted from
+the document, but no claim is cited any more, which is exactly what the
+groundedness and citation metrics should catch.
 """
 
 from __future__ import annotations
@@ -25,11 +26,51 @@ from typing import Any
 from .base import SUTResult, SystemUnderTest
 
 _WORD_RE = re.compile(r"[a-z0-9']+")
+# Quotable units: sentences, and separate lines (so a list item is never glued
+# to the next one).
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\s*\n\s*")
+_HEADING_LINE_RE = re.compile(r"^\s{0,3}#+[^\n]*$", re.MULTILINE)
+
+
+def _strip_headings(text: str) -> str:
+    """Document text without markdown heading lines, which are titles, not claims."""
+    return _HEADING_LINE_RE.sub("", text).strip()
+
 
 STOPWORDS = {
-    "the", "a", "an", "is", "are", "was", "were", "of", "to", "in", "for", "on",
-    "and", "or", "does", "do", "what", "how", "when", "which", "who", "can",
-    "with", "my", "our", "your", "i", "we", "it", "at", "by", "from", "be",
+    "the",
+    "a",
+    "an",
+    "is",
+    "are",
+    "was",
+    "were",
+    "of",
+    "to",
+    "in",
+    "for",
+    "on",
+    "and",
+    "or",
+    "does",
+    "do",
+    "what",
+    "how",
+    "when",
+    "which",
+    "who",
+    "can",
+    "with",
+    "my",
+    "our",
+    "your",
+    "i",
+    "we",
+    "it",
+    "at",
+    "by",
+    "from",
+    "be",
 }
 
 
@@ -79,14 +120,17 @@ class KeywordRetriever:
         if not q:
             # Degenerate query: no signal - return nothing rather than arbitrary docs.
             return []
+        # Float sums run in sorted term order so scores do not depend on set
+        # iteration order (which varies with PYTHONHASHSEED).
+        terms = sorted(q)
         scored: list[RetrievedDoc] = []
         for doc_id, doc_keywords in self._doc_keywords.items():
             if self.weighting == "idf":
-                weights = {w: self._idf.get(w, self._default_idf) for w in q}
+                weights = {w: self._idf.get(w, self._default_idf) for w in terms}
                 denom = sum(weights.values())
                 if denom <= 0:
                     continue
-                score = sum(weights[w] for w in q if w in doc_keywords) / denom
+                score = sum(weights[w] for w in terms if w in doc_keywords) / denom
             else:
                 score = len(q & doc_keywords) / max(len(q), 1)
             scored.append(RetrievedDoc(doc_id, self.corpus[doc_id], round(score, 4)))
@@ -131,34 +175,42 @@ class ExtractiveRAG(SystemUnderTest):
     def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult:
         retrieved = self.retriever.retrieve(case_input)
         doc_ids = [r.doc_id for r in retrieved]
-        if not retrieved or (retrieved[0].score < self.config["min_score"] and not self.config["allow_irrelevant"]):
+        if not retrieved or (
+            retrieved[0].score < self.config["min_score"] and not self.config["allow_irrelevant"]
+        ):
             return SUTResult(answer="I don't know.", retrieved_doc_ids=doc_ids)
 
-        best = retrieved[0]
-        q = content_keywords(case_input)
-        sentences = re.split(r"(?<=[.!?])\s+", best.text.strip())
-        ranked = sorted(
-            (
-                (len(q & content_keywords(s)) / max(len(q), 1), s.strip())
-                for s in sentences
-                if s.strip()
-            ),
-            key=lambda pair: pair[0],
-            reverse=True,
+        answer = extractive_answer(
+            case_input, retrieved[0].doc_id, retrieved[0].text, self.config["style"]
         )
-        top_sentences = [s for score, s in ranked[:2] if score > 0]
-
-        if self.config["style"] == "fluent":
-            # Regression hazard: merge sentences into one flowing sentence, drop citations.
-            merged = " ".join(s.rstrip(".") for s in top_sentences) + "."
-            merged = merged.capitalize()
-            return SUTResult(
-                answer=merged or "I don't know.",
-                retrieved_doc_ids=doc_ids,
-                prompt_text=case_input,
-            )
-
-        if not top_sentences:
+        if answer is None:
             return SUTResult(answer="I don't know.", retrieved_doc_ids=doc_ids)
-        answer = " ".join(f"{s} [doc:{best.doc_id}]" for s in top_sentences)
         return SUTResult(answer=answer, retrieved_doc_ids=doc_ids, prompt_text=case_input)
+
+
+def extractive_answer(question: str, doc_id: str, text: str, style: str = "faithful") -> str | None:
+    """The demo's answer from one document, or None when no sentence matches.
+
+    Picks the (at most two) sentences of the document, headings excluded, that
+    share the most content keywords with the question. "faithful" follows each
+    with [doc:<id>]; "fluent" (the deliberate regression) merges them into one
+    sentence and drops the citations, keeping the quoted wording.
+    """
+    q = content_keywords(question)
+    sentences = _SENTENCE_SPLIT_RE.split(_strip_headings(text))
+    ranked = sorted(
+        (
+            (len(q & content_keywords(s)) / max(len(q), 1), s.strip())
+            for s in sentences
+            if s.strip()
+        ),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
+    top_sentences = [s for score, s in ranked[:2] if score > 0]
+    if not top_sentences:
+        return None
+    if style == "fluent":
+        merged = "; ".join(s.rstrip(".") for s in top_sentences) + "."
+        return merged[:1].upper() + merged[1:]
+    return " ".join(f"{s} [doc:{doc_id}]" for s in top_sentences)

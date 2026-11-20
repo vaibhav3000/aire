@@ -1,0 +1,32 @@
+{
+  "description": "KeywordRetriever with top_k=3 over the answerable cases; recall and MRR at fixed cut-offs, so weighting and K are compared separately",
+  "n_cases": 130,
+  "retrievers": {
+    "overlap": {
+      "recall_at_1": 0.7154,
+      "recall_at_3": 0.8731,
+      "mrr_at_3": 0.8295
+    },
+    "idf": {
+      "recall_at_1": 0.7154,
+      "recall_at_3": 0.8615,
+      "mrr_at_3": 0.8231
+    }
+  },
+  "abstention_separability": {
+    "overlap": {
+      "unanswerable_top_min": 0.1429,
+      "unanswerable_top_max": 0.6667,
+      "n_unanswerable": 20,
+      "n_answerable": 130,
+      "answerable_at_or_below_max": 108
+    },
+    "idf": {
+      "unanswerable_top_min": 0.0056,
+      "unanswerable_top_max": 0.4596,
+      "n_unanswerable": 20,
+      "n_answerable": 130,
+      "answerable_at_or_below_max": 84
+    }
+  }
+}

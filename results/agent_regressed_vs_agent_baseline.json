@@ -1,0 +1,246 @@
+{
+  "summary": {
+    "labels": {
+      "baseline": "agent_baseline",
+      "candidate": "agent_regressed"
+    },
+    "n_improved": 0,
+    "n_regressed": 4,
+    "n_neutral": 6,
+    "n_inconclusive": 0,
+    "n_not_comparable": 0,
+    "n_new": 0,
+    "n_ignored": 0,
+    "verdict": "regressions detected"
+  },
+  "statistics": {
+    "method": "paired",
+    "alpha": 0.05,
+    "n_resamples": 2000,
+    "seed": 0,
+    "min_pairs": 10
+  },
+  "metrics": [
+    {
+      "metric": "abstention_accuracy",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 1.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "errors",
+      "direction": "lower",
+      "tolerance": "absolute",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": null,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "false_refusal",
+      "direction": "lower",
+      "tolerance": "absolute",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "rel_delta": null,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "n_steps",
+      "direction": "lower",
+      "tolerance": "relative",
+      "baseline": 6.5,
+      "candidate": 6.5,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "step_efficiency",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 0.8854,
+      "candidate": 0.8913,
+      "delta": 0.0059,
+      "rel_delta": 0.0067,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "tool_args_schema_valid",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 0.9271,
+      "delta": -0.0729,
+      "rel_delta": -0.0729,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "attribution": [
+        {
+          "case_id": "task_01_fix_off_by_one",
+          "baseline": 1.0,
+          "candidate": 0.8333,
+          "delta": -0.1667
+        },
+        {
+          "case_id": "task_04_constrained_refactor",
+          "baseline": 1.0,
+          "candidate": 0.875,
+          "delta": -0.125
+        }
+      ],
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "tool_args_valid",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 1.0,
+      "delta": 0.0,
+      "rel_delta": 0.0,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "neutral",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "tool_call_precision",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 0.8854,
+      "candidate": 0.8414,
+      "delta": -0.044,
+      "rel_delta": -0.0497,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "attribution": [
+        {
+          "case_id": "task_02_failing_test",
+          "baseline": 1.0,
+          "candidate": 0.8571,
+          "delta": -0.1429
+        },
+        {
+          "case_id": "task_03_add_missing_test",
+          "baseline": 0.8333,
+          "candidate": 0.8,
+          "delta": -0.0333
+        }
+      ],
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "tool_selection_accuracy",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 0.95,
+      "delta": -0.05,
+      "rel_delta": -0.05,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "attribution": [
+        {
+          "case_id": "task_03_add_missing_test",
+          "baseline": 1.0,
+          "candidate": 0.8,
+          "delta": -0.2
+        }
+      ],
+      "p_value": null,
+      "p_holm": null
+    },
+    {
+      "metric": "success_rate",
+      "direction": "higher",
+      "tolerance": "absolute",
+      "baseline": 1.0,
+      "candidate": 0.5,
+      "delta": -0.5,
+      "rel_delta": -0.5,
+      "threshold": 0.02,
+      "gated": true,
+      "verdict": "regressed",
+      "n_pairs": 4,
+      "test": "point",
+      "n_baseline": 4,
+      "n_candidate": 4,
+      "attribution": [],
+      "p_value": null,
+      "p_holm": null
+    }
+  ],
+  "failure_count_deltas": {
+    "tool_error": 2
+  },
+  "warnings": []
+}

@@ -1,0 +1,44 @@
+{
+  "description": "Judge agreement with the labels in demo/judge_calibration/labels.jsonl over the 60 items in items.jsonl (20 cases x 3 demo versions).",
+  "labels": {
+    "n": 60,
+    "status": "draft",
+    "note": "draft labels are unreviewed; kappa against them is provisional",
+    "positive_rate": {
+      "correct": 0.45,
+      "supported": 0.6667
+    }
+  },
+  "judges": {
+    "rubric_lexical": {
+      "identity": {
+        "judge": "rubric_lexical",
+        "version": "lexical-v1",
+        "threshold": 0.5
+      },
+      "correct": {
+        "n": 60,
+        "agreement": 0.95,
+        "kappa": 0.9,
+        "confusion": {
+          "yes/yes": 27,
+          "yes/no": 3,
+          "no/yes": 0,
+          "no/no": 30
+        }
+      },
+      "supported": {
+        "n": 60,
+        "agreement": 1.0,
+        "kappa": 1.0,
+        "confusion": {
+          "yes/yes": 40,
+          "yes/no": 0,
+          "no/yes": 0,
+          "no/no": 20
+        }
+      }
+    }
+  },
+  "pairwise": {}
+}

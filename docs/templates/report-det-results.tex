@@ -1,0 +1,20 @@
+Table~\ref{tab:versions} shows per-version aggregates over the {{ds.n_cases}} cases.
+The gate pairs the two runs case by case and counts a change beyond the
+tolerance only when a paired test supports it (McNemar's exact test for
+metrics that are 0 or 1 per case, a seeded paired bootstrap otherwise).
+v2 versus v1 passes the gate ({{cmp.v2.summary.n_improved}} metrics improved, {{cmp.v2.summary.n_neutral}} neutral, {{cmp.v2.summary.n_inconclusive}}
+inconclusive, none regressed): recall@3 rises from {{cmp.v2.retrieval_recall_at_3.baseline|.4f}} to {{cmp.v2.retrieval_recall_at_3.candidate|.4f}} and
+MRR@3 from {{cmp.v2.retrieval_mrr_at_3.baseline|.4f}} to {{cmp.v2.retrieval_mrr_at_3.candidate|.4f}}, both significant, while the success rate rises
+from {{cmp.v2.success_rate.baseline|.4f}} to {{cmp.v2.success_rate.candidate|.4f}} without significance (McNemar p = {{cmp.v2.success_rate.p_value|.1g}}) and recall@1
+is unchanged. The ablation in Table~\ref{tab:ablation} holds the cut-off
+fixed and varies only the weighting: at $k=3$ plain overlap recalls {{abl.retrievers.overlap.recall_at_3|.4f}}
+of the supporting documents and IDF {{abl.retrievers.idf.recall_at_3|.4f}}, so the v1 to v2 gain comes from
+retrieving more documents, not from IDF.
+
+v3 versus v1 is the central demonstration: the gate blocks it because
+groundedness falls from {{cmp.v3.groundedness.baseline|.4f}} to {{cmp.v3.groundedness.candidate|.4f}} on all {{cmp.v3.groundedness.n_pairs}} answerable cases, gold
+citation recall from {{cmp.v3.gold_citation_recall.baseline|.4f}} to {{cmp.v3.gold_citation_recall.candidate|.4f}} and the success rate from {{cmp.v3.success_rate.baseline|.4f}} to
+{{cmp.v3.success_rate.candidate|.4f}}, and citation precision disappears because nothing is cited.
+Retrieval matches v2. The failure taxonomy localizes the damage: {{cmp.v3.fail.ungrounded}} cases
+become ungrounded. Latency is reported but excluded from verdicts, because
+sub-millisecond timings of the offline harness are noise.

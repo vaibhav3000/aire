@@ -1,0 +1,60 @@
+{"case_id": "absent_crypto_payments", "version": "v1_baseline", "correct": false, "supported": true, "note": "unanswerable; the answer quotes an unrelated policy instead of declining", "status": "draft"}
+{"case_id": "absent_managed_kubernetes", "version": "v1_baseline", "correct": false, "supported": true, "note": "unanswerable; quotes the encryption policy instead of declining", "status": "draft"}
+{"case_id": "absent_renewable_energy", "version": "v1_baseline", "correct": false, "supported": true, "note": "unanswerable; quotes compliance facts instead of declining", "status": "draft"}
+{"case_id": "absent_vat_number", "version": "v1_baseline", "correct": false, "supported": true, "note": "unanswerable; quotes the deletion policy instead of declining", "status": "draft"}
+{"case_id": "billing_starter_storage_seats", "version": "v1_baseline", "correct": true, "supported": true, "note": "gives Starter storage and seat, and Growth's three seats as the plan to move to", "status": "draft"}
+{"case_id": "billing_team_of_five_logins", "version": "v1_baseline", "correct": false, "supported": true, "note": "five seats need Business (unlimited seats, 299 USD); v1 lists Starter and Growth, v2 talks about the CLI", "status": "draft"}
+{"case_id": "compliance_dpa_turnaround", "version": "v1_baseline", "correct": true, "supported": true, "note": "signed copies within 3 business days", "status": "draft"}
+{"case_id": "compliance_soc2", "version": "v1_baseline", "correct": true, "supported": true, "note": "SOC 2 Type II, renewed annually", "status": "draft"}
+{"case_id": "encryption_legacy_tls12", "version": "v1_baseline", "correct": true, "supported": true, "note": "TLS 1.2 remains supported for legacy clients", "status": "draft"}
+{"case_id": "multi_business_claim_support", "version": "v1_baseline", "correct": false, "supported": true, "note": "misses the 30-day claim window and the 4-hour support target", "status": "draft"}
+{"case_id": "multi_export_before_delete", "version": "v1_baseline", "correct": false, "supported": true, "note": "gives the 24-hour purge but not how to export (JSON or CSV from project settings)", "status": "draft"}
+{"case_id": "multi_starter_key_rate_limit", "version": "v1_baseline", "correct": false, "supported": true, "note": "gives 60 requests per minute but not that the secret is shown only once", "status": "draft"}
+{"case_id": "onboarding_allowance_wait", "version": "v1_baseline", "correct": false, "supported": true, "note": "answer is about retention or support, not the immediate Starter allowance", "status": "draft"}
+{"case_id": "rate_limit_remaining_budget", "version": "v1_baseline", "correct": false, "supported": true, "note": "never mentions the x-ratelimit-remaining header", "status": "draft"}
+{"case_id": "rate_limit_webhook_cap", "version": "v1_baseline", "correct": true, "supported": true, "note": "20 deliveries per minute per endpoint", "status": "draft"}
+{"case_id": "refunds_metered_overage", "version": "v1_baseline", "correct": true, "supported": true, "note": "usage overage on pay-as-you-go is excluded from refunds", "status": "draft"}
+{"case_id": "retention_project_purge", "version": "v1_baseline", "correct": true, "supported": true, "note": "purged within 24 hours", "status": "draft"}
+{"case_id": "sla_credit_formula", "version": "v1_baseline", "correct": true, "supported": true, "note": "5% of the monthly fee per 0.1% below target, capped at 50%", "status": "draft"}
+{"case_id": "status_bookmark_health_site", "version": "v1_baseline", "correct": false, "supported": true, "note": "answer is about sign-up, not status.northwind.cloud", "status": "draft"}
+{"case_id": "status_region_rss", "version": "v1_baseline", "correct": true, "supported": true, "note": "per-region RSS feeds are available", "status": "draft"}
+{"case_id": "absent_crypto_payments", "version": "v2_improved", "correct": false, "supported": true, "note": "unanswerable; the answer quotes an unrelated policy instead of declining", "status": "draft"}
+{"case_id": "absent_managed_kubernetes", "version": "v2_improved", "correct": false, "supported": true, "note": "unanswerable; quotes the encryption policy instead of declining", "status": "draft"}
+{"case_id": "absent_renewable_energy", "version": "v2_improved", "correct": false, "supported": true, "note": "unanswerable; quotes compliance facts instead of declining", "status": "draft"}
+{"case_id": "absent_vat_number", "version": "v2_improved", "correct": false, "supported": true, "note": "unanswerable; quotes the deletion policy instead of declining", "status": "draft"}
+{"case_id": "billing_starter_storage_seats", "version": "v2_improved", "correct": true, "supported": true, "note": "gives Starter storage and seat, and Growth's three seats as the plan to move to", "status": "draft"}
+{"case_id": "billing_team_of_five_logins", "version": "v2_improved", "correct": false, "supported": true, "note": "five seats need Business (unlimited seats, 299 USD); v1 lists Starter and Growth, v2 talks about the CLI", "status": "draft"}
+{"case_id": "compliance_dpa_turnaround", "version": "v2_improved", "correct": true, "supported": true, "note": "signed copies within 3 business days", "status": "draft"}
+{"case_id": "compliance_soc2", "version": "v2_improved", "correct": true, "supported": true, "note": "SOC 2 Type II, renewed annually", "status": "draft"}
+{"case_id": "encryption_legacy_tls12", "version": "v2_improved", "correct": true, "supported": true, "note": "TLS 1.2 remains supported for legacy clients", "status": "draft"}
+{"case_id": "multi_business_claim_support", "version": "v2_improved", "correct": false, "supported": true, "note": "misses the 30-day claim window and the 4-hour support target", "status": "draft"}
+{"case_id": "multi_export_before_delete", "version": "v2_improved", "correct": false, "supported": true, "note": "gives the 24-hour purge but not how to export (JSON or CSV from project settings)", "status": "draft"}
+{"case_id": "multi_starter_key_rate_limit", "version": "v2_improved", "correct": false, "supported": true, "note": "gives 60 requests per minute but not that the secret is shown only once", "status": "draft"}
+{"case_id": "onboarding_allowance_wait", "version": "v2_improved", "correct": false, "supported": true, "note": "answer is about retention or support, not the immediate Starter allowance", "status": "draft"}
+{"case_id": "rate_limit_remaining_budget", "version": "v2_improved", "correct": false, "supported": true, "note": "never mentions the x-ratelimit-remaining header", "status": "draft"}
+{"case_id": "rate_limit_webhook_cap", "version": "v2_improved", "correct": true, "supported": true, "note": "20 deliveries per minute per endpoint", "status": "draft"}
+{"case_id": "refunds_metered_overage", "version": "v2_improved", "correct": true, "supported": true, "note": "usage overage on pay-as-you-go is excluded from refunds", "status": "draft"}
+{"case_id": "retention_project_purge", "version": "v2_improved", "correct": true, "supported": true, "note": "purged within 24 hours", "status": "draft"}
+{"case_id": "sla_credit_formula", "version": "v2_improved", "correct": true, "supported": true, "note": "5% of the monthly fee per 0.1% below target, capped at 50%", "status": "draft"}
+{"case_id": "status_bookmark_health_site", "version": "v2_improved", "correct": false, "supported": true, "note": "answer is about sign-up, not status.northwind.cloud", "status": "draft"}
+{"case_id": "status_region_rss", "version": "v2_improved", "correct": true, "supported": true, "note": "per-region RSS feeds are available", "status": "draft"}
+{"case_id": "absent_crypto_payments", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "unanswerable; the answer quotes an unrelated policy instead of declining; no citations", "status": "draft"}
+{"case_id": "absent_managed_kubernetes", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "unanswerable; quotes the encryption policy instead of declining; no citations", "status": "draft"}
+{"case_id": "absent_renewable_energy", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "unanswerable; quotes compliance facts instead of declining; no citations", "status": "draft"}
+{"case_id": "absent_vat_number", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "unanswerable; quotes the deletion policy instead of declining; no citations", "status": "draft"}
+{"case_id": "billing_starter_storage_seats", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "gives Starter storage and seat, and Growth's three seats as the plan to move to; no citations", "status": "draft"}
+{"case_id": "billing_team_of_five_logins", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "five seats need Business (unlimited seats, 299 USD); v1 lists Starter and Growth, v2 talks about the CLI; no citations", "status": "draft"}
+{"case_id": "compliance_dpa_turnaround", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "signed copies within 3 business days; no citations", "status": "draft"}
+{"case_id": "compliance_soc2", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "SOC 2 Type II, renewed annually; no citations", "status": "draft"}
+{"case_id": "encryption_legacy_tls12", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "TLS 1.2 remains supported for legacy clients; no citations", "status": "draft"}
+{"case_id": "multi_business_claim_support", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "misses the 30-day claim window and the 4-hour support target; no citations", "status": "draft"}
+{"case_id": "multi_export_before_delete", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "gives the 24-hour purge but not how to export (JSON or CSV from project settings); no citations", "status": "draft"}
+{"case_id": "multi_starter_key_rate_limit", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "gives 60 requests per minute but not that the secret is shown only once; no citations", "status": "draft"}
+{"case_id": "onboarding_allowance_wait", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "answer is about retention or support, not the immediate Starter allowance; no citations", "status": "draft"}
+{"case_id": "rate_limit_remaining_budget", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "never mentions the x-ratelimit-remaining header; no citations", "status": "draft"}
+{"case_id": "rate_limit_webhook_cap", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "20 deliveries per minute per endpoint; no citations", "status": "draft"}
+{"case_id": "refunds_metered_overage", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "usage overage on pay-as-you-go is excluded from refunds; no citations", "status": "draft"}
+{"case_id": "retention_project_purge", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "purged within 24 hours; no citations", "status": "draft"}
+{"case_id": "sla_credit_formula", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "5% of the monthly fee per 0.1% below target, capped at 50%; no citations", "status": "draft"}
+{"case_id": "status_bookmark_health_site", "version": "v3_fluent_regression", "correct": false, "supported": false, "note": "answer is about sign-up, not status.northwind.cloud; no citations", "status": "draft"}
+{"case_id": "status_region_rss", "version": "v3_fluent_regression", "correct": true, "supported": false, "note": "per-region RSS feeds are available; no citations", "status": "draft"}

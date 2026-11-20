@@ -1,0 +1,107 @@
+name: Eval PR
+
+# Evaluates a pull request's code and gates it against the base branch's
+# committed results. This job runs untrusted code, so it gets a read-only
+# token and no secrets. It never comments; it uploads the gate result, and
+# eval-pr-comment.yml (a separate, trusted workflow) posts it (ADR 0005).
+#
+# A PR that changes the evaluation set cannot be paired with the base
+# branch's results: that gate exits 2 with a "not comparable" report, which
+# is a warning, not a failure. The fresh run is always also gated against the
+# PR's own committed results, so a regression still fails the check. Every
+# other exit 2 (a crash, a missing or malformed run) fails it too.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eval-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    name: Evaluate and gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pull request
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check out the base branch's committed results
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+          persist-credentials: false
+          sparse-checkout: results
+      # No dependency cache: this job runs untrusted code (ADR 0005).
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Install uv
+        run: python -m pip install uv==0.11.32
+      - name: Install the pull request's aire from its lockfile
+        run: |
+          uv sync --locked --python "3.13"
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+      - name: Snapshot the pull request's committed results
+        run: cp -r results "$RUNNER_TEMP/pr-results"
+      - name: Evaluate the pull request
+        run: python demo/run_demo.py
+      - name: Gate the candidate against the base branch
+        id: gate
+        run: |
+          code=0
+          aire gate base/results/v2_improved results/v2_improved \
+            --ignore latency_ms --report gate.json || code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Gate the fresh run against the pull request's own committed results
+        id: self_gate
+        if: always()
+        run: |
+          code=0
+          aire gate "$RUNNER_TEMP/pr-results/v2_improved" results/v2_improved \
+            --ignore latency_ms --report gate-self.json || code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Decide the check
+        id: check
+        if: always()
+        continue-on-error: true
+        env:
+          BASE_EXIT: ${{ steps.gate.outputs.exit_code }}
+          SELF_EXIT: ${{ steps.self_gate.outputs.exit_code }}
+        run: aire pr-check gate.json --base-exit "$BASE_EXIT" --self-exit "$SELF_EXIT"
+      - name: Render the HTML diff report
+        if: always() && steps.gate.outputs.exit_code != '2'
+        run: |
+          aire report base/results/v2_improved results/v2_improved \
+            --ignore latency_ms --out report.html --title "PR #${{ github.event.pull_request.number }} against ${{ github.base_ref }}"
+      - name: Record which pull request and commit were evaluated
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          printf '%s\n' "$PR_NUMBER" > pr_number.txt
+          printf '%s\n' "$HEAD_SHA" > head_sha.txt
+      - name: Upload the gate result
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: aire-pr-gate
+          path: |
+            gate.json
+            gate-self.json
+            report.html
+            pr_number.txt
+            head_sha.txt
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Fail the check when a gate failed
+        if: always() && steps.check.outcome != 'success'
+        run: |
+          echo "::error::the PR evaluation check failed; see the Decide the check step"
+          exit 1

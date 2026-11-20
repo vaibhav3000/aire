@@ -9,10 +9,12 @@ the OpenAI-compatible adapter exists for real LLMs and is opt-in.
 from __future__ import annotations
 
 import abc
+from collections.abc import Mapping
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import Any
 
-from ..schema import Trace
+from ..schema import Span, Trace
 
 
 @dataclass
@@ -26,6 +28,15 @@ class SUTResult:
     prompt_text: str = ""
     usage: dict[str, Any] | None = None  # {"prompt_tokens","completion_tokens","token_source"}
     error: str | None = None
+    # Time spent deliberately waiting inside invoke() (e.g. rate-limit backoff
+    # between provider retries). The runner records it on the span and
+    # subtracts it from the measured latency.
+    wait_ms: float = 0.0
+    # Extra span attributes, e.g. the number of provider attempts.
+    span_attributes: dict[str, Any] = field(default_factory=dict)
+    # Finer-grained steps inside the invocation (retrieval, one span per model
+    # attempt, tool calls). The runner hangs them under the attempt's span.
+    spans: list[Span] = field(default_factory=list)
 
 
 class SystemUnderTest(abc.ABC):
@@ -33,12 +44,21 @@ class SystemUnderTest(abc.ABC):
     declare nondeterminism via `deterministic = False`."""
 
     name: str = "sut"
-    config: dict[str, Any] = {}
+    # Read-only shared default; implementations assign their own dict per instance.
+    config: Mapping[str, Any] = MappingProxyType({})
     deterministic: bool = True
 
+    def before_invoke(self) -> None:
+        """Hook the runner calls before each timed attempt, outside the timer.
+
+        Use it for client-side pacing (waiting for a rate-limit slot), so the
+        recorded latency measures the system rather than the rate limiter.
+        The default does nothing.
+        """
+        return None
+
     @abc.abstractmethod
-    def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult:
-        ...
+    def invoke(self, case_input: str, case_context: dict[str, Any] | None = None) -> SUTResult: ...
 
 
 class Judge(abc.ABC):

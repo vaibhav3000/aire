@@ -7,18 +7,58 @@ name = "aire"
 version = "1.0.0"
 description = "AI Reliability & Evaluation Engine: trace-based evaluation, failure analysis, and regression detection for LLM, RAG and agent systems"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
+authors = [{ name = "Vaibhav Mahore" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Typing :: Typed",
+]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest"]
+# The core has no runtime dependency. Each provider SDK and the OpenTelemetry
+# SDK bridge is an optional extra, imported only when its adapter is built.
+gemini = ["google-genai>=3.4,<4"]
+openai = ["openai>=3.54,<4"]
+anthropic = ["anthropic>=2.10,<3"]
+otel = ["opentelemetry-sdk>=1.45,<2", "opentelemetry-exporter-otlp-proto-http>=1.45,<2"]
+all = ["aire[gemini,openai,anthropic,otel]"]
+# Development installs every extra so the adapters are type checked and their
+# contract tests run against the real SDK classes.
+dev = ["pytest>=9.2", "ruff==0.17.5", "pyright==1.1.414", "aire[all]"]
 
 [project.scripts]
 aire-gate = "aire.regression.gate:main"
+aire = "aire.cli:entry_point"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+aire = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["demo-site/node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "PIE", "RUF"]
+ignore = ["E501"]
+
+[tool.pyright]
+typeCheckingMode = "standard"
+pythonVersion = "3.11"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests", "demo", "scripts", "demo-site/build.py"]

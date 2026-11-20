@@ -1,26 +1,23 @@
 """AIRE test suite: metrics, judges, tracing, runner, engine, regression, report."""
 
 import json
-import sys
 import time
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from aire.evaluator import metrics as M  # noqa: E402
-from aire.evaluator import retrieval_metrics as R  # noqa: E402
-from aire.evaluator import tool_metrics as T  # noqa: E402
-from aire.evaluator.engine import EngineConfig, EvaluationEngine, classify_failure  # noqa: E402
-from aire.llm.base import SUTResult, SystemUnderTest  # noqa: E402
-from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever  # noqa: E402
-from aire.regression import RegressionThresholds, compare_runs  # noqa: E402
-from aire.runner.dataset import EvalCase, load_eval_dataset  # noqa: E402
-from aire.runner.runner import ExperimentRunner, RunnerConfig  # noqa: E402
-from aire.schema import Span, Trace, Usage, validate_trace_dict  # noqa: E402
-from aire.tracing.recorder import TraceRecorder  # noqa: E402
-from aire.tracing.storage import RunStore, load_run_traces  # noqa: E402
+from aire.evaluator import metrics as M
+from aire.evaluator import retrieval_metrics as R
+from aire.evaluator import tool_metrics as T
+from aire.evaluator.engine import EngineConfig, EvaluationEngine, classify_failure
+from aire.llm.base import SUTResult, SystemUnderTest
+from aire.llm.deterministic import ExtractiveRAG, KeywordRetriever
+from aire.regression import RegressionThresholds, compare_runs
+from aire.runner.dataset import EvalCase, load_eval_dataset
+from aire.runner.runner import ExperimentRunner, RunnerConfig
+from aire.schema import Span, Trace, Usage, validate_trace_dict
+from aire.tracing.recorder import TraceRecorder
+from aire.tracing.storage import RunStore, load_run_traces
 
 CORPUS = {
     "doc_a": "The refund window is 30 days for annual plans. Credits are issued to the account.",
@@ -38,11 +35,11 @@ def test_keyword_recall_counts_hits() -> None:
     assert M.keyword_recall(None, ["x"]) == 0.0
 
 
-def test_citation_parsing_and_coverage() -> None:
+def test_citation_parsing_and_gold_citation_recall() -> None:
     ans = "Rate limits are 60 rpm [doc:doc_b]. Also see [doc:doc_z]."
     assert M.citation_ids(ans) == ["doc_b", "doc_z"]
-    assert M.citation_coverage(ans, ["doc_b"]) == 1.0
-    assert M.citation_coverage(ans, ["doc_b", "doc_a"]) == 0.5
+    assert M.gold_citation_recall(ans, ["doc_b"]) == 1.0
+    assert M.gold_citation_recall(ans, ["doc_b", "doc_a"]) == 0.5
 
 
 def test_groundedness_supported_vs_unsupported() -> None:
@@ -64,8 +61,10 @@ def test_retrieval_metrics() -> None:
 
 
 def test_tool_metrics() -> None:
-    calls = [{"name": "search", "args": {"q": "x"}, "valid": True},
-             {"name": "read", "args": {}, "valid": False}]
+    calls = [
+        {"name": "search", "args": {"q": "x"}, "valid": True},
+        {"name": "read", "args": {}, "valid": False},
+    ]
     assert T.tool_selection_correct(calls, "search") == 1.0
     assert T.tool_selection_correct(calls, "write") == 0.0
     assert T.tool_selection_correct(calls, None) is None
@@ -136,6 +135,7 @@ def test_keyword_retriever_ranks_by_overlap() -> None:
 def test_extractive_rag_faithful_cites() -> None:
     sut = ExtractiveRAG("t", CORPUS, top_k=1, min_score=0.05)
     out = sut.invoke("What is the refund window for annual plans?")
+    assert out.answer is not None
     assert "[doc:doc_a]" in out.answer
     assert out.retrieved_doc_ids == ["doc_a"]
 
@@ -143,6 +143,7 @@ def test_extractive_rag_faithful_cites() -> None:
 def test_extractive_rag_fluent_drops_citations() -> None:
     sut = ExtractiveRAG("t", CORPUS, top_k=1, min_score=0.05, style="fluent")
     out = sut.invoke("What is the refund window for annual plans?")
+    assert out.answer is not None
     assert "[doc:" not in out.answer and out.answer.strip()
 
 
@@ -155,18 +156,45 @@ def test_extractive_rag_abstains_on_unknown() -> None:
 def test_runner_persists_traces(tmp_path: Path) -> None:
     sut = ExtractiveRAG("t", CORPUS, top_k=1)
     ds = tmp_path / "ds.jsonl"
-    ds.write_text(json.dumps([
-        {"case_id": "c1", "input": "What is the refund window for annual plans?",
-         "expected_keywords": ["30 days"], "supporting_doc_ids": ["doc_a"]},
-        {"case_id": "c2", "input": "Do you offer swahili phone support?",
-         "expect_abstention": True, "must_cite": False},
-    ]) + "\n")
+    ds.write_text(
+        json.dumps(
+            [
+                {
+                    "case_id": "c1",
+                    "input": "What is the refund window for annual plans?",
+                    "expected_keywords": ["30 days"],
+                    "supporting_doc_ids": ["doc_a"],
+                },
+                {
+                    "case_id": "c2",
+                    "input": "Do you offer swahili phone support?",
+                    "expect_abstention": True,
+                    "must_cite": False,
+                },
+            ]
+        )
+        + "\n"
+    )
     # load_eval_dataset expects JSONL lines
     ds.write_text(
-        json.dumps({"case_id": "c1", "input": "What is the refund window for annual plans?",
-                    "expected_keywords": ["30 days"], "supporting_doc_ids": ["doc_a"]}) + "\n" +
-        json.dumps({"case_id": "c2", "input": "Do you offer swahili phone support?",
-                    "expect_abstention": True, "must_cite": False}) + "\n"
+        json.dumps(
+            {
+                "case_id": "c1",
+                "input": "What is the refund window for annual plans?",
+                "expected_keywords": ["30 days"],
+                "supporting_doc_ids": ["doc_a"],
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "case_id": "c2",
+                "input": "Do you offer swahili phone support?",
+                "expect_abstention": True,
+                "must_cite": False,
+            }
+        )
+        + "\n"
     )
     runner = ExperimentRunner(sut, RunnerConfig(timeout_s=5))
     run_dir = runner.run(ds, runs_root=tmp_path, run_name="demo")
@@ -184,10 +212,24 @@ def _make_run(tmp_path: Path, style: str = "faithful", top_k: int = 1) -> Path:
     sut = ExtractiveRAG("t", CORPUS, top_k=top_k, min_score=0.05, style=style)
     ds = run_root / "ds.jsonl"
     ds.write_text(
-        json.dumps({"case_id": "c1", "input": "What is the refund window for annual plans?",
-                    "expected_keywords": ["30 days"], "supporting_doc_ids": ["doc_a"]}) + "\n" +
-        json.dumps({"case_id": "c2", "input": "Do you offer swahili phone support?",
-                    "expect_abstention": True, "must_cite": False}) + "\n"
+        json.dumps(
+            {
+                "case_id": "c1",
+                "input": "What is the refund window for annual plans?",
+                "expected_keywords": ["30 days"],
+                "supporting_doc_ids": ["doc_a"],
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "case_id": "c2",
+                "input": "Do you offer swahili phone support?",
+                "expect_abstention": True,
+                "must_cite": False,
+            }
+        )
+        + "\n"
     )
     runner = ExperimentRunner(sut, RunnerConfig(timeout_s=5))
     run_dir = runner.run(ds, runs_root=run_root, run_name="r")
@@ -206,7 +248,7 @@ def test_engine_aggregates_and_failures(tmp_path: Path) -> None:
     agg = results["aggregates"]
     assert agg["n_cases"] == 2
     assert agg["n_success"] == 2
-    assert agg["mean_citation_coverage"] == 1.0
+    assert agg["mean_gold_citation_recall"] == 1.0
     assert agg["failure_counts"] == {}
 
 
@@ -217,10 +259,24 @@ def test_engine_flags_missed_abstention(tmp_path: Path) -> None:
     sut = ExtractiveRAG("t", CORPUS, top_k=1, min_score=0.05)
     ds = tmp_path / "ds.jsonl"
     ds.write_text(
-        json.dumps({"case_id": "c1", "input": "What is the refund window for annual plans?",
-                    "expected_keywords": ["30 days"], "supporting_doc_ids": ["doc_a"]}) + "\n" +
-        json.dumps({"case_id": "c2", "input": "Do API rate limits differ for enterprise customers?",
-                    "expect_abstention": True, "must_cite": False}) + "\n"
+        json.dumps(
+            {
+                "case_id": "c1",
+                "input": "What is the refund window for annual plans?",
+                "expected_keywords": ["30 days"],
+                "supporting_doc_ids": ["doc_a"],
+            }
+        )
+        + "\n"
+        + json.dumps(
+            {
+                "case_id": "c2",
+                "input": "Do API rate limits differ for enterprise customers?",
+                "expect_abstention": True,
+                "must_cite": False,
+            }
+        )
+        + "\n"
     )
     runner = ExperimentRunner(sut, RunnerConfig(timeout_s=5))
     run_dir = runner.run(ds, runs_root=tmp_path, run_name="r")
@@ -241,12 +297,11 @@ def test_classify_failure_priority() -> None:
 def test_classify_failure_uses_configured_thresholds() -> None:
     """EngineConfig thresholds must gate the taxonomy, not be decorative."""
     case = EvalCase(case_id="c", input="q", expected_keywords=["x"], supporting_doc_ids=["doc_a"])
-    trace = Trace(run_id="r", case_id="c", system_config={},
-                  final_answer="answer text [doc:doc_a]")
-    result = {"groundedness": 0.7, "keyword_recall": 0.9, "retrieval_recall": 1.0}
+    trace = Trace(run_id="r", case_id="c", system_config={}, final_answer="answer text [doc:doc_a]")
+    result = {"groundedness": 0.7, "keyword_recall": 0.9, "retrieval_recall_at_3": 1.0}
     assert classify_failure(trace, case, result) is None
     assert classify_failure(trace, case, result, groundedness_threshold=0.9) == "ungrounded"
-    result_kw = {"groundedness": 1.0, "keyword_recall": 0.7, "retrieval_recall": 1.0}
+    result_kw = {"groundedness": 1.0, "keyword_recall": 0.7, "retrieval_recall_at_3": 1.0}
     assert classify_failure(trace, case, result_kw) is None
     assert classify_failure(trace, case, result_kw, keyword_threshold=0.9) == "incomplete_answer"
 
@@ -255,9 +310,14 @@ def test_engine_threshold_configuration_changes_classification(tmp_path: Path) -
     """Engine-level seam: a stricter groundedness threshold flags the same trace
     as ungrounded where the default threshold does not."""
     case = EvalCase(case_id="c", input="q", supporting_doc_ids=["doc_a"])
-    trace = Trace(run_id="r", case_id="c", system_config={},
-                  final_answer="Credits are issued to the account [doc:doc_a]. "
-                               "We offer telepathic support [doc:doc_a].")
+    trace = Trace(
+        run_id="r",
+        case_id="c",
+        system_config={},
+        retrieved_doc_ids=["doc_a"],
+        final_answer="Credits are issued to the account [doc:doc_a]. "
+        "We offer telepathic support [doc:doc_a].",
+    )
     default = EvaluationEngine(corpus=CORPUS).evaluate_case(trace, case)
     assert default["groundedness"] == 0.5
     assert default["failure"] is None
@@ -274,8 +334,12 @@ def test_third_party_abstention_phrasing_is_not_detected() -> None:
     assert M.abstained("I don't know.") is True
     assert M.abstained("Unfortunately, no such policy exists.") is False
     case = EvalCase(case_id="c2", input="q", expect_abstention=True, must_cite=False)
-    trace = Trace(run_id="r", case_id="c2", system_config={},
-                  final_answer="Unfortunately, no such policy exists.")
+    trace = Trace(
+        run_id="r",
+        case_id="c2",
+        system_config={},
+        final_answer="Unfortunately, no such policy exists.",
+    )
     assert classify_failure(trace, case, {}) == "missed_abstention"
 
 
@@ -287,8 +351,9 @@ def test_classify_failure_missed_abstention() -> None:
     case = EvalCase(case_id="c2", input="q", expect_abstention=True, must_cite=False)
     trace = Trace(run_id="r", case_id="c2", system_config={}, final_answer="Sure, we do!")
     assert classify_failure(trace, case, {}) == "missed_abstention"
-    abstained_trace = Trace(run_id="r", case_id="c2", system_config={},
-                            final_answer="I don't know.")
+    abstained_trace = Trace(
+        run_id="r", case_id="c2", system_config={}, final_answer="I don't know."
+    )
     assert classify_failure(abstained_trace, case, {}) is None
 
 
@@ -300,7 +365,7 @@ def test_compare_runs_detects_grounding_regression(tmp_path: Path) -> None:
     verdicts = {m["metric"]: m["verdict"] for m in report["metrics"]}
     # The fluent style drops citations: grounding must regress...
     assert verdicts.get("groundedness") == "regressed"
-    assert verdicts.get("citation_coverage") == "regressed"
+    assert verdicts.get("gold_citation_recall") == "regressed"
     assert report["summary"]["verdict"] == "regressions detected"
 
 
@@ -333,9 +398,9 @@ class _FlakySUT(SystemUnderTest):
     """Fails the first N invocations, then answers."""
 
     name = "flaky"
-    config = {"kind": "flaky"}
 
     def __init__(self, fail_times: int) -> None:
+        self.config = {"kind": "flaky"}
         self.fail_times = fail_times
         self.calls = 0
 
@@ -355,7 +420,6 @@ def _one_case_ds(tmp_path: Path) -> Path:
 def test_runner_timeout_becomes_invocation_error(tmp_path):
     class _SlowSUT(SystemUnderTest):
         name = "slow"
-        config = {}
 
         def invoke(self, case_input: str, case_context=None) -> SUTResult:
             time.sleep(1.0)
@@ -373,22 +437,22 @@ def test_runner_timeout_becomes_invocation_error(tmp_path):
 def test_runner_retry_then_success(tmp_path):
     ds = _one_case_ds(tmp_path)
     sut = _FlakySUT(fail_times=1)
-    runner = ExperimentRunner(
-        sut, RunnerConfig(timeout_s=5, max_retries=1, retry_backoff_s=0.01)
-    )
+    runner = ExperimentRunner(sut, RunnerConfig(timeout_s=5, max_retries=1, retry_backoff_s=0.01))
     run_dir = runner.run(ds, runs_root=tmp_path, run_name="flaky")
     traces = load_run_traces(run_dir)
     assert traces[0].error is None and traces[0].final_answer == "I don't know."
-    assert traces[0].spans[0].attributes["attempt"] == 2
+    # The failed first attempt keeps its own span (with the error) before the
+    # successful second one.
+    spans = traces[0].spans
+    assert [s.attributes["attempt"] for s in spans] == [1, 2]
+    assert spans[0].error is not None and spans[1].error is None
     assert sut.calls == 2
 
 
 def test_runner_retries_exhausted(tmp_path):
     ds = _one_case_ds(tmp_path)
     sut = _FlakySUT(fail_times=99)
-    runner = ExperimentRunner(
-        sut, RunnerConfig(timeout_s=5, max_retries=1, retry_backoff_s=0.01)
-    )
+    runner = ExperimentRunner(sut, RunnerConfig(timeout_s=5, max_retries=1, retry_backoff_s=0.01))
     run_dir = runner.run(ds, runs_root=tmp_path, run_name="flaky")
     traces = load_run_traces(run_dir)
     assert traces[0].error and "transient failure" in traces[0].error
