@@ -1,0 +1,35 @@
+% Shared by every standalone figure in this folder. Each figure is built once
+% (make figures) and the same PDF is used by the report and, exported as PNG,
+% by the README. Times text and 10pt sizes match IEEEtran, so the report
+% includes each PDF at its natural size and no font is rescaled. Every
+% picture draws its own white background of exactly the width it is placed
+% at: 252pt for one column, 516pt for both.
+\usepackage{mathptmx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+% Reproducible bytes: no dates or random ids in the PDF.
+\pdfinfoomitdate=1
+\pdftrailerid{}
+\pdfsuppressptexinfo=-1
+\newlength{\colw}\setlength{\colw}{252pt}
+\newlength{\textw}\setlength{\textw}{516pt}
+\tikzset{
+  every node/.style={font=\footnotesize},
+  line/.style={draw=black!70, line width=0.6pt},
+  arr/.style={line, -{Latex[length=4pt,width=3.4pt]}},
+  box/.style={draw=black!55, line width=0.5pt, rounded corners=2pt, align=center,
+    inner sep=2.5pt, minimum height=22pt},
+  exec/.style={box, fill=blue!7},
+  stage/.style={box, fill=orange!10},
+  eval/.style={box, fill=green!9},
+  store/.style={box, fill=black!7, rounded corners=0pt},
+  note/.style={font=\scriptsize\itshape, text=black!75, align=center,
+    execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000}},
+  frame/.style={draw=black!45, dashed, line width=0.5pt, rounded corners=3pt},
+}
+\newcommand{\figbackground}[2]{%
+  \fill[white] (0,0) rectangle (#1,-#2);
+  \useasboundingbox (0,0) rectangle (#1,-#2);}
