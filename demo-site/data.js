@@ -30678,6 +30678,22 @@ window.DATA = {
     "recall_at_3": 0.8615,
     "mrr_at_3": 0.8231
    }
+  },
+  "abstention_separability": {
+   "overlap": {
+    "unanswerable_top_min": 0.1429,
+    "unanswerable_top_max": 0.6667,
+    "n_unanswerable": 20,
+    "n_answerable": 130,
+    "answerable_at_or_below_max": 108
+   },
+   "idf": {
+    "unanswerable_top_min": 0.0056,
+    "unanswerable_top_max": 0.4596,
+    "n_unanswerable": 20,
+    "n_answerable": 130,
+    "answerable_at_or_below_max": 84
+   }
   }
  }
 };

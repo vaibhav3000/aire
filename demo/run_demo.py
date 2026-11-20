@@ -158,7 +158,37 @@ def retrieval_ablation(corpus: dict[str, str], cases: list[EvalCase]) -> dict[st
         ),
         "n_cases": len(answerable),
         "retrievers": table,
+        "abstention_separability": abstention_separability(corpus, cases),
     }
+
+
+def abstention_separability(corpus: dict[str, str], cases: list[EvalCase]) -> dict[str, Any]:
+    """Top retrieval scores of unanswerable vs answerable questions, per weighting.
+
+    A score threshold can only make the system abstain correctly when every
+    unanswerable question scores below the answerable ones; the count of
+    answerable questions at or below the highest unanswerable score shows how
+    far from that the retriever is.
+    """
+
+    def top_score(retriever: KeywordRetriever, query: str) -> float:
+        hits = retriever.retrieve(query)
+        return hits[0].score if hits else 0.0
+
+    out: dict[str, Any] = {}
+    for weighting in ("overlap", "idf"):
+        retriever = KeywordRetriever(corpus, top_k=3, weighting=weighting)
+        unanswerable = [top_score(retriever, c.input) for c in cases if c.expect_abstention]
+        answerable = [top_score(retriever, c.input) for c in cases if not c.expect_abstention]
+        ceiling = max(unanswerable)
+        out[weighting] = {
+            "unanswerable_top_min": min(unanswerable),
+            "unanswerable_top_max": ceiling,
+            "n_unanswerable": len(unanswerable),
+            "n_answerable": len(answerable),
+            "answerable_at_or_below_max": sum(s <= ceiling for s in answerable),
+        }
+    return out
 
 
 AGENT_DIR = ROOT / "demo" / "agent"
