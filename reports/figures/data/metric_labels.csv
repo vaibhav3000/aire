@@ -1,0 +1,10 @@
+y,label
+0,success\_rate
+1,abstention\_correct
+2,groundedness
+3,citation\_precision
+4,gold\_citation\_recall
+5,keyword\_recall
+6,retrieval\_MRR@3
+7,retrieval\_recall@3
+8,retrieval\_recall@1
