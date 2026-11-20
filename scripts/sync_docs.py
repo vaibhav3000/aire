@@ -43,6 +43,7 @@ COMPARISONS = {
     "v2": "v2_improved_vs_v1_baseline.json",
     "v3": "v3_fluent_regression_vs_v1_baseline.json",
     "llm_hist": "llm_vs_deterministic.json",
+    "agent": "agent_regressed_vs_agent_baseline.json",
 }
 LIVE_RUN = RESULTS / "llm_gemini-2.5-flash"
 
@@ -146,6 +147,7 @@ def _live_run_facts(facts: dict[str, Any]) -> None:
     facts["live.n_answered"] = len(answered)
     facts["live.n_unanswered"] = manifest["n_cases"] - len(answered)
     facts["live.complete"] = len(answered) == manifest["n_cases"]
+    facts["live.state"] = "complete" if facts["live.complete"] else "in progress"
     for key in ("prompt_tokens", "completion_tokens", "reasoning_tokens"):
         facts[f"live.{key}"] = sum(u.get(key) or 0 for u in usage)
 
@@ -180,6 +182,7 @@ def collect_facts() -> dict[str, Any]:
         for category in categories:
             facts.setdefault(f"{key}.failure_counts.{category}", 0)
     _flatten(_load(RESULTS / "retrieval_ablation.json"), "abl", facts)
+    _flatten(_load(RESULTS / "agent_baseline" / "eval_results.json")["aggregates"], "agent", facts)
     _flatten(_load(RESULTS / "judge_calibration.json"), "calib", facts)
     _dataset_facts(facts)
     _comparison_facts(facts)

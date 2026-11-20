@@ -137,6 +137,7 @@ ALLOWED = {
     "0.34": "LaTeX column width",
     "0.58": "LaTeX column width",
     "2.5": "the model name Gemini 2.5 Flash",
+    "127.0.0.1": "the loopback address of the fake server",
     "14 of 26": "historical watchdog incident; no committed run records it",
     "26 cases": "historical watchdog incident; no committed run records it",
 }
