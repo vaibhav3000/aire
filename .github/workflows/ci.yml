@@ -133,6 +133,8 @@ jobs:
         run: python demo/judge_calibration/calibrate_judges.py
       - name: Rebuild the demo-site data
         run: python demo-site/build.py
+      - name: Fail if a number in the docs no longer matches the results
+        run: python scripts/sync_docs.py --check
       - name: Fail if generated artifacts drifted from the commit
         run: git diff --exit-code -- results reports demo-site/data.js
       - name: Upload gate reports and HTML dashboards

@@ -1,0 +1,1 @@
+`demo/run_demo.py` runs three versions of a small RAG system over `demo/eval_set.jsonl` ({{ds.n_cases}} cases: {{ds.n_answerable}} answerable questions, {{ds.n_two_doc}} of them needing two documents, and {{ds.n_unanswerable}} unanswerable questions; how they were written is in [docs/eval_set.md](docs/eval_set.md)) and `demo/corpus/` ({{ds.n_docs}} product documentation files):

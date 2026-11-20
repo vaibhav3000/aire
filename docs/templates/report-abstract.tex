@@ -1,0 +1,6 @@
+traces and never re-runs the system. On a {{ds.n_cases}}-case
+retrieval-augmented-generation (RAG) suite over a {{ds.n_docs}}-document corpus with
+three deterministic SUT versions, the gate blocks an intentional ``fluent
+but uncited'' regression (lexical groundedness {{cmp.v3.groundedness.baseline|.2f}} to {{cmp.v3.groundedness.candidate|.2f}}, gold citation
+recall {{cmp.v3.gold_citation_recall.baseline|.2f}} to {{cmp.v3.gold_citation_recall.candidate|.2f}}, {{cmp.v3.fail.ungrounded}} cases newly ungrounded) and attributes a retrieval
+gain (recall@3 {{cmp.v2.retrieval_recall_at_3.baseline|.2f}} to {{cmp.v2.retrieval_recall_at_3.candidate|.2f}}) to retrieving three documents instead of one

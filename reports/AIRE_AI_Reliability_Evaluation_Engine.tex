@@ -40,12 +40,14 @@ with explicit source labeling, errors). All downstream analysis (17
 deterministic per-case metrics, a failure taxonomy checked in pipeline
 order, and a regression gate that decides with paired tests over the
 cases and attributes every regression to cases) operates on the stored
+% aire:begin report-abstract
 traces and never re-runs the system. On a 150-case
 retrieval-augmented-generation (RAG) suite over a 12-document corpus with
 three deterministic SUT versions, the gate blocks an intentional ``fluent
 but uncited'' regression (lexical groundedness 1.00 to 0.00, gold citation
 recall 0.72 to 0.00, 109 cases newly ungrounded) and attributes a retrieval
 gain (recall@3 0.72 to 0.86) to retrieving three documents instead of one
+% aire:end report-abstract
 rather than to the retriever's weighting. The paper also reports what an
 audit of the evaluator found: a citation-segmentation bug that had scored
 verbatim quotes as half grounded, failed calls counted as correct
@@ -287,6 +289,7 @@ it exists so that every committed number is exactly reproducible and
 evaluator bugs surface as metric changes rather than hiding in model noise.
 
 \subsection{Deterministic Results}
+% aire:begin report-det-results
 Table~\ref{tab:versions} shows per-version aggregates over the 150 cases.
 The gate pairs the two runs case by case and counts a change beyond the
 tolerance only when a paired test supports it (McNemar's exact test for
@@ -307,10 +310,13 @@ citation recall from 0.7154 to 0.0000 and the success rate from 0.4267 to
 Retrieval matches v2. The failure taxonomy localizes the damage: 109 cases
 become ungrounded. Latency is reported but excluded from verdicts, because
 sub-millisecond timings of the offline harness are noise.
+% aire:end report-det-results
 
 \begin{table}[t]
 \centering
+% aire:begin report-versions-caption
 \caption{Deterministic three-version results over the 150-case suite
+% aire:end report-versions-caption
 (committed results, regenerated with the corrected metrics). n.m.: not
 measurable, the version cites nothing.}
 \label{tab:versions}
@@ -319,6 +325,7 @@ measurable, the version cites nothing.}
 \toprule
 Metric & v1 & v2 & v3 \\
 \midrule
+% aire:begin report-versions-table
 retrieval\_recall@1 & 0.7154 & 0.7154 & 0.7154 \\
 retrieval\_recall@3 & 0.7154 & 0.8615 & 0.8615 \\
 retrieval\_MRR@3 & 0.7769 & 0.8231 & 0.8231 \\
@@ -333,13 +340,16 @@ retrieval\_miss & 45 & 21 & 21 \\
 incomplete\_answer & 21 & 41 & 0 \\
 missed\_abstention & 20 & 18 & 18 \\
 ungrounded & 0 & 0 & 109 \\
+% aire:end report-versions-table
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{table}[t]
 \centering
+% aire:begin report-ablation-caption
 \caption{Retrieval ablation: keyword retriever with top 3 over the 130
+% aire:end report-ablation-caption
 answerable cases.}
 \label{tab:ablation}
 \small
@@ -347,17 +357,21 @@ answerable cases.}
 \toprule
 Weighting & recall@1 & recall@3 & MRR@3 \\
 \midrule
+% aire:begin report-ablation-table
 overlap & 0.7154 & 0.8731 & 0.8295 \\
 IDF & 0.7154 & 0.8615 & 0.8231 \\
+% aire:end report-ablation-table
 \bottomrule
 \end{tabular}
 \end{table}
 
 A second finding is a genuine capability boundary: abstention correctness
+% aire:begin report-abstention
 is 0.0 for v1 and 0.1 for v2 and v3, which refuse 2 of the 20
 unanswerable questions. With IDF weighting the top retrieval scores of the
 unanswerable queries range from 0.006 to 0.46, while 84 of the 130
 answerable queries score no higher than 0.46, so any threshold that rejects
+% aire:end report-abstention
 every unanswerable query also rejects most answerable ones. The limitation is documented as requiring
 semantic matching rather than patched with an unprincipled cutoff.
 
@@ -367,12 +381,14 @@ generator (Gemini 2.5 Flash at temperature 0 over the same retriever).
 That run was scored with the metric code before the fixes in
 Section~VII, and its traces were not kept, so it cannot be re-scored; its
 committed numbers are shown in Table~\ref{tab:live} only as a record of
+% aire:begin report-llm-history
 what was reported. Seventeen of 26 cases completed cleanly, six failed with
 HTTP 429 quota errors and one answerable case was refused. The model
 answered ``I don't know.'' on all four unanswerable cases. The other
 headline differences do not survive scrutiny: the groundedness of 1.0
 averaged only the 15 cases that produced a claim, against a baseline the
 segmentation bug had pushed down to 0.5682; the 15.3\,s mean latency
+% aire:end report-llm-history
 included the client's own pacing and retry sleeps; and the token comparison
 set API counts (with heuristic estimates for the failed calls) against a
 character estimate for a system that makes no LLM call. The current script
@@ -389,11 +405,13 @@ replayable. Not comparable with Table~\ref{tab:versions}.}
 \toprule
 Metric (pre-fix) & v2 (det.) & Gemini \\
 \midrule
+% aire:begin report-llm-table
 abstention\_correct (4 cases) & 0.0000 & 1.0000 \\
 groundedness (22 vs 15 cases) & 0.5682 & 1.0000 \\
 citation coverage & 0.7273 & 0.6818 \\
 latency (ms/case) & 0.30 & 15{,}319.83 \\
 tokens (per case, different sources) & 83 & 605 \\
+% aire:end report-llm-table
 \bottomrule
 \end{tabular}
 \end{table}
@@ -422,11 +440,13 @@ reliability parameters are part of the system under test.
 \section{Limitations}
 (1) The groundedness metric is a lexical proxy and can be fooled in both
 directions. (2) The gate's paired tests and bootstrap intervals treat the
+% aire:begin report-limitations
 150 cases as a sample of questions; they do not measure the run-to-run
 noise of a nondeterministic system, which needs repeated runs, and rows
 with fewer than ten paired cases fall back to the plain tolerance rule.
 (3) Keyword retrieval cannot decide answerability: v2 refuses only 2 of the
 20 unanswerable questions. (4) The deterministic
+% aire:end report-limitations
 responder is a rule-based harness; it bounds what deterministic results can
 say about real LLM behavior. (5) Heuristic token counts are approximations
 by design, and the cost metric uses a zero default price. (6) The corpus
@@ -440,7 +460,9 @@ AIRE treats AI-system evaluation as a data problem: record validated traces
 once, compute deterministic metrics, classify failures in pipeline order,
 and compare runs with direction-aware tolerances, run identity checks and
 per-case attribution. The three-version demonstration shows the gate
+% aire:begin report-conclusion
 blocking a regression (groundedness 1.00 to 0.00) that keeps retrieval
+% aire:end report-conclusion
 intact, and the retrieval ablation shows the same machinery assigning an
 apparent improvement to its real cause. The evaluator's own defects, and
 the misleading live-LLM numbers they produced, are reported as part of the

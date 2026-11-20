@@ -10,7 +10,9 @@ Monitoring answers "is the system healthy right now in production": error rates,
 
 ### Q2. What is the difference between offline and online evaluation?
 
+<!-- aire:begin faq-offline -->
 Offline evaluation runs against a curated, versioned dataset with declared expectations (`EvalCase` in `src/aire/runner/dataset.py`). It is reproducible, cheap to re-run, and comparable across versions, but it is only as good as the dataset. Online evaluation judges live traffic, which covers the long tail of real inputs but cannot be replayed exactly and usually relies on sampled human review or proxies. AIRE implements offline evaluation deliberately: the demo's 150-case JSONL set is fixed, hashed into the run manifest (`dataset_sha256`), and identical for every version, which is what makes the regression reports meaningful.
+<!-- aire:end faq-offline -->
 
 ### Q3. Why evaluate recorded traces instead of scoring inside the application?
 
@@ -24,7 +26,9 @@ Both, selected per case. Reference-based metrics compare the output to a declare
 
 Definition (`src/aire/evaluator/metrics.py`, `groundedness`): split the answer into claims at sentence terminators and line breaks, so every sentence and every bullet needs its own citation. Citations written right after a sentence's period belong to that sentence ("S1. [doc:x] S2." cites S1), following the convention that a citation follows the claim it supports. For each claim, compare its content keywords with those of the documents it cites, using only documents the system actually retrieved: the engine passes the retrieved documents as the context, so citing a document the system never saw cannot make a claim grounded. A claim counts as supported when at least `EngineConfig.groundedness_min_overlap` (default 0.5) of its keywords appear in such a document. The score is supported claims divided by claims with content keywords. Uncited claims count as unsupported; empty or abstaining answers return `None` (not measurable), and a failed invocation scores 0.
 
+<!-- aire:begin faq-citation-bug -->
 An earlier version split only after periods and therefore attached a citation written after the period to the next sentence. Extractive answers in the "S1. [doc:x] S2. [doc:x]" form then scored 0.5 although they quote the cited document verbatim; that bug produced the old 0.5682 baseline. `tests/test_metrics.py` now checks that verbatim extractive output scores 1.0 for both citation placements.
+<!-- aire:end faq-citation-bug -->
 
 Limits: this is a lexical citation-overlap proxy, not entailment. It is blind to paraphrase in one direction and fooled by vocabulary in the other: a sentence that rewords the source with different words scores as unsupported even when it is faithful, and at the default threshold a sentence whose keywords are half from the source and half invented scores as supported. It verifies citation hygiene and copy fidelity, not truth. The docstring says this explicitly, and the `GroundednessJudge` returns a detail string labelling itself "lexical citation-overlap proxy; deterministic" so the number cannot be mistaken for a semantic judgment.
 
@@ -74,7 +78,9 @@ Encoded team judgment. Thresholds are not universal constants; they are policy a
 
 ### Q16. What is per-case attribution and why does every regression need it?
 
+<!-- aire:begin faq-attribution -->
 An aggregate regression without attribution is not actionable. When a metric is marked regressed, `compare_runs` attaches the list of individual cases whose scores moved beyond the tolerance on that metric (or lost it entirely), with baseline value, candidate value, and delta per case, sorted worst first (`_attribute_regressions`). The aggregate tells you groundedness collapsed; the attribution tells you it collapsed on the 130 answerable cases where the fluent style dropped citations. Per-case rows also carry a `failure` label, so the failure-count deltas (for example `ungrounded` +109) line up with the metric attribution.
+<!-- aire:end faq-attribution -->
 
 ## Design decisions
 
@@ -96,7 +102,9 @@ The demo's `abstention_correct` is 0.0 for every version: the system never refus
 
 ### Q21. What do the v2 and v3 demo comparisons demonstrate?
 
+<!-- aire:begin faq-comparisons -->
 v2 vs v1 shows a clean change with an honest explanation: retrieving three documents instead of one lifted `retrieval_recall_at_3` from 0.7154 to 0.8615 and `retrieval_mrr_at_3` from 0.7769 to 0.8231, both significant in the paired bootstrap, with no regressions detected (2 improved, 10 neutral, 2 inconclusive). The success rate rose from 0.4267 to 0.4667, but McNemar's test on the discordant cases gives p = 0.07, so the gate reports it as inconclusive instead of crediting it. `retrieval_recall_at_1` did not move, and the ablation in `results/retrieval_ablation.json` shows that at equal K plain overlap weighting is at least as good as idf on this corpus (recall@3 0.8731 vs 0.8615), so the gain is K, not idf. v3 vs v1 shows the interesting case: the fluent style keeps v2's retrieval but drops every citation, so `groundedness` falls from 1.0 to 0.0, `gold_citation_recall` from 0.7154 to 0.0 and `success_rate` from 0.4267 to 0.0133, `citation_precision` disappears, and `ungrounded` failures rise by 109. The regression report surfaces the retrieval-versus-grounding trade-off as separate rows instead of hiding it behind a single score: a composite might have netted v3 out as "fine".
+<!-- aire:end faq-comparisons -->
 
 ### Q22. How does validation work, and when does it run?
 
@@ -108,7 +116,9 @@ Implement `SystemUnderTest` (one method, `invoke(case_input, case_context) -> SU
 
 ### Q24. What are the current limitations you would state to a reviewer?
 
+<!-- aire:begin faq-limitations -->
 From the README's limitations section, in descending order of importance: lexical groundedness is a citation-hygiene proxy that paraphrase can defeat, not entailment; the gate's paired tests and intervals treat the 150 cases as a sample of questions but say nothing about run-to-run model noise, which needs repeated runs; the demo SUT is a deterministic stand-in, so committed latency and token figures characterize the harness, not an LLM; token counts are heuristic and labelled as such; abstention is a measured open gap requiring semantic matching (2 of 20 unanswerable questions refused by v2); retrieval ground truth is hand-declared for a 12-document corpus and does not scale as-is; and the sync runner's thread-based timeout bounds its wait but cannot kill a hung call in Python (the async runner cancels it). Each limitation is documented where the relevant code lives rather than in a disclaimer nobody reads.
+<!-- aire:end faq-limitations -->
 
 ## Deterministic vs real-LLM mode
 
@@ -125,11 +135,13 @@ and compared only through the regression engine, which labels every delta.
 Not much that can still be claimed. The committed run (gemini-2.5-flash,
 committed on 2026-09-17) was measured once with the metric code from before
 the fixes in this repository, and its traces were not kept, so it cannot be
+<!-- aire:begin faq-llm-history -->
 re-scored. It answered "I don't know." on all four unanswerable questions,
 where both deterministic versions answer, which is a real but four-case
 observation. Its groundedness of 1.0 averaged only the 15 cases that made a
 claim, against a deterministic baseline that the citation-placement bug had
 pushed down to 0.5682, so there was no measured grounding gain. Its 15.3 s
+<!-- aire:end faq-llm-history -->
 mean latency included the client's own pacing and retry sleeps, and its token
 mean mixed API counts with estimates. `scripts/run_llm_eval.py` now persists
 traces and can re-score them (`--rescore`), so the next run will be

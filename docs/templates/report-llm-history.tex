@@ -1,0 +1,6 @@
+what was reported. {{llm_hist.n_success|Word}} of {{llm_hist.n_cases}} cases completed cleanly, {{llm_hist.failure_counts.invocation_error|word}} failed with
+HTTP 429 quota errors and {{llm_hist.failure_counts.wrong_abstention|word}} answerable case was refused. The model
+answered ``I don't know.'' on all {{llm_hist.n_unanswerable|word}} unanswerable cases. The other
+headline differences do not survive scrutiny: the groundedness of {{llm_hist.mean_groundedness|.1f}}
+averaged only the {{llm_hist.n_grounded}} cases that produced a claim, against a baseline the
+segmentation bug had pushed down to {{cmp.llm_hist.groundedness.baseline|.4f}}; the {{llm_hist.mean_latency_s|.1f}}\,s mean latency
