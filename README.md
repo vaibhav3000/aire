@@ -214,7 +214,7 @@ Eight workers finish 5.4 times faster than one. With its budget set too high, th
 ### Live run in progress
 
 <!-- aire:begin readme-live-run -->
-A run of the current script was started on 2026-11-19 with gemini-2.5-flash on the free tier, through the google-genai adapter. State: **in progress**, 20 of 150 cases answered, using 12,369 prompt and 3,174 completion tokens by the API's count (2,397 of them reasoning). The provider's daily quota stops the run partway through; a rerun reuses the cached answers and sends only the missing cases. The traces, the manifest and an account of each stop are in [results/llm_gemini-2.5-flash/](results/llm_gemini-2.5-flash/NOTE.md). The answered cases are the first ones in dataset order, not a sample of the suite, so no comparison with the deterministic systems is drawn until all 150 are answered.
+A run of the current script was started on 2026-11-19 with gemini-2.5-flash on the free tier, through the google-genai adapter. State: **in progress**, 20 of 150 cases answered, using 12,369 prompt and 3,174 completion tokens by the API's count (2,397 of them reasoning). On the free tier the daily quota can stop a run partway; a rerun reuses the cached answers and sends only the missing cases. The traces, the manifest and an account of each stop are in [results/llm_gemini-2.5-flash/](results/llm_gemini-2.5-flash/NOTE.md). While the run is partial its answered cases are the first ones in dataset order, not a sample of the suite. No comparison with the deterministic systems is committed from this run yet: the top-level `results/llm_*.json` files still hold the historical run described below.
 <!-- aire:end readme-live-run -->
 
 ### The historical run
@@ -321,7 +321,7 @@ An IEEE-style paper on the system is at [reports/AIRE_AI_Reliability_Evaluation_
 
 Stated plainly, because an evaluation tool that oversells itself is worthless:
 
-- **The live LLM run is partial.** The free-tier quota stopped it partway (see Live run in progress above), so there is no comparable LLM result yet, and the committed historical LLM numbers predate the fixes in this repository.
+- **No comparable LLM result is committed yet.** The live run's state is in Live run in progress above; the free-tier quota limits how many cases it answers per day, and the committed historical LLM numbers predate the fixes in this repository.
 <!-- aire:begin readme-limit-judge -->
 - **Judge agreement is provisional.** The kappas above are measured against 60 draft labels written by the author and not yet reviewed, and only the offline lexical judge has been calibrated.
 <!-- aire:end readme-limit-judge -->
