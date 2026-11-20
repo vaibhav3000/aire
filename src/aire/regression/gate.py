@@ -13,6 +13,11 @@ Exit codes:
     2  usage error: a missing or malformed run directory, or two runs that
        did not evaluate the same dataset. Never 1, so a crash can not be
        mistaken for a blocked regression.
+
+With --report, a gate that cannot compare because the evaluation set itself
+changed (different dataset_sha256) still exits 2 but writes a
+"not_comparable" report naming both dataset files and hashes, so CI can tell
+a changed evaluation set from a crash. Every other exit 2 leaves no report.
 """
 
 from __future__ import annotations
@@ -24,7 +29,14 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from .compare import RegressionThresholds, StatsConfig, compare_runs, write_regression_report
+from ..tracing.storage import atomic_write_text
+from .compare import (
+    DatasetChangedError,
+    RegressionThresholds,
+    StatsConfig,
+    compare_runs,
+    write_regression_report,
+)
 
 EXIT_PASS = 0
 EXIT_REGRESSED = 1
@@ -133,11 +145,29 @@ def _format_row(row: dict[str, Any]) -> str:
     )
 
 
+def dataset_changed_report(exc: DatasetChangedError) -> dict[str, Any]:
+    """The gate report for two runs over different evaluation sets."""
+    return {
+        "status": "not_comparable",
+        "reason": "dataset_changed",
+        "dataset": {
+            "baseline_path": exc.baseline_path,
+            "baseline_sha256": exc.baseline_sha256,
+            "candidate_path": exc.candidate_path,
+            "candidate_sha256": exc.candidate_sha256,
+        },
+        "message": str(exc),
+    }
+
+
 def run_gate(argv: Sequence[str] | None = None) -> int:
     """Run the gate and return its exit code (see module docstring)."""
     args = build_parser().parse_args(argv)
     thresholds = RegressionThresholds(default=args.threshold, overrides=dict(args.override))
     ignored = set(args.ignore)
+    if args.report is not None:
+        # A report left from an earlier run must not describe this one.
+        args.report.unlink(missing_ok=True)
     try:
         comparison = compare_runs(
             args.baseline,
@@ -147,6 +177,11 @@ def run_gate(argv: Sequence[str] | None = None) -> int:
             ignore=ignored,
             stats=StatsConfig(method=args.method, alpha=args.alpha),
         )
+    except DatasetChangedError as exc:
+        print(f"aire-gate: cannot compare runs: {type(exc).__name__}: {exc}", file=sys.stderr)
+        if args.report is not None:
+            atomic_write_text(args.report, json.dumps(dataset_changed_report(exc), indent=2) + "\n")
+        return EXIT_USAGE
     except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
         # Any of these means the inputs are unusable; exit 2, never 1.
         print(f"aire-gate: cannot compare runs: {type(exc).__name__}: {exc}", file=sys.stderr)

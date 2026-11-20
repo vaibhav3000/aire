@@ -4,6 +4,7 @@
     aire report BASELINE CANDIDATE --out diff.html     the HTML diff report
     aire markdown GATE_JSON --out comment.md           the PR comment body
     aire pr-comment --repo O/R --pr N --body-file F    create or update the sticky comment
+    aire pr-check --base-exit N --self-exit N GATE_JSON  decide the PR evaluation check
     aire otel-export RUN_DIR --jsonl F | --endpoint U  traces as OpenTelemetry GenAI spans
     aire otel-ingest SPANS --dataset D --out RUN_DIR   OpenTelemetry traces as an aire run
 
@@ -21,6 +22,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from .ci.github import GitHubAPI, GitHubError, HeadMismatch, upsert_sticky_comment
+from .ci.pr_check import decide
 from .evaluator.engine import EvaluationEngine, write_eval_results
 from .regression.compare import compare_runs
 from .regression.gate import run_gate
@@ -61,6 +63,11 @@ def _parser() -> argparse.ArgumentParser:
     comment.add_argument("--body-file", type=Path, required=True)
     comment.add_argument("--head-sha", default=None, help="only post if the PR head is this commit")
     comment.add_argument("--api-url", default="https://api.github.com")
+
+    check = sub.add_parser("pr-check", help="decide the PR evaluation check from both gates")
+    check.add_argument("gate_json", type=Path, help="the base gate's --report (may be absent)")
+    check.add_argument("--base-exit", default="", help="exit code of the gate against the base")
+    check.add_argument("--self-exit", default="", help="exit code of the gate against the PR")
 
     export = sub.add_parser("otel-export", help="export a run's traces as OpenTelemetry spans")
     export.add_argument("run_dir", type=Path)
@@ -116,6 +123,27 @@ def _pr_comment(args: argparse.Namespace) -> int:
         return EXIT_OK
     print(f"aire pr-comment: {outcome} the comment on {args.repo}#{args.pr}")
     return EXIT_OK
+
+
+def _exit_code(text: str) -> int | None:
+    """A gate exit code from a workflow output; empty when the step never ran."""
+    return int(text) if text.strip().isdigit() else None
+
+
+def _pr_check(args: argparse.Namespace) -> int:
+    report = None
+    if args.gate_json.is_file():
+        report = json.loads(args.gate_json.read_text(encoding="utf-8"))
+    self_exit = _exit_code(args.self_exit)
+    outcome = decide(_exit_code(args.base_exit), self_exit, report)
+    if not outcome.comparable and isinstance(report, dict):
+        # The PR comment shows the self gate, which is the only gate that ran.
+        report["self_gate"] = {"exit_code": self_exit}
+        atomic_write_text(args.gate_json, json.dumps(report, indent=2) + "\n")
+    for line in outcome.annotations:
+        print(line)
+    print(f"aire pr-check: {'failed' if outcome.exit_code else 'passed'}")
+    return outcome.exit_code
 
 
 def _otel_export(args: argparse.Namespace) -> int:
@@ -176,6 +204,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "report": _report,
         "markdown": _markdown,
         "pr-comment": _pr_comment,
+        "pr-check": _pr_check,
         "otel-export": _otel_export,
         "otel-ingest": _otel_ingest,
     }

@@ -4,6 +4,12 @@ name: Eval PR
 # committed results. This job runs untrusted code, so it gets a read-only
 # token and no secrets. It never comments; it uploads the gate result, and
 # eval-pr-comment.yml (a separate, trusted workflow) posts it (ADR 0005).
+#
+# A PR that changes the evaluation set cannot be paired with the base
+# branch's results: that gate exits 2 with a "not comparable" report, which
+# is a warning, not a failure. The fresh run is always also gated against the
+# PR's own committed results, so a regression still fails the check. Every
+# other exit 2 (a crash, a missing or malformed run) fails it too.
 
 on:
   pull_request:
@@ -41,6 +47,8 @@ jobs:
         run: |
           uv sync --locked --python "3.13"
           echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
+      - name: Snapshot the pull request's committed results
+        run: cp -r results "$RUNNER_TEMP/pr-results"
       - name: Evaluate the pull request
         run: python demo/run_demo.py
       - name: Gate the candidate against the base branch
@@ -50,6 +58,22 @@ jobs:
           aire gate base/results/v2_improved results/v2_improved \
             --ignore latency_ms --report gate.json || code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Gate the fresh run against the pull request's own committed results
+        id: self_gate
+        if: always()
+        run: |
+          code=0
+          aire gate "$RUNNER_TEMP/pr-results/v2_improved" results/v2_improved \
+            --ignore latency_ms --report gate-self.json || code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+      - name: Decide the check
+        id: check
+        if: always()
+        continue-on-error: true
+        env:
+          BASE_EXIT: ${{ steps.gate.outputs.exit_code }}
+          SELF_EXIT: ${{ steps.self_gate.outputs.exit_code }}
+        run: aire pr-check gate.json --base-exit "$BASE_EXIT" --self-exit "$SELF_EXIT"
       - name: Render the HTML diff report
         if: always() && steps.gate.outputs.exit_code != '2'
         run: |
@@ -70,13 +94,14 @@ jobs:
           name: aire-pr-gate
           path: |
             gate.json
+            gate-self.json
             report.html
             pr_number.txt
             head_sha.txt
           if-no-files-found: warn
           retention-days: 14
-      - name: Fail the check when the gate failed
-        if: steps.gate.outputs.exit_code != '0'
+      - name: Fail the check when a gate failed
+        if: always() && steps.check.outcome != 'success'
         run: |
-          echo "::error::aire gate exited with ${{ steps.gate.outputs.exit_code }}"
+          echo "::error::the PR evaluation check failed; see the Decide the check step"
           exit 1

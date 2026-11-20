@@ -111,6 +111,7 @@ make docker   # build the gate image and gate v2 against v1 inside it
 | `aire report BASE CAND --out report.html` | Render the HTML diff report: verdicts with evidence, confidence intervals and per-case attribution. |
 | `aire markdown gate.json --out comment.md --title T` | Render a gate result as the sanitised PR comment. |
 | `aire pr-comment ...` | Create or update the sticky PR comment (used by the trusted comment workflow). |
+| `aire pr-check GATE_JSON --base-exit N --self-exit N` | Decide the PR evaluation check from the two gates' exit codes (used by `eval-pr.yml`). |
 | `aire otel-export RUN (--jsonl F \| --endpoint URL)` | Export a run's traces as OpenTelemetry GenAI spans, as OTLP JSON lines or over OTLP/HTTP (the endpoint needs `aire[otel]`). Content is left out unless `--capture-content`. |
 | `aire otel-ingest SPANS --dataset D --out RUN` | Turn OTLP JSON lines from another application into an aire run that the evaluator and the gate can use. |
 
@@ -281,7 +282,9 @@ A failed invocation scores 0 on every answer-quality metric and is never counted
 
 ## Pull request gate
 
-`.github/workflows/eval-pr.yml` evaluates a pull request's code with a read-only token and no secrets, gates it against the base branch's committed results, and uploads the gate result and the HTML report as an artifact. `.github/workflows/eval-pr-comment.yml` runs on `workflow_run` in the trusted base-branch context, checks that the artifact belongs to the pull request's current head commit, renders a sanitised markdown summary and creates or updates one sticky comment. Fork pull requests therefore never run with a write token (ADR 0005). Both workflows are tested offline (`tests/test_pr_comment.py`) but **have not run on GitHub yet**.
+`.github/workflows/eval-pr.yml` evaluates a pull request's code with a read-only token and no secrets, gates it against the base branch's committed results, and uploads the gate result and the HTML report as an artifact. `.github/workflows/eval-pr-comment.yml` runs on `workflow_run` in the trusted base-branch context, checks that the artifact belongs to the pull request's current head commit, renders a sanitised markdown summary and creates or updates one sticky comment. Fork pull requests therefore never run with a write token (ADR 0005).
+
+A pull request that changes the evaluation set cannot be paired with the base branch's results, so the gate against the base branch refuses (exit 2) and writes a "not comparable" report naming the dataset file and both hashes. `aire pr-check` turns that one case into a warning annotation, and the comment says "Not comparable: this PR changes the evaluation set". The PR's fresh run is always also gated against the results committed in the PR (the snapshot taken before the demo reruns), so a regression in the same PR still fails the check. Every other exit 2, such as a crash or a missing or malformed run, fails it as before. The comment workflow renders with the default branch's aire, so the new comment wording appears once this change is on the default branch. Both workflows are tested offline (`tests/test_pr_comment.py`) but **have not run on GitHub yet**.
 
 `.github/workflows/ci.yml` installs from `uv.lock`, runs ruff, pyright and the tests on Python 3.11, 3.13 and 3.14 on Linux and 3.13 on Windows, checks that the core imports with no third-party package, regenerates the demo and gates it (v2 must pass, v3 must be blocked for groundedness and gold citation recall), and fails if any regenerated artifact or quoted number differs from the commit.
 

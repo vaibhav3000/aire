@@ -98,7 +98,50 @@ def _table(rows: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _details_link(details_url: str | None) -> list[str]:
+    if details_url and re.fullmatch(r"https://github\.com/[A-Za-z0-9_.\-/]+", details_url):
+        return [f"[Full report, per-case details and the HTML diff]({details_url})"]
+    return []
+
+
+_SELF_GATE = {
+    0: "passed",
+    1: "**blocked**: a gated metric regressed against those results",
+}
+
+
+def _render_not_comparable(report: dict[str, Any], title: str, details_url: str | None) -> str:
+    """The comment for a PR whose evaluation set differs from the base branch's."""
+    if report.get("reason") != "dataset_changed" or not isinstance(report.get("dataset"), dict):
+        raise ValueError("a not_comparable gate report needs reason dataset_changed and a dataset")
+    dataset: dict[str, Any] = report["dataset"]
+    raw_self = report.get("self_gate")
+    self_exit = raw_self.get("exit_code") if isinstance(raw_self, dict) else None
+    if isinstance(self_exit, int) and not isinstance(self_exit, bool):
+        self_text = _SELF_GATE.get(self_exit, f"**failed to run** (exit {self_exit})")
+    else:
+        self_text = "not recorded"
+    parts = [
+        MARKER,
+        f"### aire regression gate: {_safe(title, 80)}",
+        "",
+        "**Not comparable: this PR changes the evaluation set.**",
+        "",
+        f"{_code(dataset.get('candidate_path'))} has sha256 "
+        f"{_code(dataset.get('baseline_sha256'))} on the base branch and "
+        f"{_code(dataset.get('candidate_sha256'))} in this pull request, so its cases cannot "
+        "be paired with the base branch's results and no metric was compared against them.",
+        "",
+        "The pull request's fresh run was gated against the results committed in the "
+        f"pull request instead: {self_text}.",
+        "",
+    ]
+    return "\n".join(parts + _details_link(details_url))
+
+
 def render_gate_markdown(report: Any, *, title: str, details_url: str | None = None) -> str:
+    if isinstance(report, dict) and report.get("status") == "not_comparable":
+        return _render_not_comparable(report, title, details_url)
     summary, metrics = _check(report)
     rows = sorted(
         metrics,
@@ -141,13 +184,12 @@ def render_gate_markdown(report: Any, *, title: str, details_url: str | None = N
     if moved:
         parts += [_table(moved), ""]
     details = ["<details><summary>All metrics</summary>", "", _table(rows), "", "</details>", ""]
-    warnings = report.get("warnings") if isinstance(report.get("warnings"), list) else []
+    raw_warnings = report.get("warnings")
+    warnings: list[Any] = raw_warnings if isinstance(raw_warnings, list) else []
     notes = [f"- {_safe(w, 300)}" for w in warnings[:10]]
     if notes:
         notes = ["Warnings:", *notes, ""]
-    link = []
-    if details_url and re.fullmatch(r"https://github\.com/[A-Za-z0-9_.\-/]+", details_url):
-        link = [f"[Full report, per-case details and the HTML diff]({details_url})"]
+    link = _details_link(details_url)
     body = "\n".join(parts + details + notes + link)
     if len(body) > MAX_CHARS:  # drop the full table first, then cut
         body = "\n".join(parts + notes + link)

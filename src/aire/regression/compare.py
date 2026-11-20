@@ -47,6 +47,25 @@ class RunMismatchError(ValueError):
     """The two runs did not evaluate the same dataset, so they are not comparable."""
 
 
+class DatasetChangedError(RunMismatchError):
+    """The runs evaluated different evaluation sets (their dataset_sha256 differ).
+
+    Raised when a change edits the evaluation set itself, as opposed to a
+    malformed or partial run. It carries each run's dataset path and hash so CI
+    can say exactly what changed.
+    """
+
+    def __init__(self, base_manifest: dict[str, Any], cand_manifest: dict[str, Any]) -> None:
+        self.baseline_sha256 = base_manifest.get("dataset_sha256")
+        self.candidate_sha256 = cand_manifest.get("dataset_sha256")
+        self.baseline_path = base_manifest.get("dataset_path")
+        self.candidate_path = cand_manifest.get("dataset_path")
+        super().__init__(
+            "runs evaluated different datasets "
+            f"(dataset_sha256 {self.baseline_sha256} vs {self.candidate_sha256})"
+        )
+
+
 @dataclass
 class RegressionThresholds:
     """Per-metric tolerances; metrics absent from `overrides` use `default`.
@@ -144,9 +163,7 @@ def _check_same_dataset(
         base_sha = base_manifest.get("dataset_sha256")
         cand_sha = cand_manifest.get("dataset_sha256")
         if base_sha != cand_sha:
-            raise RunMismatchError(
-                f"runs evaluated different datasets (dataset_sha256 {base_sha} vs {cand_sha})"
-            )
+            raise DatasetChangedError(base_manifest, cand_manifest)
         base_corpus = base_manifest.get("corpus_sha256")
         cand_corpus = cand_manifest.get("corpus_sha256")
         if base_corpus and cand_corpus and base_corpus != cand_corpus:
