@@ -25,28 +25,9 @@ AIRE separates three concerns that are usually tangled together:
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  DS[("Eval set<br>JSONL cases")] --> AR["AsyncExperimentRunner<br>bounded concurrency, per-case timeout"]
-  AR --> SUT["System under test<br>RAG system, agent, or your SystemUnderTest"]
-  SUT --> MC
-  subgraph MC["ModelClient (shared)"]
-    direction TB
-    RL["Adaptive RPM/TPM limiter"] --> RP["Retry with full jitter,<br>honours Retry-After"]
-    RP --> QC["Quota circuit<br>(fail fast)"]
-    CA[("Response cache<br>keyed on the exact request")]
-  end
-  MC --> AD{"Provider adapters"}
-  AD --> L["local / OpenAI-compatible<br>(stdlib, core)"]
-  AD --> X["Gemini, OpenAI, Anthropic<br>(optional SDK extras)"]
-  AR --> RS[("Run store<br>manifest.json + traces.jsonl")]
-  OI["OTLP JSON lines<br>from another app"] -->|"aire otel-ingest"| RS
-  RS -->|"aire otel-export"| OT["OpenTelemetry GenAI spans<br>OTLP/HTTP or JSONL"]
-  RS --> EV["Evaluator<br>metrics, trajectory metrics,<br>judges, failure taxonomy"]
-  EV --> SG["Statistical gate<br>bootstrap CIs, paired tests"]
-  SG --> HR["HTML diff report"]
-  SG --> PR["PR gate<br>eval-pr + sticky comment"]
-```
+![AIRE architecture: the run path with the model client's ordered stages, and the evaluate path over stored traces](reports/figures/architecture.png)
+
+*The run path executes once per system version, and every model call meets the shared client's stages in the order shown: quota circuit, cache, single flight, AIMD limiter, retries. The evaluate path only reads stored traces, so any score can be recomputed without calling a model again.*
 
 The design and its alternatives are in [docs/design/step2.md](docs/design/step2.md). Decisions that are hard to reverse are recorded as ADRs:
 
@@ -133,6 +114,7 @@ Every committed number comes from one of these commands, and every number quoted
 | Async runner benchmark against the local fake server | `python demo/bench_runner.py` | `results/runner_benchmark.json` |
 | Demo site data | `python demo-site/build.py` | `demo-site/data.js` |
 | Numbers in the docs | `python scripts/sync_docs.py` | README, FAQ, report |
+| Figure data and the figures | `make figures` | `reports/figures/` |
 | Technical report | `make report` | `reports/*.pdf` |
 | Live LLM run (needs a key; costs quota) | `python scripts/run_llm_eval.py --provider gemini --model gemini-2.5-flash --rpm 10 --concurrency 4` | `results/llm_<model>/` |
 
@@ -170,10 +152,18 @@ Recall@3 rises from v1 to v2 because v2 retrieves three documents and v1 only on
 
 Regression verdicts. Latency is reported but not counted, because the demo's sub-millisecond timings are noise.
 
+![How the gate decides one metric, and how a pull request is checked](reports/figures/gate_flow.png)
+
+*Left: a change beyond tolerance becomes a regression or an improvement only if a paired test supports it; the raw p decides and the Holm-adjusted p is only reported. Right: a pull request is gated against the base branch and against its own committed results, and a changed evaluation set is a warning rather than a failure.*
+
 <!-- aire:begin readme-verdicts -->
 - **v2 vs v1: no regressions detected** (2 improved, 10 neutral, 2 inconclusive, 0 regressed). `retrieval_recall_at_3` rose from 0.7154 to 0.8615 and `retrieval_mrr_at_3` from 0.7769 to 0.8231, both significant in the paired bootstrap. `success_rate` rose from 0.4267 to 0.4667 and `abstention_correct` from 0.0 to 0.1, but neither change is significant (McNemar p = 0.07 and 0.5), so both are inconclusive rather than improvements.
 - **v3 vs v1: regressions detected** (4 regressed, 3 improved, 6 neutral, 1 inconclusive). `groundedness` fell from 1.0 to 0.0 on all 130 answerable cases and `gold_citation_recall` from 0.7154 to 0.0 because the fluent style drops every citation, `citation_precision` disappeared because nothing is cited, and `success_rate` fell from 0.4267 to 0.0133. Retrieval improved exactly as in v2 and mean heuristic tokens dropped (80.86 to 71.24). Failure-count deltas: `ungrounded` +109, `retrieval_miss` -24, `incomplete_answer` -21, `missed_abstention` -2. The report surfaces the trade-off instead of a single pass/fail number.
 <!-- aire:end readme-verdicts -->
+
+![Paired differences against v1 with their intervals, per metric](reports/figures/paired_deltas.png)
+
+*Each marker is the gate's paired difference against v1 with its bootstrap interval, so this is exactly what the verdicts above rest on. v2 gains only in retrieval, while v3 loses groundedness, gold citation recall and success outright; v3 has no citation precision because it cites nothing.*
 
 ### A finding the evaluator surfaced: abstention does not work
 
@@ -207,6 +197,10 @@ Measured against `FakeLLMServer`, a rate-limited fake LLM endpoint on 127.0.0.1,
 
 Eight workers finish 5.4 times faster than one. With its budget set too high, the client met 18 rate-limit responses, backed off as the server asked, and still answered every case. The warm cache answers the suite without a single request. The timings are from one machine (Windows-11-10.0.26300-SP0, Python 3.13.7); `make check` does not compare them, and `python demo/bench_runner.py` records a fresh run.
 <!-- aire:end readme-bench -->
+
+![Wall time of each runner configuration on a log scale, with failed cases](reports/figures/runner.png)
+
+*Measured against the local fake server, not a real provider: concurrency cuts the wall time, and the over-eager client still completes every case. The warm cache answers the whole suite without a single request.*
 
 ## Real-LLM mode
 
@@ -305,8 +299,10 @@ aire/
     scripts/
         run_llm_eval.py       live LLM run, --dry-run and --rescore
         sync_docs.py          renders the numbers in the docs from results/
+        figure_data.py        writes the figure data from results/
     results/                  committed evaluated runs, comparisons and benchmarks
     reports/                  HTML reports and the technical report
+        figures/              TikZ and pgfplots sources; each PDF is used by the report, its PNG here
     demo-site/                static explorer of the committed results, with Playwright tests
     docs/
         design/step2.md       design of the async runner, adapters, statistics and telemetry
