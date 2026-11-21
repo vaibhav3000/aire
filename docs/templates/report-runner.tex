@@ -1,0 +1,9 @@
+The served stack (LLM RAG system, model client and the standard-library
+adapter) was measured against a fake LLM server on the local machine that
+enforces a rate limit and answers a rate-limit response with a retry hint
+(Fig.~\ref{fig:runner}); these are not measurements of a real provider. One
+worker took {{bench.sequential.wall_time_s|.3f}}\,s for the {{bench.n_cases}} cases and eight workers
+{{bench.concurrent.wall_time_s|.3f}}\,s, {{bench.concurrent.speedup|.1f}} times faster. With the client's budget set to twice the
+server's limit, the limiter absorbed {{bench.over_eager.server.rate_limited}} rate-limit responses and no case
+failed, and a warm response cache answered the suite in {{bench.warm_cache.wall_time_s|.3f}}\,s without
+sending a request.

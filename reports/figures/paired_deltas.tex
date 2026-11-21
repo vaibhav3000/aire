@@ -1,0 +1,63 @@
+\documentclass[10pt,border=0pt]{standalone}
+\input{preamble}
+% The gate's paired differences against v1, read from data/ (written by
+% scripts/figure_data.py from results/*_vs_v1_baseline.json). Nothing here is
+% typed by hand: the tolerance band and the confidence level come from
+% data/params.tex.
+\input{data/params}
+\pgfplotsset{
+  delta/.style={
+    only marks, scatter, scatter src=explicit symbolic,
+    error bars/x dir=both, error bars/x explicit,
+    error bars/error bar style={line width=0.6pt},
+    error bars/error mark options={rotate=90, mark size=1.6pt},
+  },
+}
+\begin{document}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\figbackground{252}{186}
+\begin{axis}[
+  at={(244pt,-6pt)}, anchor=north east,
+  scale only axis, width=150pt, height=144pt,
+  xmin=-1.08, xmax=0.32, ymin=-0.6, ymax=8.6,
+  xtick={-1,-0.75,-0.5,-0.25,0,0.25},
+  xticklabel style={font=\scriptsize, /pgf/number format/fixed},
+  ytick={0,...,8},
+  yticklabels from table={data/metric_labels.csv}{label},
+  table/col sep=comma,
+  yticklabel style={font=\scriptsize},
+  tick align=outside, tick style={black!60},
+  xmajorgrids, grid style={black!12},
+  axis line style={black!60},
+  xlabel={paired difference vs v1 (higher is better)},
+  xlabel style={font=\footnotesize},
+  legend style={font=\scriptsize, at={(0.02,0.985)}, anchor=north west,
+    draw=black!30, fill=white, row sep=-1.5pt, inner sep=1.5pt},
+  legend cell align=left, legend columns=1,
+  clip=false,
+]
+\fill[black!9] (axis cs:-\aireTolerance,-0.6) rectangle (axis cs:\aireTolerance,8.6);
+\draw[black!45] (axis cs:0,-0.6) -- (axis cs:0,8.6);
+\addplot[delta, blue!70!black, scatter/classes={
+    neutral={mark=o, blue!70!black}, inconclusive={mark=o, blue!70!black},
+    improved={mark=*, blue!70!black}, regressed={mark=*, blue!70!black}},
+  mark size=2pt, forget plot]
+  table[x=delta, y expr=\thisrow{y}+0.18, x error minus=minus, x error plus=plus,
+    meta=verdict] {data/deltas_v2.csv};
+\addplot[delta, red!75!black, scatter/classes={
+    neutral={mark=square, red!75!black}, inconclusive={mark=square, red!75!black},
+    improved={mark=square*, red!75!black}, regressed={mark=square*, red!75!black}},
+  mark size=1.8pt, forget plot]
+  table[x=delta, y expr=\thisrow{y}-0.18, x error minus=minus, x error plus=plus,
+    meta=verdict] {data/deltas_v3.csv};
+\addlegendimage{only marks, mark=*, blue!70!black, mark size=2pt}
+\addlegendentry{v2 minus v1}
+\addlegendimage{only marks, mark=square*, red!75!black, mark size=1.8pt}
+\addlegendentry{v3 minus v1}
+\addlegendimage{only marks, mark=*, black!70, mark size=1.8pt}
+\addlegendentry{gate verdict moved}
+\addlegendimage{only marks, mark=o, black!70, mark size=1.8pt}
+\addlegendentry{neutral or inconclusive}
+\end{axis}
+\end{tikzpicture}
+\end{document}

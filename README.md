@@ -4,6 +4,15 @@
 
 AIRE is a trace-based evaluation framework for LLM, RAG and agent systems. It records what a system actually did (retrieved documents, tool calls, token usage, latencies), scores those records with deterministic metrics and calibrated judges, classifies failures into a fixed taxonomy, and gates a change against its baseline with paired statistical tests. The core has no runtime dependencies; provider SDKs and OpenTelemetry are optional extras.
 
+<img src="reports/figures/architecture.png" width="100%" alt="AIRE architecture: on the left the run path from the eval set through the async runner, the system under test, the ModelClient stages and the provider adapters; on the right the evaluate path from the run store through the evaluator and the statistical gate to the HTML report and the PR gate">
+
+## System Walkthrough (30-Second Overview)
+
+- **Run, top left.** The **Eval set** feeds the **AsyncExperimentRunner**, a worker pool that runs every case against the **System under test** with a per-case timeout that cancels a hung call, and sends each finished case's trace straight to the **Run store**.
+- **ModelClient, middle left.** Every model call meets the same stages in order: the **quota circuit** fails fast once the provider's quota is spent, the **response cache** answers an exact repeat, **single flight** merges identical calls in flight, the **AIMD limiter** shares one RPM and TPM budget and cuts the rate on a 429, and **retries** wait for Retry-After or a full-jitter backoff. The **Provider adapters** (a stdlib local endpoint, or the Gemini, OpenAI and Anthropic SDKs as optional extras) then make one attempt each.
+- **Evaluate, top right.** The **Run store** keeps `manifest.json` and `traces.jsonl`, which can be exported to or ingested from **OpenTelemetry** GenAI spans. The **Evaluator** scores the stored traces (metrics, trajectory metrics, judges, failure taxonomy) and never re-runs the system, so any score can be recomputed for free.
+- **Gate, bottom right.** The **Statistical gate** pairs the two runs case by case. A change beyond tolerance counts only when a paired test supports it at the raw p (McNemar or a seeded bootstrap); Holm-adjusted p is reported, not used. It writes the **HTML diff report** and drives the **PR gate and comment**: in CI, v2 passes and the planted v3 regression is blocked.
+
 ## The problem
 
 LLM-backed systems fail in ways that ordinary unit tests do not catch:
@@ -25,30 +34,7 @@ AIRE separates three concerns that are usually tangled together:
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  DS[("Eval set<br>JSONL cases")] --> AR["AsyncExperimentRunner<br>bounded concurrency, per-case timeout"]
-  AR --> SUT["System under test<br>RAG system, agent, or your SystemUnderTest"]
-  SUT --> MC
-  subgraph MC["ModelClient (shared)"]
-    direction TB
-    RL["Adaptive RPM/TPM limiter"] --> RP["Retry with full jitter,<br>honours Retry-After"]
-    RP --> QC["Quota circuit<br>(fail fast)"]
-    CA[("Response cache<br>keyed on the exact request")]
-  end
-  MC --> AD{"Provider adapters"}
-  AD --> L["local / OpenAI-compatible<br>(stdlib, core)"]
-  AD --> X["Gemini, OpenAI, Anthropic<br>(optional SDK extras)"]
-  AR --> RS[("Run store<br>manifest.json + traces.jsonl")]
-  OI["OTLP JSON lines<br>from another app"] -->|"aire otel-ingest"| RS
-  RS -->|"aire otel-export"| OT["OpenTelemetry GenAI spans<br>OTLP/HTTP or JSONL"]
-  RS --> EV["Evaluator<br>metrics, trajectory metrics,<br>judges, failure taxonomy"]
-  EV --> SG["Statistical gate<br>bootstrap CIs, paired tests"]
-  SG --> HR["HTML diff report"]
-  SG --> PR["PR gate<br>eval-pr + sticky comment"]
-```
-
-The design and its alternatives are in [docs/design/step2.md](docs/design/step2.md). Decisions that are hard to reverse are recorded as ADRs:
+The diagram at the top of this page is the architecture; the technical report uses the same figure. The design and its alternatives are in [docs/design/step2.md](docs/design/step2.md). Decisions that are hard to reverse are recorded as ADRs:
 
 - [ADR 0001](docs/adr/0001-model-client-owns-retries.md): the model client owns retries, rate limiting and the quota circuit, not the runner or the SDKs.
 - [ADR 0002](docs/adr/0002-zero-dependency-core.md): a zero-dependency core with provider SDKs and OpenTelemetry as extras.
@@ -133,6 +119,7 @@ Every committed number comes from one of these commands, and every number quoted
 | Async runner benchmark against the local fake server | `python demo/bench_runner.py` | `results/runner_benchmark.json` |
 | Demo site data | `python demo-site/build.py` | `demo-site/data.js` |
 | Numbers in the docs | `python scripts/sync_docs.py` | README, FAQ, report |
+| Figure data and the figures | `make figures` | `reports/figures/` |
 | Technical report | `make report` | `reports/*.pdf` |
 | Live LLM run (needs a key; costs quota) | `python scripts/run_llm_eval.py --provider gemini --model gemini-2.5-flash --rpm 10 --concurrency 4` | `results/llm_<model>/` |
 
@@ -170,10 +157,18 @@ Recall@3 rises from v1 to v2 because v2 retrieves three documents and v1 only on
 
 Regression verdicts. Latency is reported but not counted, because the demo's sub-millisecond timings are noise.
 
+![How the gate decides one metric, and how a pull request is checked](reports/figures/gate_flow.png)
+
+*Left: a change beyond tolerance becomes a regression or an improvement only if a paired test supports it; the raw p decides and the Holm-adjusted p is only reported. Right: a pull request is gated against the base branch and against its own committed results, and a changed evaluation set is a warning rather than a failure.*
+
 <!-- aire:begin readme-verdicts -->
 - **v2 vs v1: no regressions detected** (2 improved, 10 neutral, 2 inconclusive, 0 regressed). `retrieval_recall_at_3` rose from 0.7154 to 0.8615 and `retrieval_mrr_at_3` from 0.7769 to 0.8231, both significant in the paired bootstrap. `success_rate` rose from 0.4267 to 0.4667 and `abstention_correct` from 0.0 to 0.1, but neither change is significant (McNemar p = 0.07 and 0.5), so both are inconclusive rather than improvements.
 - **v3 vs v1: regressions detected** (4 regressed, 3 improved, 6 neutral, 1 inconclusive). `groundedness` fell from 1.0 to 0.0 on all 130 answerable cases and `gold_citation_recall` from 0.7154 to 0.0 because the fluent style drops every citation, `citation_precision` disappeared because nothing is cited, and `success_rate` fell from 0.4267 to 0.0133. Retrieval improved exactly as in v2 and mean heuristic tokens dropped (80.86 to 71.24). Failure-count deltas: `ungrounded` +109, `retrieval_miss` -24, `incomplete_answer` -21, `missed_abstention` -2. The report surfaces the trade-off instead of a single pass/fail number.
 <!-- aire:end readme-verdicts -->
+
+![Paired differences against v1 with their intervals, per metric](reports/figures/paired_deltas.png)
+
+*Each marker is the gate's paired difference against v1 with its bootstrap interval, so this is exactly what the verdicts above rest on. v2 gains only in retrieval, while v3 loses groundedness, gold citation recall and success outright; v3 has no citation precision because it cites nothing.*
 
 ### A finding the evaluator surfaced: abstention does not work
 
@@ -207,6 +202,10 @@ Measured against `FakeLLMServer`, a rate-limited fake LLM endpoint on 127.0.0.1,
 
 Eight workers finish 5.4 times faster than one. With its budget set too high, the client met 18 rate-limit responses, backed off as the server asked, and still answered every case. The warm cache answers the suite without a single request. The timings are from one machine (Windows-11-10.0.26300-SP0, Python 3.13.7); `make check` does not compare them, and `python demo/bench_runner.py` records a fresh run.
 <!-- aire:end readme-bench -->
+
+![Wall time of each runner configuration on a log scale, with failed cases](reports/figures/runner.png)
+
+*Measured against the local fake server, not a real provider: concurrency cuts the wall time, and the over-eager client still completes every case. The warm cache answers the whole suite without a single request.*
 
 ## Real-LLM mode
 
@@ -305,8 +304,10 @@ aire/
     scripts/
         run_llm_eval.py       live LLM run, --dry-run and --rescore
         sync_docs.py          renders the numbers in the docs from results/
+        figure_data.py        writes the figure data from results/
     results/                  committed evaluated runs, comparisons and benchmarks
     reports/                  HTML reports and the technical report
+        figures/              TikZ and pgfplots sources; each PDF is used by the report, its PNG here
     demo-site/                static explorer of the committed results, with Playwright tests
     docs/
         design/step2.md       design of the async runner, adapters, statistics and telemetry

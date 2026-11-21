@@ -34,6 +34,7 @@ reports/*.fls
 reports/*.fdb_latexmk
 reports/*.synctex.gz
 reports/*.toc
+reports/figures/build/
 
 # demo-site e2e
 node_modules/

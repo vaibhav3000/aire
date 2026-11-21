@@ -1,0 +1,36 @@
+\documentclass[10pt,border=0pt]{standalone}
+\input{preamble}
+% Runner benchmark against FakeLLMServer on 127.0.0.1, read from data/runner.csv
+% (written by scripts/figure_data.py from results/runner_benchmark.json).
+% Every label is taken from the table; nothing is typed by hand.
+\begin{document}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\figbackground{252}{118}
+\begin{axis}[
+  at={(238pt,-6pt)}, anchor=north east,
+  scale only axis, width=136pt, height=78pt,
+  xbar, bar width=9pt, xmode=log, log origin x=infty,
+  xmin=0.1, xmax=1000, ymin=-0.6, ymax=3.6,
+  xtick={0.1,1,10,100,1000},
+  xticklabels={0.1,1,10,100,1000},
+  xticklabel style={font=\scriptsize},
+  ytick={0,...,3},
+  yticklabels from table={data/runner.csv}{label},
+  table/col sep=comma,
+  yticklabel style={font=\scriptsize},
+  tick align=outside, tick style={black!60},
+  xmajorgrids, grid style={black!12},
+  axis line style={black!60},
+  xlabel={wall time (s), lower is better},
+  xlabel style={font=\footnotesize},
+  visualization depends on={value \thisrow{failed} \as \failed},
+  nodes near coords={\pgfplotspointmeta\,s, \failed\ failed},
+  nodes near coords style={font=\scriptsize, anchor=west, black},
+  point meta=explicit symbolic,
+  clip=false,
+]
+\addplot[fill=blue!25, draw=blue!55!black]
+  table[x=wall_s, y=y, meta=wall_s] {data/runner.csv};
+\end{axis}
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,10 @@
+y,delta,minus,plus,verdict
+0,0.04,0.033333,0.04,inconclusive
+1,0.1,0.1,0.15,inconclusive
+2,0,0,0,neutral
+3,0,0,0,neutral
+4,0,0.030769,0.030769,neutral
+5,-0.01282,0.017949,0.01282,neutral
+6,0.046152,0.03205,0.033334,improved
+7,0.146154,0.053846,0.057692,improved
+8,0,0.030769,0.030769,neutral

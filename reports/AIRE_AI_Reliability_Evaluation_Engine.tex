@@ -5,9 +5,11 @@
 \usepackage{url}
 \usepackage{xurl}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usepackage{graphicx}
+% \aireTolerance and \aireConfidence, written by scripts/figure_data.py.
+\input{figures/data/params}
 \usepackage{balance}
+\usepackage{microtype}
 \usepackage{etoolbox}
 
 % IEEEtran separates the Abstract and Index Terms headings from their text
@@ -16,6 +18,11 @@
 \patchcmd{\abstract}{\textit{\abstractname}---}{\textit{\abstractname}:\ }{}{\errmessage{abstract heading patch failed}}
 \patchcmd{\IEEEkeywords}{\textit{\IEEEkeywordsname}---}{\textit{\IEEEkeywordsname}:\ }{}{\errmessage{keywords heading patch failed}}
 \makeatother
+
+% Reproducible bytes: no dates or random ids in the PDF.
+\pdfinfoomitdate=1
+\pdftrailerid{}
+\pdfsuppressptexinfo=-1
 
 \begin{document}
 
@@ -96,45 +103,38 @@ ablation (Section~VI); and (5) an account of the evaluator's own defects,
 how they distorted earlier results, and how they were fixed (Section~VII).
 
 \section{System Overview}
-AIRE's pipeline separates execution from evaluation (Fig.~\ref{fig:pipe}).
-The upper path runs once: an evaluation dataset (JSONL, one case per line)
-drives a SUT; each invocation is wrapped into a \emph{Trace} by the runner,
-which adds timeout enforcement, bounded retries and untimed client-side
-pacing. The lower path is pure computation over stored records: the
-evaluation engine computes per-case metrics and aggregate statistics, the
-failure classifier assigns each case at most one category, and the
-regression engine compares two evaluated runs. Reports are static,
-self-contained HTML files.
+AIRE separates execution from evaluation (Fig.~\ref{fig:arch}). The run
+path executes once per system version: the asynchronous runner hands the
+evaluation cases (JSONL, one case per line) to a pool of workers, enforces
+a per-case timeout by cancelling the call, and appends each case's
+\emph{trace} to the run store as soon as the case finishes. Every model call
+of the system under test (SUT) passes through one shared model client,
+whose stages a call meets in order: a quota circuit that fails fast once the
+provider reports an exhausted quota; a response cache keyed on the exact
+request; single flight, so identical concurrent requests share one call; an
+adaptive limiter over a shared requests-per-minute and tokens-per-minute
+budget, which grows the rate additively on success and cuts it
+multiplicatively on a rate-limit response; and retries that wait as long as
+the server asks or, without a hint, for a full-jitter backoff. Provider
+adapters for a local OpenAI-compatible endpoint (standard library only) and
+for the Gemini, OpenAI and Anthropic SDKs (optional extras) make one attempt
+each. The evaluate path is pure computation over stored records: the
+evaluation engine computes per-case metrics and aggregates, the failure
+classifier assigns each case at most one category, and the statistical gate
+compares two evaluated runs. A run can be exported as OpenTelemetry GenAI
+spans, and spans recorded by another application can be ingested as a run.
+Reports are static, self-contained HTML files, so a reviewer can open a
+comparison without installing anything.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\begin{tikzpicture}[node distance=3.2mm, every node/.style={font=\scriptsize},
-  box/.style={draw, rounded corners, fill=blue!6, minimum height=6.5mm, align=center},
-  data/.style={box, fill=green!8},
-  arr/.style={-{Latex}, thick}]
-\node[box] (cases) {Eval cases\\(JSONL)};
-\node[box, right=of cases] (sut) {System\\under test};
-\node[box, right=of sut] (tr) {Trace\\recorder};
-\node[data, right=of tr] (store) {Run store\\manifest + traces};
-\node[box, below=5.5mm of store] (eng) {Evaluation\\engine};
-\node[box, left=of eng] (tax) {Failure\\taxonomy};
-\node[data, left=of tax] (runs) {Stored runs\\A and B};
-\node[box, below=5.5mm of eng] (reg) {Regression\\engine};
-\node[box, right=of reg] (rep) {HTML\\report};
-\draw[arr] (cases) -- (sut);
-\draw[arr] (sut) -- (tr);
-\draw[arr] (tr) -- (store);
-\draw[arr] (store) -- (eng);
-\draw[arr] (eng) -- (tax);
-\draw[arr] (tax) -- (runs.north east);
-\draw[arr] (runs) -- (reg);
-\draw[arr] (eng) -- (reg);
-\draw[arr] (reg) -- (rep);
-\end{tikzpicture}
-\caption{AIRE pipeline. Execution (top) and evaluation (bottom) are
-separated: evaluation reads stored traces and never re-runs the system.}
-\label{fig:pipe}
-\end{figure}
+\includegraphics{figures/architecture.pdf}
+\caption{AIRE architecture, drawn from the code. The run path (left)
+executes once per system version, and every model call meets the model
+client's stages in the order shown. The evaluate path (right) reads stored
+traces and never re-runs the system.}
+\label{fig:arch}
+\end{figure*}
 
 \section{Trace Model and Replayability}
 A trace is the complete record of one invocation: \texttt{run\_id},
@@ -182,7 +182,7 @@ declares, and every reported mean carries the number of cases it averages.
 its aggregates; each mean is reported with its case count.}
 \label{tab:metrics}
 \small
-\begin{tabular}{@{}p{0.34\columnwidth}p{0.58\columnwidth}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.36\columnwidth}>{\raggedright\arraybackslash}p{0.56\columnwidth}@{}}
 \toprule
 Metric & Definition \\
 \midrule
@@ -263,11 +263,39 @@ the baseline but absent from the candidate is a regression, so a broken
 candidate cannot pass by producing fewer metrics; a mean over a different
 number of cases is flagged; and token means from different token sources
 receive no verdict. Every regressed metric carries per-case attribution
-under the same rule as \eqref{eq:delta}. The command-line gate exits 1 on a
+under the same rule as \eqref{eq:delta}.
+
+A tolerance alone cannot tell a regression from case-sampling noise, so the
+gate pairs the two runs case by case and keeps a regressed or improved
+verdict only when a paired test supports it at level $\alpha$ and the paired
+difference has the same sign (Fig.~\ref{fig:gate}, left): McNemar's exact
+test for metrics that are 0 or 1 on every case, and a seeded paired
+bootstrap of the mean difference otherwise. A change the test does not
+support is \emph{inconclusive}, and rows with too few pairs keep the
+tolerance rule. Holm-adjusted $p$-values over the gated rows are reported,
+but the verdict uses the raw $p$. The command-line gate exits 1 on a
 regression and 2 on unusable inputs, so a crash is never mistaken for a
-blocked regression. In continuous integration the gate compares freshly
-generated runs against the committed results and fails on any drift of the
-generated artifacts.
+blocked regression.
+
+In continuous integration the gate compares freshly generated runs against
+the committed results and fails on any drift of the generated artifacts. On
+a pull request (Fig.~\ref{fig:gate}, right) the fresh run is gated twice:
+against the base branch's committed results and against the results
+committed in the pull request itself. A pull request that changes the
+evaluation set cannot be paired with the base branch; that gate still exits
+2 but records the changed dataset, which the check reports as a warning
+while the second gate decides. Any other exit 2, a regression in either
+gate, or a gate that never ran fails the check, and the comment is posted by
+a separate workflow that runs only default-branch code.
+
+\begin{figure*}[t]
+\centering
+\includegraphics{figures/gate_flow.pdf}
+\caption{The gate, drawn from the code. Left: how one metric gets its
+verdict. Right: how a pull request is checked, including the path for a
+pull request that changes the evaluation set.}
+\label{fig:gate}
+\end{figure*}
 
 \section{Experiments}
 
@@ -313,6 +341,9 @@ Retrieval matches v2. The failure taxonomy localizes the damage: 109 cases
 become ungrounded. Latency is reported but excluded from verdicts, because
 sub-millisecond timings of the offline harness are noise.
 % aire:end report-det-results
+Fig.~\ref{fig:deltas} shows the paired differences on which these verdicts
+rest.
+
 
 \begin{table}[t]
 \centering
@@ -367,6 +398,18 @@ IDF & 0.7154 & 0.8615 & 0.8231 \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics{figures/paired_deltas.pdf}
+\caption{Paired difference against v1 per metric (candidate minus baseline
+over the same cases) with its \aireConfidence\% paired bootstrap interval,
+as the gate computed it. Filled markers: the verdict moved (improved or
+regressed); open markers: neutral or inconclusive. The gray band is the
+tolerance $\pm\aireTolerance$. v3 has no citation precision because it cites
+nothing.}
+\label{fig:deltas}
+\end{figure}
+
 A second finding is a genuine capability boundary: abstention correctness
 % aire:begin report-abstention
 is 0.0 for v1 and 0.1 for v2 and v3, which refuse 2 of the 20
@@ -376,6 +419,28 @@ answerable queries score no higher than 0.46, so any threshold that rejects
 % aire:end report-abstention
 every unanswerable query also rejects most answerable ones. The limitation is documented as requiring
 semantic matching rather than patched with an unprincipled cutoff.
+
+\subsection{Runner Throughput Under Rate Limits}
+% aire:begin report-runner
+The served stack (LLM RAG system, model client and the standard-library
+adapter) was measured against a fake LLM server on the local machine that
+enforces a rate limit and answers a rate-limit response with a retry hint
+(Fig.~\ref{fig:runner}); these are not measurements of a real provider. One
+worker took 16.195\,s for the 150 cases and eight workers
+3.007\,s, 5.4 times faster. With the client's budget set to twice the
+server's limit, the limiter absorbed 18 rate-limit responses and no case
+failed, and a warm response cache answered the suite in 0.299\,s without
+sending a request.
+% aire:end report-runner
+
+\begin{figure}[t]
+\centering
+\includegraphics{figures/runner.pdf}
+\caption{Wall time of the whole suite through the served stack against a
+local fake LLM server, one run per configuration, on a log scale. Every
+configuration answered every case.}
+\label{fig:runner}
+\end{figure}
 
 \subsection{A Historical Live LLM Run}
 An earlier version of the system ran the same suite once with a real
@@ -471,6 +536,8 @@ the misleading live-LLM numbers they produced, are reported as part of the
 result. Code, committed result files, and reports are available in the
 accompanying repository.\footnote{\url{https://github.com/vaibhav3000/aire}}
 
+% Balance the two columns of the last page.
+\balance
 \begin{thebibliography}{5}
 
 \bibitem{vaswani2017attention}

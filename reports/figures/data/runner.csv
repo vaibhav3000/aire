@@ -1,0 +1,5 @@
+y,label,wall_s,failed,rate_limited,requests
+0,8 workers (warm cache),0.299,0,0,0
+1,8 workers (budget too high),2.955,0,18,168
+2,8 workers,3.007,0,1,151
+3,1 worker,16.195,0,0,150
