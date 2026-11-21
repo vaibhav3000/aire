@@ -134,8 +134,8 @@ ALLOWED = {
     "0.085": "illustrative arithmetic in the tolerance answer of the FAQ",
     "-15": "illustrative arithmetic in the tolerance answer of the FAQ",
     "1.5": "illustrative arithmetic in the tolerance answer of the FAQ",
-    "0.34": "LaTeX column width",
-    "0.58": "LaTeX column width",
+    "0.36": "LaTeX column width",
+    "0.56": "LaTeX column width",
     "2.5": "the model name Gemini 2.5 Flash",
     "127.0.0.1": "the loopback address of the fake server",
     "14 of 26": "historical watchdog incident; no committed run records it",
@@ -146,7 +146,12 @@ ALLOWED = {
 def _numbers_outside_regions(path: Path) -> list[str]:
     found: list[str] = []
     inside = fenced = False
+    # A LaTeX preamble is typesetting configuration, not prose: start at the body.
+    in_body = path.suffix != ".tex"
     for number, line in enumerate(path.read_text(encoding="utf-8").split("\n"), start=1):
+        if not in_body:
+            in_body = line.strip() == r"\begin{document}"
+            continue
         marker = sync_docs._MARKER.match(line)
         if marker:
             inside = (marker.group("md") or marker.group("tex")) == "begin"

@@ -9,7 +9,7 @@
 %   PR comment          .github/workflows/eval-pr-comment.yml
 \begin{document}
 \begin{tikzpicture}[x=1pt,y=1pt]
-\figbackground{516}{288}
+\figbackground{516}{284}
 \tikzset{
   head/.style={font=\footnotesize\bfseries, text=black!80},
   ask/.style={exec, text width=150pt},
@@ -53,7 +53,7 @@
   {The gate exits 1 if a gated metric regressed, 2 if the input is unusable, else 0.};
 
 % Right panel: the check on a pull request
-\draw[black!25] (262,-4) -- (262,-284);
+\draw[black!25] (262,-4) -- (262,-280);
 \node[head, anchor=north west] at (272,0) {The check on a pull request};
 \node[exec, text width=232pt, anchor=north west] (pr) at (272,-16)
   {\textbf{eval-pr} (read-only token): snapshot the PR's committed\\
