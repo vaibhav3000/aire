@@ -4,14 +4,16 @@
 
 AIRE is a trace-based evaluation framework for LLM, RAG and agent systems. It records what a system actually did (retrieved documents, tool calls, token usage, latencies), scores those records with deterministic metrics and calibrated judges, classifies failures into a fixed taxonomy, and gates a change against its baseline with paired statistical tests. The core has no runtime dependencies; provider SDKs and OpenTelemetry are optional extras.
 
-<img src="reports/figures/architecture.png" width="100%" alt="AIRE architecture: on the left the run path from the eval set through the async runner, the system under test, the ModelClient stages and the provider adapters; on the right the evaluate path from the run store through the evaluator and the statistical gate to the HTML report and the PR gate">
+<img src="reports/figures/hero_sketch.png" width="100%" alt="aire in one picture. Left group, Run once per system version: Eval set, Async runner, System under test, then the ModelClient stages quota circuit, response cache, single flight, AIMD limiter and jitter retry, then Providers. Right group, Evaluate stored traces, never re-run: Run store and OpenTelemetry, Evaluator, Statistical gate with v3 blocked and v2 passed, then HTML report and PR check.">
 
 ## System Walkthrough (30-Second Overview)
 
-- **Run, top left.** The **Eval set** feeds the **AsyncExperimentRunner**, a worker pool that runs every case against the **System under test** with a per-case timeout that cancels a hung call, and sends each finished case's trace straight to the **Run store**.
-- **ModelClient, middle left.** Every model call meets the same stages in order: the **quota circuit** fails fast once the provider's quota is spent, the **response cache** answers an exact repeat, **single flight** merges identical calls in flight, the **AIMD limiter** shares one RPM and TPM budget and cuts the rate on a 429, and **retries** wait for Retry-After or a full-jitter backoff. The **Provider adapters** (a stdlib local endpoint, or the Gemini, OpenAI and Anthropic SDKs as optional extras) then make one attempt each.
-- **Evaluate, top right.** The **Run store** keeps `manifest.json` and `traces.jsonl`, which can be exported to or ingested from **OpenTelemetry** GenAI spans. The **Evaluator** scores the stored traces (metrics, trajectory metrics, judges, failure taxonomy) and never re-runs the system, so any score can be recomputed for free.
-- **Gate, bottom right.** The **Statistical gate** pairs the two runs case by case. A change beyond tolerance counts only when a paired test supports it at the raw p (McNemar or a seeded bootstrap); Holm-adjusted p is reported, not used. It writes the **HTML diff report** and drives the **PR gate and comment**: in CI, v2 passes and the planted v3 regression is blocked.
+<!-- aire:begin readme-walkthrough -->
+- **Run once per system version (left).** The **Eval set** feeds the **Async runner**, a worker pool whose per-case timeout cancels a hung call. It runs every case through the **System under test** and hands each case's trace to the **Run store** the moment the case finishes.
+- **ModelClient and Providers (left, bottom).** Every model call passes the same stages in order: **quota circuit** (fail fast once the quota is spent), **response cache** (an exact repeat costs nothing), **single flight** (identical calls in flight share one), **AIMD limiter** (one shared RPM and TPM budget, cut on a 429) and **jitter retry** (Retry-After when the server sends one, otherwise full-jitter backoff). The **Providers** (a stdlib OpenAI-compatible core; Gemini, OpenAI and Anthropic as optional extras) make one attempt each. Against the local rate-limited fake server, the worker pool ran the suite 5.4x faster than sequential calls with 0 failed cases.
+- **Evaluate stored traces, never re-run (right).** The **Run store** keeps `manifest.json` and `traces.jsonl`, which can be exported to or ingested from **OpenTelemetry** GenAI spans. The **Evaluator** scores those stored traces (metrics, trajectories, judges, failure taxonomy) without calling the system again.
+- **Statistical gate (right, bottom).** Cases are paired by id, and a change beyond tolerance counts only when a paired bootstrap or McNemar test supports it at the raw p; Holm-adjusted p is reported, not used. v3 is blocked (groundedness 1.0 to 0.0) and v2 passes (Recall@3 0.72 to 0.86). The result goes to the **HTML report**, a per-case diff, and the **PR check**, which keeps one sticky comment up to date.
+<!-- aire:end readme-walkthrough -->
 
 ## The problem
 
@@ -34,7 +36,7 @@ AIRE separates three concerns that are usually tangled together:
 
 ## Architecture
 
-The diagram at the top of this page is the architecture; the technical report uses the same figure. The design and its alternatives are in [docs/design/step2.md](docs/design/step2.md). Decisions that are hard to reverse are recorded as ADRs:
+The sketch at the top of this page is the short version. The detailed architecture figure, drawn from the code and used in the technical report, is [reports/figures/architecture.png](reports/figures/architecture.png). The design and its alternatives are in [docs/design/step2.md](docs/design/step2.md). Decisions that are hard to reverse are recorded as ADRs:
 
 - [ADR 0001](docs/adr/0001-model-client-owns-retries.md): the model client owns retries, rate limiting and the quota circuit, not the runner or the SDKs.
 - [ADR 0002](docs/adr/0002-zero-dependency-core.md): a zero-dependency core with provider SDKs and OpenTelemetry as extras.
