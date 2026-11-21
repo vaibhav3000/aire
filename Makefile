@@ -86,7 +86,7 @@ figures:
 		pdflatex -interaction=nonstopmode -halt-on-error -output-directory=build $$f.tex \
 			> /dev/null || { tail -n 30 build/$$f.log; exit 1; }; \
 		cp build/$$f.pdf $$f.pdf; \
-		pdftoppm -r 220 -png -singlefile $$f.pdf $$f; \
+		pdftoppm -r 300 -png -singlefile $$f.pdf $$f; \
 	done
 
 report: figures
