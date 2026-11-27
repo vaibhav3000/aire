@@ -159,7 +159,7 @@ Recall@3 rises from v1 to v2 because v2 retrieves three documents and v1 only on
 
 Regression verdicts. Latency is reported but not counted, because the demo's sub-millisecond timings are noise.
 
-![How the gate decides one metric, and how a pull request is checked](reports/figures/gate_flow.png)
+![Sketch of the gate. Left: a metric change counts only beyond its tolerance and when a paired test agrees at raw p below the significance level alpha; otherwise it is neutral or inconclusive. Right: a pull request is gated against main and against its own committed results, and one sticky comment reports it](reports/figures/gate_sketch.png)
 
 *Left: a change beyond tolerance becomes a regression or an improvement only if a paired test supports it; the raw p decides and the Holm-adjusted p is only reported. Right: a pull request is gated against the base branch and against its own committed results, and a changed evaluation set is a warning rather than a failure.*
 
@@ -237,47 +237,9 @@ A run of the current script was started on 2026-11-19 with gemini-2.5-flash on t
 
 Every invocation is one validated trace (answer, retrieved docs, spans, token usage, error); evaluation reads traces, never re-runs the system.
 
-```mermaid
-flowchart LR
-    T["Trace: run_id, case_id, system_config"] --> A["final_answer + citations"]
-    T --> R["retrieved_doc_ids"]
-    T --> S["spans: one per attempt"]
-    T --> U["usage: tokens (source: api, heuristic or none)"]
-    T --> E["error (if invocation failed)"]
-```
-
 The taxonomy assigns one category per failed case. The checks run in pipeline order, so a failure is blamed on the earliest stage that went wrong: a case whose gold document was never retrieved is a retrieval miss, not an incomplete answer.
 
-```mermaid
-flowchart TD
-    err{"error or no answer?"} -->|"yes"| INV["invocation_error"]
-    err -->|"no"| abs{"expect_abstention?"}
-    abs -->|"answered"| MISS["missed_abstention"]
-    abs -->|"abstained"| OK["success"]
-    abs -->|"no"| ret{"gold doc missing from top 3?"}
-    ret -->|"yes"| RM["retrieval_miss"]
-    ret -->|"no"| tool{"wrong or invalid tool call?"}
-    tool -->|"yes"| TE["tool_error"]
-    tool -->|"no"| ab{"abstained?"}
-    ab -->|"yes"| WRONG["wrong_abstention"]
-    ab -->|"no"| gr{"groundedness < 0.5?"}
-    gr -->|"yes"| UNG["ungrounded"]
-    gr -->|"no"| kr{"keyword_recall < 0.5?"}
-    kr -->|"yes"| INC["incomplete_answer"]
-    kr -->|"no"| em{"exact match expected and missed?"}
-    em -->|"yes"| AM["answer_mismatch"]
-    em -->|"no"| GOOD["success"]
-    style INV fill:#f5d5d3
-    style MISS fill:#f5d5d3
-    style RM fill:#f5d5d3
-    style TE fill:#f5d5d3
-    style WRONG fill:#f5d5d3
-    style UNG fill:#f5d5d3
-    style INC fill:#f5d5d3
-    style AM fill:#f5d5d3
-    style OK fill:#d4f0d4
-    style GOOD fill:#d4f0d4
-```
+![Sketch of the trace model and the failure taxonomy. Left: the fields of one trace. Right: nine checks in pipeline order, each sending a failed case to one category, with the v3 versus v1 changes in ungrounded and retrieval_miss](reports/figures/taxonomy_sketch.png)
 
 A failed invocation scores 0 on every answer-quality metric and is never counted as a correct abstention, and every mean in the aggregates is reported with `n_<metric>`, the number of cases it averages.
 
